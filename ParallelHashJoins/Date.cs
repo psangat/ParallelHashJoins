@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace ParallelHashJoins
 {
+    [Serializable]
     class Date
     {
         public int dDateKey { get; set; }
@@ -25,6 +28,13 @@ namespace ParallelHashJoins
         public int dLastDayInMonthFL { get; set; }
         public int dHolidayFL { get; set; }
         public int dWeekDayFL { get; set; }
+
+        private string dbPath;
+
+        public Date()
+        {
+
+        }
 
         public Date(int dDateKey, 
             string dDate, 
