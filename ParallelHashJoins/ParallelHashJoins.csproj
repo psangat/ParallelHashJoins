@@ -44,8 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConcurrentBitArray.cs" />
+    <Compile Include="ConcurrentBitMap.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="Date.cs" />
+    <Compile Include="StaticPartitioner.cs" />
+    <Compile Include="ThreadSafeBitArray.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="LineOrder.cs" />
     <Compile Include="Part.cs" />

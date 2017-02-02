@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -49,9 +50,12 @@ namespace ParallelHashJoins
         private static List<int> loOrderDate = new List<int>();
         private static List<char> loShipPriority = new List<char>();
         private static List<int> loQuantity = new List<int>();
+        private static List<Tuple<int, int>> loQuantityWithId = new List<Tuple<int, int>>();
+
         private static List<int> loExtendedPrice = new List<int>();
         private static List<int> loOrdTotalPrice = new List<int>();
         private static List<int> loDiscount = new List<int>();
+        private static List<Tuple<int, int>> loDiscountWithId = new List<Tuple<int, int>>();
         private static List<int> loRevenue = new List<int>();
         private static List<int> loSupplyCost = new List<int>();
         private static List<int> loTax = new List<int>();
@@ -120,6 +124,8 @@ namespace ParallelHashJoins
         private static string loCommitDateFile = Path.Combine(binaryFilesDirectory, "loCommitDateFile.bin");
         private static string loShipModeFile = Path.Combine(binaryFilesDirectory, "loShipModeFile.bin");
         private static string loOrderPriorityFile = Path.Combine(binaryFilesDirectory, "loOrderPriorityFile.bin");
+
+
 
         private static void loadColumns()
         {
@@ -200,12 +206,13 @@ namespace ParallelHashJoins
                 }
                 else if (fileName.Equals("lineorder"))
                 {
+                    var i = 0;
                     foreach (var line in allLines)
                     {
                         var data = line.Split('|');
                         loOrderKey.Add(Convert.ToInt32(data[0]));
                         loLineNumber.Add(Convert.ToInt16(data[1]));
-                        loCustKey.Add(Convert.ToInt16(data[2]));
+                        loCustKey.Add(Convert.ToInt32(data[2]));
                         loPartKey.Add(Convert.ToInt32(data[3]));
                         loSuppKey.Add(Convert.ToInt16(data[4]));
                         loOrderDate.Add(Convert.ToInt32(data[5]));
@@ -220,6 +227,10 @@ namespace ParallelHashJoins
                         loTax.Add(Convert.ToInt16(data[14]));
                         loCommitDate.Add(Convert.ToInt32(data[15]));
                         loShipMode.Add(data[15]);
+
+                        loDiscountWithId.Add(new Tuple<int, int>(i, Convert.ToInt16(data[11])));
+                        loQuantityWithId.Add(new Tuple<int, int>(i, Convert.ToInt16(data[8])));
+                        i++;
                     }
                 }
             }
@@ -492,8 +503,7 @@ namespace ParallelHashJoins
                     totalRevenue += revenue;
                 }
             }
-
-            //Console.WriteLine(String.Format("[CJ] Revenue is : {0}", totalRevenue));
+            //Console.WriteLine(String.Format("[CJ] Revenue is : {0}, bitsetcount: {1}", totalRevenue, bitsetcount));
         }
 
         private static void improvedColumnHashJoinQ11()
@@ -550,13 +560,211 @@ namespace ParallelHashJoins
                     totalRevenue += revenue;
                 }
             }
-            //Console.WriteLine(String.Format("[ICJ] Revenue is : {0}", totalRevenue));
+           // Console.WriteLine(String.Format("[RIJoin] Revenue is : {0}, Time to loop: {1}", totalRevenue, sw.ElapsedMilliseconds));
+        }
+
+        private static void improvedColumnHashJoinQ11WithSmartPredicateFiltering()
+        {
+            var dateHash = new Dictionary<int, int>();
+            Int64 totalRevenue = 0;
+            foreach (var d in date)
+            {
+                if (d.dYear == 1993)
+                    dateHash.Add(d.dDateKey, d.dYear);
+            }
+
+            bool[] bitMap = new bool[loOrderDate.Count];
+            var j = 0;
+            foreach (var lo in loOrderDate)
+            {
+                if (dateHash.ContainsKey(lo))
+                {
+                    bitMap[j] = true;
+                }
+                j++;
+            }
+            
+            for (int i = 0; i < bitMap.Count(); i++)
+            {
+                if (bitMap[i])
+                {
+                    if (loQuantity[i] < 25)
+                    {
+                        var discount = loDiscount[i];
+                        if (discount >= 1 && discount <= 3)
+                        {
+                            // do nothing Flag was already set
+                        }
+                        else
+                            bitMap[i] = false;
+
+                    }
+                    else
+                        bitMap[i] = false;
+                }
+            }
+
+            for (int k = 0; k < bitMap.LongLength; k++)
+            {
+                if (bitMap[k]) // bit set to true
+                {
+                    var revenue = (loExtendedPrice[k] * loDiscount[k]);
+                    totalRevenue += revenue;
+                }
+            }
+            //Console.WriteLine(String.Format("Revenue is : {0}, Time to smart filter: {1}", totalRevenue, sw.ElapsedMilliseconds));
+        }
+
+        private static void parallelImprovedColumnHashJoinQ11()
+        {
+            var dateHash = new Dictionary<int, int>();
+            Int64 totalRevenue = 0;
+            foreach (var d in date)
+            {
+                if (d.dYear == 1993)
+                    dateHash.Add(d.dDateKey, d.dYear);
+            }
+
+            // ConcurrentBitMap bA = new ConcurrentBitMap(loDiscount.Count);
+            ConcurrentBitArray bA = new ConcurrentBitArray(loDiscount.Count);
+
+            // ThreadSafeBitArray bM = new ThreadSafeBitArray(loDiscount.Count);
+            corderDate(dateHash, bA);
+
+            Task[] taskArray = { //Task.Factory.StartNew(() => corderDate(dateHash, bA)),
+                Task.Factory.StartNew(() => cdiscounts(bA)),
+                 Task.Factory.StartNew(() => cquantity(bA))
+            };
+
+            Task.WaitAll(taskArray);
+
+            // var bitMap = bM.GetAllTuples();
+            for (int k = 0; k < bA.Length(); k++)
+            {
+                if (bA.Get(k)) // bit set to true
+                {
+                    var revenue = (loExtendedPrice[k] * loDiscount[k]);
+                    totalRevenue += revenue;
+                }
+            }
+           // Console.WriteLine("[PaRI] Total Revenue: {0}, bitsetCount: {1}", totalRevenue);
+        }
+        
+        private static void parallelImprovedColumnHashJoinQ11UsingPartition()
+        {
+            Int64 totalRevenueCHP = 0;
+            var dateHash = new Dictionary<int, int>();
+            foreach (var d in date)
+            {
+                if (d.dYear == 1993)
+                    dateHash.Add(d.dDateKey, d.dYear);
+            }
+
+            List<bool> bitMap = Enumerable.Repeat(false, loDiscount.Count).ToList();
+            List<List<int>> loDiscountChunks = null;
+            List<List<int>> loOrderDateChunks = null;
+            List<List<int>> loQuantityChunks = null;
+            List<List<int>> loExtendedPriceChunks = null;
+            List<List<bool>> bitMapChunks = null;
+
+            Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount * 2 },
+                () => loDiscountChunks = loDiscount.GetPartitions<int>(),
+                () => loOrderDateChunks = loOrderDate.GetPartitions<int>(),
+                () => loQuantityChunks = loQuantity.GetPartitions<int>(),
+                () => loExtendedPriceChunks = loExtendedPrice.GetPartitions<int>(),
+                () => bitMapChunks = bitMap.GetPartitions<bool>());
+            List<Task<int>> tasks = new List<Task<int>>();
+            for (int i = 0; i < bitMapChunks.Count - 1; i++)
+            {
+                Task<int> task = Task<int>.Factory.StartNew(() => parallelTasks(i, dateHash,loOrderDateChunks[i], loDiscountChunks[i], loQuantityChunks[i], loExtendedPriceChunks[i], bitMapChunks[i]));
+                tasks.Add(task);
+            }
+
+            Task.WaitAll(tasks.ToArray());
+            
+            foreach (var task in tasks)
+            {
+                totalRevenueCHP += task.Result;
+            }
+            Console.WriteLine("[PaRI - Lock Free] Total Revenue: {0}", totalRevenueCHP);
+
+        }
+
+        private static int parallelTasks(int i, Dictionary<int, int> dateHash, List<int> loOrderDate, List<int> loDiscount, List<int> loQuantity, List<int> loExtendedPrice, List<bool> bitMaps)
+        {
+            int localRevenue = 0;
+
+            for (int j = 0; j < loOrderDate.Count; j++)
+            {
+                if (dateHash.ContainsKey(loOrderDate[j]))
+                    bitMaps[j] = true;
+            }
+
+            for (int k = 0; k < loDiscount.Count; k++)
+            {
+                var d = loDiscount[k];
+                if (d >= 1 && d <= 3 && bitMaps[k])
+                {
+                    // do nothing
+                    // check to make sure the set
+                }
+                else
+                    bitMaps[k] = false;
+            }
+
+            for (int l = 0; l < loQuantity.Count; l++)
+            {
+                if (loQuantity[l] < 25 && bitMaps[l])
+                {
+                    // do nothing
+                }
+                else
+                    bitMaps[l] = false;
+            }
+
+            for (int m = 0; m < bitMaps.Count; m++)
+            {
+                if (bitMaps[m]) // bit set to true
+                {
+                    var revenue = (loExtendedPrice[m] * loDiscount[m]);
+                    localRevenue += revenue;
+                }
+            }
+            return localRevenue;
         }
 
         private static void parallelColumnHashJoinQ11()
         {
 
+            var dateHash = new Dictionary<int, int>();
+            Int64 totalRevenue = 0;
+            foreach (var d in date)
+            {
+                if (d.dYear == 1993)
+                    dateHash.Add(d.dDateKey, d.dYear);
+            }
+            var arraySize = loDiscount.Count;
 
+            Task<BitArray>[] taskArray = { Task<BitArray>.Factory.StartNew(() => discounts()),
+                 Task<BitArray>.Factory.StartNew(() => quantity()),
+                 Task<BitArray>.Factory.StartNew(() => orderDate(dateHash))
+            };
+            Task.WaitAll(taskArray);
+
+            taskArray[0].Result.And(taskArray[1].Result).And(taskArray[2].Result);
+
+            int bitsetcount = 0;
+            for (int k = 0; k < taskArray[0].Result.Count; k++)
+            {
+                if (taskArray[0].Result.Get(k)) // bit set to true
+                {
+                    var revenue = (loExtendedPrice[k] * loDiscount[k]);
+                    totalRevenue += revenue;
+                    bitsetcount++;
+                }
+            }
+
+           // Console.WriteLine("[RIJoin] Total Revenue: {0}, bitsetCount: {1}", totalRevenue, bitsetcount);
         }
 
         private static void createBinaryFiles()
@@ -645,6 +853,42 @@ namespace ParallelHashJoins
             Console.WriteLine("Select All Row: " + joinedTuples.Count);
         }
 
+        private static void selectAllParallelBlockProcessingHashJoin()
+        {
+            // SELECT * FROM lineorder, date where lo_orderdate = d_datekey;
+            var dateHash = new Dictionary<int, Date>();
+            ConcurrentBag<Tuple<LineOrder, Date>> joinedTuples = new ConcurrentBag<Tuple<LineOrder, Date>>();
+
+            List<Date> date = Utils.ReadFromBinaryFile<List<Date>>(dateFile);
+
+            foreach (var d in date)
+            {
+                dateHash.Add(d.dDateKey, d);
+            }
+
+            var chunkedFiles = Directory.GetFiles(@"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\binaryFiles\lineorder");
+            Parallel.ForEach(chunkedFiles, new ParallelOptions { MaxDegreeOfParallelism = 3 }, (chunk) =>
+             {
+                 List<LineOrder> lineOrder = Utils.ReadFromBinaryFile<List<LineOrder>>(chunk);
+                 foreach (var lo in lineOrder)
+                 {
+                     if (dateHash.ContainsKey(lo.loOrderDate))
+                     {
+                         Date dateObj;
+                         dateHash.TryGetValue(lo.loOrderDate, out dateObj);
+                         joinedTuples.Add(new Tuple<LineOrder, Date>(lo, dateObj));
+                     }
+                 }
+             });
+
+            foreach (var tuple in joinedTuples)
+            {
+                // Console.WriteLine(String.Format("{0},{1}", Utils.convertObjectToCSVString(tuple.Item1), Utils.convertObjectToCSVString(tuple.Item2)));
+            }
+
+            Console.WriteLine("Select All Parallel Row: " + joinedTuples.Count);
+        }
+
         private static void selectAllColumnBlockedJoinUsingEarlyMaterialization()
         {
             List<Tuple<LineOrder, Date>> joinedTuples = new List<Tuple<LineOrder, Date>>();
@@ -677,7 +921,7 @@ namespace ParallelHashJoins
             List<int> dYearMonthNum = Utils.ReadFromBinaryFile<List<int>>(dYearMonthNumFile);
             List<string> dYearMonth = Utils.ReadFromBinaryFile<List<string>>(dYearMonthFile);
             List<int> dDayNumInMonth = Utils.ReadFromBinaryFile<List<int>>(dDayNumInMonthFile);
-            List<int> dDayNumInWeek = Utils.ReadFromBinaryFile<List<int>>(dDayNumInWeekFile); 
+            List<int> dDayNumInWeek = Utils.ReadFromBinaryFile<List<int>>(dDayNumInWeekFile);
             List<int> dMonthNumInYear = Utils.ReadFromBinaryFile<List<int>>(dMonthNumInYearFile);
             List<int> dWeekNumInYear = Utils.ReadFromBinaryFile<List<int>>(dWeekNumInYearFile);
             List<string> dSellingSeason = Utils.ReadFromBinaryFile<List<string>>(dSellingSeasonFile);
@@ -728,6 +972,126 @@ namespace ParallelHashJoins
             Console.WriteLine("Select All Column: " + joinedTuples.Count);
         }
 
+        private static void selectAllColumnParallelBlockedJoinUsingEarlyMaterialization()
+        {
+            ConcurrentBag<Tuple<LineOrder, Date>> joinedTuples = new ConcurrentBag<Tuple<LineOrder, Date>>();
+            List<LineOrder> lineOrder = new List<LineOrder>();
+            List<Date> date = new List<Date>();
+            List<int> loOrderKey = null;
+            List<int> loCustKey = null;
+            List<int> loLineNumber = null;
+            List<int> loPartKey = null;
+            List<int> loSuppKey = null;
+            List<int> loOrderDate = null;
+            List<string> loOrderPriority = null;
+            List<char> loShipPriority = null;
+            List<int> loQuantity = null;
+            List<int> loExtendedPrice = null;
+            List<int> loOrdTotalPrice = null;
+            List<int> loDiscount = null;
+            List<int> loRevenue = null;
+            List<int> loSupplyCost = null;
+            List<int> loTax = null;
+            List<int> loCommitDate = null;
+            List<string> loShipMode = null;
+            List<int> dDateKey = null;
+            List<string> dDate = null;
+            List<string> dDayOfWeek = null;
+            List<string> dMonth = null;
+            List<int> dYear = null;
+            List<int> dYearMonthNum = null;
+            List<string> dYearMonth = null;
+            List<int> dDayNumInMonth = null;
+            List<int> dDayNumInWeek = null;
+            List<int> dMonthNumInYear = null;
+            List<int> dWeekNumInYear = null;
+            List<string> dSellingSeason = null;
+            List<int> dLastDayInWeekFL = null;
+            List<int> dLastDayInMonthFL = null;
+            List<int> dHolidayFL = null;
+            List<int> dWeekDayFL = null;
+            ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = 3 };
+            Parallel.Invoke(po,
+                 () => loOrderKey = Utils.ReadFromBinaryFile<List<int>>(loOrderKeyFile),
+                 () => loCustKey = Utils.ReadFromBinaryFile<List<int>>(loCustKeyFile),
+                 () => loLineNumber = Utils.ReadFromBinaryFile<List<int>>(loLineNumberFile),
+                 () => loPartKey = Utils.ReadFromBinaryFile<List<int>>(loPartKeyFile),
+                 () => loSuppKey = Utils.ReadFromBinaryFile<List<int>>(loSuppKeyFile),
+                 () => loOrderDate = Utils.ReadFromBinaryFile<List<int>>(loOrderDateFile),
+                 () => loOrderPriority = Utils.ReadFromBinaryFile<List<string>>(loOrderPriorityFile),
+                 () => loShipPriority = Utils.ReadFromBinaryFile<List<char>>(loShipPriorityFile),
+                 () => loQuantity = Utils.ReadFromBinaryFile<List<int>>(loQuantityFile),
+                 () => loExtendedPrice = Utils.ReadFromBinaryFile<List<int>>(loExtendedPriceFile),
+                 () => loOrdTotalPrice = Utils.ReadFromBinaryFile<List<int>>(loOrdTotalPriceFile),
+                 () => loDiscount = Utils.ReadFromBinaryFile<List<int>>(loDiscountFile),
+                 () => loRevenue = Utils.ReadFromBinaryFile<List<int>>(loRevenueFile),
+                 () => loSupplyCost = Utils.ReadFromBinaryFile<List<int>>(loSupplyCostFile),
+                 () => loTax = Utils.ReadFromBinaryFile<List<int>>(loTaxFile),
+                 () => loCommitDate = Utils.ReadFromBinaryFile<List<int>>(loCommitDateFile),
+                 () => loShipMode = Utils.ReadFromBinaryFile<List<string>>(loShipModeFile),
+                 () => dDateKey = Utils.ReadFromBinaryFile<List<int>>(dDateKeyFile),
+                () => dDate = Utils.ReadFromBinaryFile<List<string>>(dDateFile),
+                () => dDayOfWeek = Utils.ReadFromBinaryFile<List<string>>(dDayOfWeekFile),
+                () => dMonth = Utils.ReadFromBinaryFile<List<string>>(dMonthFile),
+                () => dYear = Utils.ReadFromBinaryFile<List<int>>(dYearFile),
+                () => dYearMonthNum = Utils.ReadFromBinaryFile<List<int>>(dYearMonthNumFile),
+                () => dYearMonth = Utils.ReadFromBinaryFile<List<string>>(dYearMonthFile),
+                () => dDayNumInMonth = Utils.ReadFromBinaryFile<List<int>>(dDayNumInMonthFile),
+                () => dDayNumInWeek = Utils.ReadFromBinaryFile<List<int>>(dDayNumInWeekFile),
+                () => dMonthNumInYear = Utils.ReadFromBinaryFile<List<int>>(dMonthNumInYearFile),
+                () => dWeekNumInYear = Utils.ReadFromBinaryFile<List<int>>(dWeekNumInYearFile),
+                () => dSellingSeason = Utils.ReadFromBinaryFile<List<string>>(dSellingSeasonFile),
+                () => dLastDayInWeekFL = Utils.ReadFromBinaryFile<List<int>>(dLastDayInWeekFLFile),
+                () => dLastDayInMonthFL = Utils.ReadFromBinaryFile<List<int>>(dLastDayInMonthFLFile),
+                () => dHolidayFL = Utils.ReadFromBinaryFile<List<int>>(dHolidayFLFile),
+                () => dWeekDayFL = Utils.ReadFromBinaryFile<List<int>>(dWeekDayFLFile)
+                     );
+
+
+            Task[] taskArray = {
+                Task.Factory.StartNew(() => {
+                    for (int i = 0; i < loOrderDate.Count; i++) {
+                        lineOrder.Add(new LineOrder(loOrderKey[i], loLineNumber[i], loCustKey[i], loPartKey[i], loSuppKey[i], loOrderDate[i], loOrderPriority[i],
+                        Convert.ToChar(loShipPriority[i]), loQuantity[i], loExtendedPrice[i], loOrdTotalPrice[i], loDiscount[i], loRevenue[i], loSupplyCost[i],
+                        loTax[i], loCommitDate[i], loShipMode[i]));
+                }
+               }),
+                Task.Factory.StartNew(()=> {
+                    for (int j = 0; j < dYear.Count; j++) {
+                        date.Add(new Date(dDateKey[j], dDate[j], dDayOfWeek[j], dMonth[j], dYear[j], dYearMonthNum[j],
+                        dYearMonth[j], dDayNumInWeek[j], dDayNumInMonth[j],
+                        dDayNumInMonth[j], dMonthNumInYear[j], dWeekNumInYear[j],
+                        dSellingSeason[j],
+                        dLastDayInWeekFL[j], dLastDayInMonthFL[j], dHolidayFL[j],
+                        dWeekDayFL[j]));
+            }})};
+
+            Task.WaitAll(taskArray);
+
+            var dateHash = new Dictionary<int, Date>();
+            foreach (var d in date)
+            {
+                dateHash.Add(d.dDateKey, d);
+            }
+
+            Parallel.ForEach(lineOrder, po, (lo) =>
+             {
+                 if (dateHash.ContainsKey(lo.loOrderDate))
+                 {
+                     Date dateObj;
+                     dateHash.TryGetValue(lo.loOrderDate, out dateObj);
+                     joinedTuples.Add(new Tuple<LineOrder, Date>(lo, dateObj));
+                 }
+             }
+            );
+
+            foreach (var tuple in joinedTuples)
+            {
+                // Console.WriteLine(String.Format("{0},{1}", Utils.convertObjectToCSVString(tuple.Item1), Utils.convertObjectToCSVString(tuple.Item2)));
+            }
+            Console.WriteLine("Select All Column: " + joinedTuples.Count);
+        }
+
         private static void selectedColumnBlockedJoinUsingLateMaterailization()
         {
             var dateHash = new Dictionary<int, int>();
@@ -764,12 +1128,17 @@ namespace ParallelHashJoins
 
         static void Main(string[] args)
         {
-            var sDate = DateTime.Now;
+            int numProcs = Environment.ProcessorCount;
+            Console.WriteLine(numProcs);
+            var stopWatch = Stopwatch.StartNew();
             //loadColumns();
             //loadTables();
             //createBinaryFiles();
-            var eDate = DateTime.Now;
-            Console.WriteLine(String.Format("Load Time: {0} secs", ((eDate - sDate).Seconds)));
+
+
+
+            stopWatch.Stop();
+            Console.WriteLine(String.Format("Load Time: {0} secs", stopWatch.Elapsed.Seconds));
 
             //Console.WriteLine(String.Format("Date: {0} ms , LO: {1} ms, LOD: {2} ms", dateSerializationTime, lineOrderSerializationTime, lineOrderDeSerializationTime));
 
@@ -793,41 +1162,240 @@ namespace ParallelHashJoins
                 var eICJoinTime = DateTime.Now;
 
                 Stopwatch sw = Stopwatch.StartNew();
-                selectAllColumnBlockedJoinUsingEarlyMaterialization();
+                //selectAllColumnBlockedJoinUsingEarlyMaterialization();
+                //selectAllBlockProcessingHashJoin();
+                //columnHashJoinQ11();
                 sw.Stop();
-                Console.Write(String.Format("EM Column Hash: {0} ", sw.ElapsedMilliseconds));
+                //Console.WriteLine(String.Format("PaRI Join: {0} ", sw.ElapsedMilliseconds));
                 long a = sw.ElapsedMilliseconds;
 
                 sw.Reset();
                 sw.Start();
+                //parallelColumnHashJoinQ11();
+                selectAllParallelBlockProcessingHashJoin();
                 //selectAllColumnJoinUsingLateMaterailization();
                 sw.Stop();
-                Console.Write(String.Format("LM Column Hash: {0} ", sw.ElapsedMilliseconds));
+                //Console.WriteLine(String.Format("Parallel Invisible Join: {0} ", sw.ElapsedMilliseconds));
+                Console.Write(String.Format("RCO: {0} ", sw.ElapsedMilliseconds));
                 long b = sw.ElapsedMilliseconds;
 
                 sw.Reset();
                 sw.Start();
-                selectAllBlockProcessingHashJoin();
+                selectAllColumnParallelBlockedJoinUsingEarlyMaterialization();
+                //improvedColumnHashJoinQ11();
+                // selectAllBlockProcessingHashJoin();
                 sw.Stop();
-                Console.Write(String.Format("Row Hash: {0} ", sw.ElapsedMilliseconds));
+                //Console.WriteLine(String.Format("RIJoin (Smart Predicate Filtering): {0} ", sw.ElapsedMilliseconds));
+                Console.Write(String.Format("PCO: {0} ", sw.ElapsedMilliseconds));
                 long c = sw.ElapsedMilliseconds;
 
                 sw.Reset();
                 sw.Start();
-                selectedColumnBlockedJoinUsingLateMaterailization();
+                //improvedColumnHashJoinQ11WithSmartPredicateFiltering();
+                //parallelImprovedColumnHashJoinQ11();
+                //selectedColumnBlockedJoinUsingLateMaterailization();
                 sw.Stop();
-                Console.Write(String.Format("LM Selected Hash: {0} ", sw.ElapsedMilliseconds));
+                //Console.WriteLine(String.Format("RIJoin: {0} ", sw.ElapsedMilliseconds));
                 long d = sw.ElapsedMilliseconds;
+
+
+                sw.Reset();
+                sw.Start();
+                parallelImprovedColumnHashJoinQ11();
+                //parallelImprovedColumnHashJoinQ11UsingPartition();
+                //selectedColumnBlockedJoinUsingLateMaterailization();
+                sw.Stop();
+                Console.WriteLine(String.Format("Invisible: {0} ", sw.ElapsedMilliseconds));
+                long e = sw.ElapsedMilliseconds;
 
                 Console.WriteLine();
                 //Console.WriteLine(String.Format("Iteration: {0}, RJT: {1}, CJT: {2}, ICJT: {3} ms", i, ((eRJoinTime - sRJoinTime).Milliseconds), ((eCJoinTime - sCJoinTime).Milliseconds), ((eICJoinTime - sICJoinTime).Milliseconds)));
                 // Console.WriteLine(String.Format("Iteration: {0}, RowHash: {1}, EarlyM: {2}, LateM: {3} ms", i, ((eRJoinTime - sRJoinTime).Milliseconds), ((eCJoinTime - sCJoinTime).Milliseconds), ((eICJoinTime - sICJoinTime).Milliseconds)));
-                results[i] = String.Format("{0}, {1}, {2}, {3}", i + 1, a, c, d);
+                results[i] = String.Format("{0}, {1}, {2}, {3}, {4}, {5}", i + 1, a, b, c, d, e);
             }
-            File.WriteAllLines(@"C:\Users\psangats\Google Drive\Study\0190 Doctor of Philosophy\My Research - Publication Works\test2-Binaryfilesreading2.txt", results);
+            File.WriteAllLines(@"C:\Users\psangats\Google Drive\Study\0190 Doctor of Philosophy\Data\sf1_ff0_01945_op116883_T1.txt", results);
             #endregion
             Console.ReadKey();
 
+        }
+
+        private static void cdiscounts(ConcurrentBitMap bA)
+        {
+            for (int i = 0; i < loDiscount.Count; i++)
+            {
+                bool condition = bA.Get(i);
+                var attributeValue = loDiscount[i];
+                bool setCondition = attributeValue >= 1 && attributeValue <= 3 ? true : false;
+                bA.Add(i, setCondition);
+            }
+        }
+
+        private static void cquantity(ConcurrentBitMap bA)
+        {
+            for (int i = 0; i < loQuantity.Count; i++)
+            {
+                bool condition = bA.Get(i);
+                var attributeValue = loQuantity[i];
+                bool setCondition = attributeValue < 25 ? true : false;
+                bA.Add(i, setCondition);
+            }
+        }
+
+        private static void corderDate(Dictionary<int, int> dateHash, ConcurrentBitMap bA)
+        {
+            for (int i = 0; i < loOrderDate.Count; i++)
+            {
+                bool condition = bA.Get(i);
+                var attributeValue = loOrderDate[i];
+                bool setCondition = dateHash.ContainsKey(attributeValue);
+                bA.Add(i, setCondition);
+            }
+        }
+
+        private static void cdiscounts(ThreadSafeBitArray bA)
+        {
+            var dis = 0;
+            foreach (var d in loDiscount)
+            {
+                //if (d >= 1 && d <= 3)
+                //{
+                //    if (bA.Get(dis).Item1 == 0)
+                //        bA.AddorUpdate(dis, new Tuple<int, bool>(1, true));
+                //    else if (bA.Get(dis).Item2 == true)
+                //        bA.AddorUpdate(dis, new Tuple<int, bool>(1, true));
+                //}
+
+                if (d >= 1 && d <= 3 && bA[dis])
+                {
+                }
+                else
+                    bA[dis] = false;
+                dis++;
+            }
+        }
+
+        private static void cquantity(ThreadSafeBitArray bA)
+        {
+            var qty = 0;
+            foreach (var d in loQuantity)
+            {
+                //if (d < 25)
+                //{
+                //    if (bA.Get(qty).Item1 == 0)
+                //        bA.AddorUpdate(qty, new Tuple<int, bool>(1, true));
+                //    else if (bA.Get(qty).Item2 == true)
+                //        bA.AddorUpdate(qty, new Tuple<int, bool>(1, true));
+                //}
+
+                if (d < 25 && bA[qty])
+                {
+                }
+                else
+                    bA[qty] = false;
+                qty++;
+            }
+        }
+
+        private static void corderDate(ConcurrentDictionary<int, int> dateHash, ThreadSafeBitArray bA)
+        {
+            var i = 0;
+            foreach (var lo in loOrderDate)
+            {
+                if (dateHash.ContainsKey(lo))
+                {
+                    //if (bA.Get(i).Item1 == 0)
+                    //    bA.AddorUpdate(i, new Tuple<int, bool>(1, true));
+                    //else if (bA.Get(i).Item2 == true)
+                    //    bA.AddorUpdate(i, new Tuple<int, bool>(1, true));
+                    bA[i] = true;
+                }
+                i++;
+            }
+        }
+
+        private static void cdiscounts(ConcurrentBitArray bA)
+        {
+            var dis = 0;
+            foreach (var d in loDiscount)
+            {
+                if (d >= 1 && d <= 3 && bA.Get(dis))
+                {
+
+                }
+                else
+                    bA.AddorUpdate(dis, false);
+                dis++;
+            }
+        }
+
+        private static void cquantity(ConcurrentBitArray bA)
+        {
+            var dis = 0;
+            foreach (var d in loQuantity)
+            {
+                if (d < 25 && bA.Get(dis))
+                {
+
+                }
+                else
+                    bA.AddorUpdate(dis, false);
+                dis++;
+            }
+        }
+
+        private static void corderDate(Dictionary<int, int> dateHash, ConcurrentBitArray bA)
+        {
+            var dis = 0;
+            foreach (var lo in loOrderDate)
+            {
+                if (dateHash.ContainsKey(lo))
+                {
+                    bA.AddorUpdate(dis, true);
+                }
+                dis++;
+            }
+        }
+
+        private static BitArray discounts()
+        {
+            BitArray baDis = new BitArray(loDiscount.Count);
+            var dis = 0;
+            foreach (var d in loDiscount)
+            {
+                if (d >= 1 && d <= 3)
+                    baDis.Set(dis, true);
+                dis++;
+            }
+            return baDis;
+        }
+
+        private static BitArray quantity()
+        {
+            BitArray baQty = new BitArray(loQuantity.Count);
+            var qty = 0;
+            foreach (var d in loQuantity)
+            {
+                if (d < 25)
+                    baQty.Set(qty, true);
+                qty++;
+            }
+
+            return baQty;
+        }
+
+        private static BitArray orderDate(Dictionary<int, int> dateHash)
+        {
+            BitArray baOD = new BitArray(loOrderDate.Count);
+            var i = 0;
+            foreach (var lo in loOrderDate)
+            {
+                if (dateHash.ContainsKey(lo))
+                {
+                    baOD.Set(i, true);
+                }
+                i++;
+            }
+            return baOD;
         }
     }
 }
