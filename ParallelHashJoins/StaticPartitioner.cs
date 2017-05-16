@@ -11,7 +11,7 @@ namespace ParallelHashJoins
 
         public static List<List<T>> GetPartitions<T>(this List<T> source)
         {
-            int partitionChunk = CalculatePartitions(Environment.ProcessorCount * 2, source.Count);
+            int partitionChunk = CalculatePartitions(4, source.Count);
             return source
                 .Select((x, i) => new { Index = i, Value = x })
                 .GroupBy(x => x.Index / partitionChunk)

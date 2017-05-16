@@ -65,5 +65,10 @@ namespace ParallelHashJoins
             this.loCommitDateKey = loCommitDateKey;
             this.loShipMode = loShipMode;
         }
+
+        public LineOrder()
+        {
+
+        }
     }
 }

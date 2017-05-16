@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
+    [Serializable]
     class Customer
     {
         public int cCustKey { get; set; }
