@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,14 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
+    class ReturnInteger
+    {
+        public int id { get; set; }
+        public string value { get; set; }
+    }
     class Algorithms
     {
+        #region Private Variables
         private static string folderPath = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\SF 1";
         private static List<int> cCustKey = new List<int>();
         private static List<string> cName = new List<string>();
@@ -83,89 +90,276 @@ namespace ParallelHashJoins
         private static List<LineOrder> lineOrder = new List<LineOrder>();
         private static List<Date> date = new List<Date>();
 
-        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\binaryFilesForXYZJoin";
-        private static string dateFile = Path.Combine(binaryFilesDirectory, "dateFile.bin");
-        private static string customerFile = Path.Combine(binaryFilesDirectory, "customerFile.bin");
-        private static string supplierFile = Path.Combine(binaryFilesDirectory, "supplierFile.bin");
-        private static string partFile = Path.Combine(binaryFilesDirectory, "partFile.bin");
+        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BFSF4";
+        private static string dateFile = Path.Combine(binaryFilesDirectory, "dateFile");
+        private static string customerFile = Path.Combine(binaryFilesDirectory, "customerFile");
+        private static string supplierFile = Path.Combine(binaryFilesDirectory, "supplierFile");
+        private static string partFile = Path.Combine(binaryFilesDirectory, "partFile");
 
-        private static string dDateKeyFile = Path.Combine(binaryFilesDirectory, "dDateKeyFile.bin");
-        private static string dYearFile = Path.Combine(binaryFilesDirectory, "dYearFile.bin");
-        private static string dYearMonthNumFile = Path.Combine(binaryFilesDirectory, "dYearMonthNumFile.bin");
-        private static string dDayNumInWeekFile = Path.Combine(binaryFilesDirectory, "dDayNumInWeekFile.bin");
-        private static string dDayNumInMonthFile = Path.Combine(binaryFilesDirectory, "dDayNumInMonthFile.bin");
-        private static string dDayNumInYearFile = Path.Combine(binaryFilesDirectory, "dDayNumInYearFile.bin");
-        private static string dMonthNumInYearFile = Path.Combine(binaryFilesDirectory, "dMonthNumInYearFile.bin");
-        private static string dWeekNumInYearFile = Path.Combine(binaryFilesDirectory, "dWeekNumInYearFile.bin");
-        private static string dLastDayInWeekFLFile = Path.Combine(binaryFilesDirectory, "dLastDayInWeekFLFile.bin");
-        private static string dLastDayInMonthFLFile = Path.Combine(binaryFilesDirectory, "dLastDayInMonthFLFile.bin");
-        private static string dHolidayFLFile = Path.Combine(binaryFilesDirectory, "dHolidayFLFile.bin");
-        private static string dWeekDayFLFile = Path.Combine(binaryFilesDirectory, "dWeekDayFLFile.bin");
-        private static string dDateFile = Path.Combine(binaryFilesDirectory, "dDateFile.bin");
-        private static string dDayOfWeekFile = Path.Combine(binaryFilesDirectory, "dDayOfWeekFile.bin");
-        private static string dMonthFile = Path.Combine(binaryFilesDirectory, "dMonthFile.bin");
-        private static string dYearMonthFile = Path.Combine(binaryFilesDirectory, "dYearMonthFile.bin");
-        private static string dSellingSeasonFile = Path.Combine(binaryFilesDirectory, "dSellingSeasonFile.bin");
+        private static string dDateKeyFile = Path.Combine(binaryFilesDirectory, @"\dDateKey\");
+        private static string dYearFile = Path.Combine(binaryFilesDirectory, @"\dYear\");
+        private static string dYearMonthNumFile = Path.Combine(binaryFilesDirectory, @"\dYearMonthNum\");
+        private static string dDayNumInWeekFile = Path.Combine(binaryFilesDirectory, @"\dDayNumInWeek\");
+        private static string dDayNumInMonthFile = Path.Combine(binaryFilesDirectory, @"\dDayNumInMont\");
+        private static string dDayNumInYearFile = Path.Combine(binaryFilesDirectory, @"\dDayNumInYear\");
+        private static string dMonthNumInYearFile = Path.Combine(binaryFilesDirectory, @"\dMonthNumInYear\");
+        private static string dWeekNumInYearFile = Path.Combine(binaryFilesDirectory, @"\dWeekNumInYear\");
+        private static string dLastDayInWeekFLFile = Path.Combine(binaryFilesDirectory, @"\dLastDayInWeekFL\");
+        private static string dLastDayInMonthFLFile = Path.Combine(binaryFilesDirectory, @"\dLastDayInMonthFL\");
+        private static string dHolidayFLFile = Path.Combine(binaryFilesDirectory, @"\dHolidayFL\");
+        private static string dWeekDayFLFile = Path.Combine(binaryFilesDirectory, @"\dWeekDayFL\");
+        private static string dDateFile = Path.Combine(binaryFilesDirectory, @"\dDate\");
+        private static string dDayOfWeekFile = Path.Combine(binaryFilesDirectory, @"\dDayOfWeek\");
+        private static string dMonthFile = Path.Combine(binaryFilesDirectory, @"\dMonth\");
+        private static string dYearMonthFile = Path.Combine(binaryFilesDirectory, @"\dYearMonth\");
+        private static string dSellingSeasonFile = Path.Combine(binaryFilesDirectory, @"\dSellingSeason\");
 
-        private static string loOrderKeyFile = Path.Combine(binaryFilesDirectory, "loOrderKeyFile.bin");
-        private static string loLineNumberFile = Path.Combine(binaryFilesDirectory, "loLineNumberFile.bin");
-        private static string loCustKeyFile = Path.Combine(binaryFilesDirectory, "loCustKeyFile.bin");
-        private static string loPartKeyFile = Path.Combine(binaryFilesDirectory, "loPartKeyFile.bin");
-        private static string loSuppKeyFile = Path.Combine(binaryFilesDirectory, "loSuppKeyFile.bin");
-        private static string loOrderDateFile = Path.Combine(binaryFilesDirectory, "loOrderDateFile.bin");
-        private static string loShipPriorityFile = Path.Combine(binaryFilesDirectory, "loShipPriorityFile.bin");
-        private static string loQuantityFile = Path.Combine(binaryFilesDirectory, "loQuantityFile.bin");
-        private static string loExtendedPriceFile = Path.Combine(binaryFilesDirectory, "loExtendedPriceFile.bin");
-        private static string loOrdTotalPriceFile = Path.Combine(binaryFilesDirectory, "loOrdTotalPriceFile.bin");
-        private static string loDiscountFile = Path.Combine(binaryFilesDirectory, "loDiscountFile.bin");
-        private static string loRevenueFile = Path.Combine(binaryFilesDirectory, "loRevenueFile.bin");
-        private static string loSupplyCostFile = Path.Combine(binaryFilesDirectory, "loSupplyCostFile.bin");
-        private static string loTaxFile = Path.Combine(binaryFilesDirectory, "loTaxFile.bin");
-        private static string loCommitDateFile = Path.Combine(binaryFilesDirectory, "loCommitDateFile.bin");
-        private static string loShipModeFile = Path.Combine(binaryFilesDirectory, "loShipModeFile.bin");
-        private static string loOrderPriorityFile = Path.Combine(binaryFilesDirectory, "loOrderPriorityFile.bin");
+        private static string loOrderKeyFile = Path.Combine(binaryFilesDirectory, @"\loOrderKey\");
+        private static string loLineNumberFile = Path.Combine(binaryFilesDirectory, @"\loLineNumber\");
+        private static string loCustKeyFile = Path.Combine(binaryFilesDirectory, @"\loCustKey\");
+        private static string loPartKeyFile = Path.Combine(binaryFilesDirectory, @"\loPartKey\");
+        private static string loSuppKeyFile = Path.Combine(binaryFilesDirectory, @"\loSuppKey\");
+        private static string loOrderDateFile = Path.Combine(binaryFilesDirectory, @"\loOrderDate\");
+        private static string loShipPriorityFile = Path.Combine(binaryFilesDirectory, @"\loShipPriority\");
+        private static string loQuantityFile = Path.Combine(binaryFilesDirectory, @"\loQuantity\");
+        private static string loExtendedPriceFile = Path.Combine(binaryFilesDirectory, @"\loExtendedPrice\");
+        private static string loOrdTotalPriceFile = Path.Combine(binaryFilesDirectory, @"\loOrdTotalPrice\");
+        private static string loDiscountFile = Path.Combine(binaryFilesDirectory, @"\loDiscount\");
+        private static string loRevenueFile = Path.Combine(binaryFilesDirectory, @"\loRevenue\");
+        private static string loSupplyCostFile = Path.Combine(binaryFilesDirectory, @"\loSupplyCost\");
+        private static string loTaxFile = Path.Combine(binaryFilesDirectory, @"\loTax\");
+        private static string loCommitDateFile = Path.Combine(binaryFilesDirectory, @"\loCommitDate\");
+        private static string loShipModeFile = Path.Combine(binaryFilesDirectory, @"\loShipMode\");
+        private static string loOrderPriorityFile = Path.Combine(binaryFilesDirectory, @"\loOrderPriority\");
 
-        private static string cCustKeyFile = Path.Combine(binaryFilesDirectory, "cCustKeyFile.bin");
-        private static string cNameFile = Path.Combine(binaryFilesDirectory, "cNameFile.bin");
-        private static string cAddressFile = Path.Combine(binaryFilesDirectory, "cAddressFile.bom");
-        private static string cCityFile = Path.Combine(binaryFilesDirectory, "cCityFile.bin");
-        private static string cNationFile = Path.Combine(binaryFilesDirectory, "cNationFile.bin");
-        private static string cRegionFile = Path.Combine(binaryFilesDirectory, "cRegionFile.bin");
-        private static string cPhoneFile = Path.Combine(binaryFilesDirectory, "cPhoneFile.bin");
-        private static string cMktSegmentFile = Path.Combine(binaryFilesDirectory, "cMktSegmentFile.bin");
+        private static string cCustKeyFile = Path.Combine(binaryFilesDirectory, @"\cCustKey\");
+        private static string cNameFile = Path.Combine(binaryFilesDirectory, @"\cName\");
+        private static string cAddressFile = Path.Combine(binaryFilesDirectory, @"\cAddress\");
+        private static string cCityFile = Path.Combine(binaryFilesDirectory, @"\cCity\");
+        private static string cNationFile = Path.Combine(binaryFilesDirectory, @"\cNation\");
+        private static string cRegionFile = Path.Combine(binaryFilesDirectory, @"\cRegion\");
+        private static string cPhoneFile = Path.Combine(binaryFilesDirectory, @"\cPhone\");
+        private static string cMktSegmentFile = Path.Combine(binaryFilesDirectory, @"\cMktSegment\");
 
-        private static string sSuppKeyFile = Path.Combine(binaryFilesDirectory, "sSuppKeyFile.bin");
-        private static string sNameFile = Path.Combine(binaryFilesDirectory, "sNameFile.bin");
-        private static string sAddressFile = Path.Combine(binaryFilesDirectory, "sAddressFile.bin");
-        private static string sCityFile = Path.Combine(binaryFilesDirectory, "sCityFile.bin");
-        private static string sNationFile = Path.Combine(binaryFilesDirectory, "sNationFile.bin");
-        private static string sRegionFile = Path.Combine(binaryFilesDirectory, "sRegionFile.bin");
-        private static string sPhoneFile = Path.Combine(binaryFilesDirectory, "sPhoneFile.bin");
+        private static string sSuppKeyFile = Path.Combine(binaryFilesDirectory, @"\sSuppKey\");
+        private static string sNameFile = Path.Combine(binaryFilesDirectory, @"\sName\");
+        private static string sAddressFile = Path.Combine(binaryFilesDirectory, @"\sAddress\");
+        private static string sCityFile = Path.Combine(binaryFilesDirectory, @"\sCity\");
+        private static string sNationFile = Path.Combine(binaryFilesDirectory, @"\sNation\");
+        private static string sRegionFile = Path.Combine(binaryFilesDirectory, @"\sRegion\");
+        private static string sPhoneFile = Path.Combine(binaryFilesDirectory, @"\sPhone\");
 
-        private static string pSizeFile = Path.Combine(binaryFilesDirectory, "pSizeFile.bin");
-        private static string pPartKeyFile = Path.Combine(binaryFilesDirectory, "pPartKeyFile.bin");
-        private static string pNameFile = Path.Combine(binaryFilesDirectory, "pNameFile.bin");
-        private static string pMFGRFile = Path.Combine(binaryFilesDirectory, "pMFGRFile.bin");
-        private static string pCategoryFile = Path.Combine(binaryFilesDirectory, "pCategoryFile.bin");
-        private static string pBrandFile = Path.Combine(binaryFilesDirectory, "pBrandFile.bin");
-        private static string pColorFile = Path.Combine(binaryFilesDirectory, "pColorFile.bin");
-        private static string pTypeFile = Path.Combine(binaryFilesDirectory, "pTypeFile.bin");
-        private static string pContainerFile = Path.Combine(binaryFilesDirectory, "pContainerFile.bin");
+        private static string pSizeFile = Path.Combine(binaryFilesDirectory, @"\pSize\");
+        private static string pPartKeyFile = Path.Combine(binaryFilesDirectory, @"\pPartKey\");
+        private static string pNameFile = Path.Combine(binaryFilesDirectory, @"\pName\");
+        private static string pMFGRFile = Path.Combine(binaryFilesDirectory, @"\pMFGR\");
+        private static string pCategoryFile = Path.Combine(binaryFilesDirectory, @"\pCategory\");
+        private static string pBrandFile = Path.Combine(binaryFilesDirectory, @"\pBrand\");
+        private static string pColorFile = Path.Combine(binaryFilesDirectory, @"\pColor\");
+        private static string pTypeFile = Path.Combine(binaryFilesDirectory, @"\pType\");
+        private static string pContainerFile = Path.Combine(binaryFilesDirectory, @"\pContainer\");
+        #endregion Private Variables
 
-        public void XYZJoin()
+        private static long nanoTime()
+        {
+            long nano = 10000L * Stopwatch.GetTimestamp();
+            nano /= TimeSpan.TicksPerMillisecond;
+            nano *= 100L;
+            return nano;
+        }
+
+        ParallelOptions po = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+        public void NimbleJoin()
         {
             try
             {
-                Int64 totalRevenue = 0;
-                var dateHashTable = new Dictionary<int, int>();
+                var dateHashTable = new Dictionary<int, string>();
                 var customerHashTable = new Dictionary<int, string>();
                 var supplierHashTable = new Dictionary<int, string>();
-
+                Stopwatch sw = new Stopwatch();
                 #region Key Hashing Phase
+                sw.Start();
                 List<Date> dateDimension = Utils.ReadFromBinaryFile<List<Date>>(dateFile);
                 foreach (var row in dateDimension)
                 {
-                    if (row.dYear >= 1992 && row.dYear <= 1997)
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                    {
+                        // var startTime =  nanoTime();
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                        // var endTime = nanoTime();
+                        // Console.WriteLine(endTime - startTime);
+
+                    }
+                }
+                dateDimension.Clear();
+
+                List<Customer> customerDimension = Utils.ReadFromBinaryFile<List<Customer>>(customerFile);
+                foreach (var row in customerDimension)
+                {
+                    if (row.cRegion.Equals("ASIA"))
+                        customerHashTable.Add(row.cCustKey, row.cNation);
+                }
+                customerDimension.Clear();
+
+                List<Supplier> supplierDimension = Utils.ReadFromBinaryFile<List<Supplier>>(supplierFile);
+                foreach (var row in supplierDimension)
+                {
+                    if (row.sRegion.Equals("ASIA"))
+                        supplierHashTable.Add(row.sSuppKey, row.sNation);
+                }
+                supplierDimension.Clear();
+                //sw.Stop();
+                //Console.WriteLine("[Nimble Join]: Key Hashing Phase takes {0} ms.", sw.ElapsedMilliseconds);
+                //sw.Reset();
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                //Stopwatch sw1 = Stopwatch.StartNew();
+                //sw.Start();
+                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loOrderDateFile);
+                var matchedOrderDate = new Dictionary<int, string>();
+                //var matchedOrderDate = new FastBitMap(loOrderDate.Count);
+
+                var i = 0;
+                foreach (var orderDate in loOrderDate)
+                {
+                    string dYear = "";
+                    if (dateHashTable.TryGetValue(orderDate, out dYear))
+                        matchedOrderDate.Add(i + 1, dYear.ToString());
+                    //matchedOrderDate.Set(i, true, dYear);
+                    i++;
+                }
+                loOrderDate.Clear();
+
+                //sw.Stop();
+                //Console.WriteLine("[Nimble Join]: Probing Phase [matchedOrderDate] takes {0} ms.", sw.ElapsedMilliseconds);
+                //sw.Reset();
+                //sw.Start();
+
+                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loCustKeyFile);
+                var matchedCustomerKey = new Dictionary<int, string>();
+                //var matchedCustomerKey = new FastBitMap(loCustomerKey.Count);
+                var j = 0;
+                foreach (var custKey in loCustomerKey)
+                {
+                    string cNation = string.Empty;
+                    if (customerHashTable.TryGetValue(custKey, out cNation))
+                        matchedCustomerKey.Add(j + 1, cNation);
+                    //matchedCustomerKey.Set(j, true, cNation);
+                    j++;
+                }
+                loCustomerKey.Clear();
+
+                //                sw.Stop();
+                //              Console.WriteLine("[Nimble Join]: Probing Phase [matchedCustomerKey] takes {0} ms.", sw.ElapsedMilliseconds);
+                //            sw.Reset();
+                //sw.Start();
+                //
+                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loSuppKeyFile);
+                var matchedSupplierKey = new Dictionary<int, string>();
+                //var matchedSupplierKey = new FastBitMap(loSupplierKey.Count);
+
+                var k = 0;
+                foreach (var suppKey in loSupplierKey)
+                {
+                    string sNation = string.Empty;
+                    if (supplierHashTable.TryGetValue(suppKey, out sNation))
+                        matchedSupplierKey.Add(k + 1, sNation);
+                    //matchedSupplierKey.Set(k, true, sNation);
+                    k++;
+                }
+                loSupplierKey.Clear();
+                //sw.Stop();
+                //Console.WriteLine("[Nimble Join]: Probing Phase [matchedSupplierKey] takes {0} ms.", sw.ElapsedMilliseconds);
+                ///sw.Reset();
+                //sw.Start();
+
+                var mcSize = matchedCustomerKey.Count();
+                var msSize = matchedSupplierKey.Count();
+                var moSize = matchedOrderDate.Count();
+                var joinOutputIntermediate = new Dictionary<int, string>();
+
+                if (mcSize < msSize && mcSize < moSize)
+                {
+                    foreach (var item in matchedCustomerKey)
+                    {
+                        string suppNation, orderDate;
+                        if (matchedSupplierKey.TryGetValue(item.Key, out suppNation) && matchedOrderDate.TryGetValue(item.Key, out orderDate))
+                        {
+                            joinOutputIntermediate.Add(item.Key, item.Value + "," + suppNation + "," + orderDate);
+                        }
+
+                    }
+                }
+                else if (msSize < moSize)
+                {
+                    foreach (var item in matchedSupplierKey)
+                    {
+                        string custNation, orderDate;
+                        if (matchedCustomerKey.TryGetValue(item.Key, out custNation) && matchedOrderDate.TryGetValue(item.Key, out orderDate))
+                        {
+                            joinOutputIntermediate.Add(item.Key, custNation + "," + item.Value + "," + orderDate);
+                        }
+
+                    }
+                }
+                else
+                {
+                    foreach (var item in matchedOrderDate)
+                    {
+                        string custNation, suppNation;
+                        if (matchedCustomerKey.TryGetValue(item.Key, out custNation) && matchedSupplierKey.TryGetValue(item.Key, out suppNation))
+                        {
+                            joinOutputIntermediate.Add(item.Key, custNation + "," + suppNation + "," + item.Value);
+                        }
+                    }
+                }
+
+                //sw.Stop();
+                //Console.WriteLine("[Nimble Join]: Probing Phase [JOIN] takes {0} ms.", sw.ElapsedMilliseconds);
+
+                // sw1.Stop();
+                #endregion Probing Phase
+                //Console.WriteLine("[Nimble Join]: Probing Phase takes {0} ms.", sw1.ElapsedMilliseconds);
+
+                #region Value Extraction Phase
+                //sw.Reset();
+                //sw.Start();
+                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loRevenueFile);
+                var joinOutputFinal = new Dictionary<int, string>();
+                foreach (var item in joinOutputIntermediate)
+                {
+                    joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key - 1]); // Direct array lookup
+                }
+                // sw.Stop();
+                //Console.WriteLine("[Nimble Join]: Value Extraction Phase takes {0} ms.", sw.ElapsedMilliseconds);
+                #endregion Value Extraction Phase
+
+                sw.Stop();
+                Console.WriteLine("[Nimble Join]: Total time: {0} sec.", sw.ElapsedMilliseconds / 1000);
+                Console.WriteLine("[Nimble Join]: Total Rows: {0}.", joinOutputFinal.Count);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void XYZV2()
+        {
+            try
+            {
+                var dateHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<int, string>();
+                var supplierHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                #region Key Hashing Phase
+                sw.Start();
+                List<Date> dateDimension = Utils.ReadFromBinaryFile<List<Date>>(dateFile);
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
                         dateHashTable.Add(row.dDateKey, row.dYear);
                 }
                 dateDimension.Clear();
@@ -185,17 +379,194 @@ namespace ParallelHashJoins
                         supplierHashTable.Add(row.sSuppKey, row.sNation);
                 }
                 supplierDimension.Clear();
+                sw.Stop();
+
                 #endregion Key Hashing Phase
 
+                Console.WriteLine("[XYZ Join]: Key Hashing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
                 #region Probing Phase
+                sw.Start();
+                Stopwatch sw1 = new Stopwatch();
+                sw1.Start();
+
                 List<int> loOrderDate = Utils.ReadFromBinaryFile<List<int>>(loOrderDateFile);
-                var matchedOrderDate = new Dictionary<int, int>();
+                var matchedOrderDate = new Dictionary<int, string>();
+                var i = 0;
+                foreach (var orderDate in loOrderDate)
+                {
+                    string dYear = "";
+                    if (dateHashTable.TryGetValue(orderDate, out dYear))
+                    {
+                        matchedOrderDate.Add(i + 1, dYear);
+                    }
+                    i++;
+                }
+                loOrderDate.Clear();
+
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (matchedOrderDate) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw1.Reset();
+                sw1.Start();
+
+                List<int> loCustomerKey = Utils.ReadFromBinaryFile<List<int>>(loCustKeyFile);
+                var matchedCustomerKey = new Dictionary<int, string>();
+                var j = 0;
+                foreach (var custKey in loCustomerKey)
+                {
+                    string cNation = string.Empty;
+                    if (customerHashTable.TryGetValue(custKey, out cNation))
+                    {
+                        matchedCustomerKey.Add(j + 1, cNation);
+                    }
+                    j++;
+                }
+                loCustomerKey.Clear();
+
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (matchedCustomerKey) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw1.Reset();
+                sw1.Start();
+
+                List<int> loSupplierKey = Utils.ReadFromBinaryFile<List<int>>(loSuppKeyFile);
+                var matchedSupplierKey = new Dictionary<int, string>();
+                var k = 0;
+                foreach (var suppKey in loSupplierKey)
+                {
+                    string sNation = string.Empty;
+                    if (supplierHashTable.TryGetValue(suppKey, out sNation))
+                    {
+                        matchedSupplierKey.Add(k + 1, sNation);
+                    }
+                    k++;
+                }
+                loSupplierKey.Clear();
+
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (matchedSupplierKey) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw1.Reset();
+                sw1.Start();
+
+                //var joinOutputIntermediate2 = new Dictionary<int, string>();
+                //foreach (var item in matchedOrderDate)
+                //{
+                //    string custNation, suppNation;
+                //    if (matchedCustomerKey.TryGetValue(item.Key, out custNation))
+                //    {
+                //        if (matchedSupplierKey.TryGetValue(item.Key, out suppNation))
+                //            joinOutputIntermediate2.Add(item.Key, item.Value + "," + custNation + "," + suppNation);
+                //    }
+                //}
+
+                var joinOutputIntermediate1 = matchedSupplierKey.Where(x => matchedCustomerKey.ContainsKey(x.Key))
+                     .ToDictionary(x => x.Key, x => x.Value + "," + matchedCustomerKey[x.Key]);
+
+                var joinOutputIntermediate2 = joinOutputIntermediate1.Where(x => matchedOrderDate.ContainsKey(x.Key))
+                    .ToDictionary(x => x.Key, x => x.Value + "," + matchedOrderDate[x.Key]);
+
+
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (JOIN) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw.Stop();
+                #endregion Probing Phase
+
+                Console.WriteLine("[XYZ Join]: Probing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
+                #region Value Extraction Phase
+                sw.Start();
+                List<int> loRevenue = Utils.ReadFromBinaryFile<List<int>>(loRevenueFile);
+
+                Dictionary<int, string> joinOutputFinal = new Dictionary<int, string>();
+                foreach (var item in joinOutputIntermediate2)
+                {
+                    joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
+                }
+                sw.Stop();
+                #endregion Value Extraction Phase
+
+                Console.WriteLine("[XYZ Join]: Value Extraction Phase took {0} ms.", sw.ElapsedMilliseconds);
+                Console.WriteLine("[XYZ Join]: Total Rows: {0}.", joinOutputFinal.Count);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public Dictionary<int, string> getSmallestDictionary(List<Dictionary<int, string>> listOfDictionaries)
+        {
+            int smallest = -1;
+            int i = 0;
+            foreach (var dict in listOfDictionaries)
+            {
+                if (smallest == -1)
+                {
+                    smallest = dict.Count;
+                }
+                else if (dict.Count < smallest)
+                {
+                    smallest = dict.Count;
+                    i++;
+                }
+            }
+            return listOfDictionaries[i];
+        }
+
+        public void XYZJoin()
+        {
+            try
+            {
+                var dateHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<int, string>();
+                var supplierHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                #region Key Hashing Phase
+                sw.Start();
+                List<Date> dateDimension = Utils.ReadFromBinaryFile<List<Date>>(dateFile);
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+                dateDimension.Clear();
+
+                List<Customer> customerDimension = Utils.ReadFromBinaryFile<List<Customer>>(customerFile);
+                foreach (var row in customerDimension)
+                {
+                    if (row.cRegion.Equals("ASIA"))
+                        customerHashTable.Add(row.cCustKey, row.cNation);
+                }
+                customerDimension.Clear();
+
+                List<Supplier> supplierDimension = Utils.ReadFromBinaryFile<List<Supplier>>(supplierFile);
+                foreach (var row in supplierDimension)
+                {
+                    if (row.sRegion.Equals("ASIA"))
+                        supplierHashTable.Add(row.sSuppKey, row.sNation);
+                }
+                supplierDimension.Clear();
+                sw.Stop();
+
+                #endregion Key Hashing Phase
+
+                Console.WriteLine("[XYZ Join]: Key Hashing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
+                #region Probing Phase
+                sw.Start();
+                Stopwatch sw1 = new Stopwatch();
+                sw1.Start();
+
+                List<int> loOrderDate = Utils.ReadFromBinaryFile<List<int>>(loOrderDateFile);
+                var matchedOrderDate = new Dictionary<int, string>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
                     if (dateHashTable.ContainsKey(orderDate))
                     {
-                        int dYear = -1;
+                        string dYear = "";
                         dateHashTable.TryGetValue(orderDate, out dYear);
                         matchedOrderDate.Add(i + 1, dYear);
                     }
@@ -203,6 +574,10 @@ namespace ParallelHashJoins
                 }
                 loOrderDate.Clear();
 
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (matchedOrderDate) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw1.Reset();
+                sw1.Start();
 
                 List<int> loCustomerKey = Utils.ReadFromBinaryFile<List<int>>(loCustKeyFile);
                 var matchedCustomerKey = new Dictionary<int, string>();
@@ -219,6 +594,11 @@ namespace ParallelHashJoins
                 }
                 loCustomerKey.Clear();
 
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (matchedCustomerKey) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw1.Reset();
+                sw1.Start();
+
                 List<int> loSupplierKey = Utils.ReadFromBinaryFile<List<int>>(loSuppKeyFile);
                 var matchedSupplierKey = new Dictionary<int, string>();
                 var k = 0;
@@ -234,24 +614,175 @@ namespace ParallelHashJoins
                 }
                 loSupplierKey.Clear();
 
-                var joinOutputIntermediate1 = matchedSupplierKey.Where(x => matchedCustomerKey.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => x.Value + "," + matchedCustomerKey[x.Key]);
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (matchedSupplierKey) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw1.Reset();
+                sw1.Start();
+
+                var joinOutputIntermediate1 = matchedSupplierKey.Where(x => matchedCustomerKey.ContainsKey(x.Key))
+                     .ToDictionary(x => x.Key, x => x.Value + "," + matchedCustomerKey[x.Key]);
 
                 var joinOutputIntermediate2 = joinOutputIntermediate1.Where(x => matchedOrderDate.ContainsKey(x.Key))
                     .ToDictionary(x => x.Key, x => x.Value + "," + matchedOrderDate[x.Key]);
+
+                sw1.Stop();
+                Console.WriteLine("[XYZ Join]: Probing Phase (JOIN) took {0} ms.", sw1.ElapsedMilliseconds);
+                sw.Stop();
                 #endregion Probing Phase
 
+                Console.WriteLine("[XYZ Join]: Probing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
                 #region Value Extraction Phase
+                sw.Start();
                 List<int> loRevenue = Utils.ReadFromBinaryFile<List<int>>(loRevenueFile);
 
-                var joinOutputFinal = new Dictionary<int, string>();
+                Dictionary<int, string> joinOutputFinal = new Dictionary<int, string>();
                 foreach (var item in joinOutputIntermediate2)
                 {
                     joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
-
                 }
+                sw.Stop();
                 #endregion Value Extraction Phase
 
-                Console.WriteLine("Total Rows: " + joinOutputFinal.Count);
+                Console.WriteLine("[XYZ Join]: Value Extraction Phase took {0} ms.", sw.ElapsedMilliseconds);
+                Console.WriteLine("[XYZ Join]: Total Rows: {0}.", joinOutputFinal.Count);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ParallelXYZJoin()
+        {
+            try
+            {
+                var dateHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<int, string>();
+                var supplierHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+
+                #region Key Hashing Phase
+                sw.Start();
+                Parallel.Invoke(po, () =>
+                {
+                    List<Date> dateDimension = Utils.ReadFromBinaryFile<List<Date>>(dateFile);
+                    foreach (var row in dateDimension)
+                    {
+                        if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                            dateHashTable.Add(row.dDateKey, row.dYear);
+                    }
+                    dateDimension.Clear();
+                },
+                () =>
+                {
+                    List<Customer> customerDimension = Utils.ReadFromBinaryFile<List<Customer>>(customerFile);
+                    foreach (var row in customerDimension)
+                    {
+                        if (row.cRegion.Equals("ASIA"))
+                            customerHashTable.Add(row.cCustKey, row.cNation);
+                    }
+                    customerDimension.Clear();
+                },
+                () =>
+                {
+                    List<Supplier> supplierDimension = Utils.ReadFromBinaryFile<List<Supplier>>(supplierFile);
+                    foreach (var row in supplierDimension)
+                    {
+                        if (row.sRegion.Equals("ASIA"))
+                            supplierHashTable.Add(row.sSuppKey, row.sNation);
+                    }
+                    supplierDimension.Clear();
+                });
+                sw.Stop();
+                #endregion Key Hashing Phase
+
+                Console.WriteLine("[Parallel XYZ Join]: Key Hashing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
+                #region Probing Phase
+                sw.Start();
+                var matchedOrderDate = new Dictionary<int, string>();
+                var matchedCustomerKey = new Dictionary<int, string>();
+                var matchedSupplierKey = new Dictionary<int, string>();
+                Parallel.Invoke(po, () =>
+                 {
+                     List<int> loOrderDate = Utils.ReadFromBinaryFile<List<int>>(loOrderDateFile);
+
+                     var i = 0;
+                     foreach (var orderDate in loOrderDate)
+                     {
+                         if (dateHashTable.ContainsKey(orderDate))
+                         {
+                             string dYear = "";
+                             dateHashTable.TryGetValue(orderDate, out dYear);
+                             matchedOrderDate.Add(i + 1, dYear);
+                         }
+                         i++;
+                     }
+                     loOrderDate.Clear();
+                 },
+                () =>
+                {
+                    List<int> loCustomerKey = Utils.ReadFromBinaryFile<List<int>>(loCustKeyFile);
+                    var j = 0;
+                    foreach (var custKey in loCustomerKey)
+                    {
+                        if (customerHashTable.ContainsKey(custKey))
+                        {
+                            string cNation = string.Empty;
+                            customerHashTable.TryGetValue(custKey, out cNation);
+                            matchedCustomerKey.Add(j + 1, cNation);
+                        }
+                        j++;
+                    }
+                    loCustomerKey.Clear();
+                },
+                () =>
+                {
+                    List<int> loSupplierKey = Utils.ReadFromBinaryFile<List<int>>(loSuppKeyFile);
+                    var k = 0;
+                    foreach (var suppKey in loSupplierKey)
+                    {
+                        if (supplierHashTable.ContainsKey(suppKey))
+                        {
+                            string sNation = string.Empty;
+                            supplierHashTable.TryGetValue(suppKey, out sNation);
+                            matchedSupplierKey.Add(k + 1, sNation);
+                        }
+                        k++;
+                    }
+                    loSupplierKey.Clear();
+                });
+
+                // Left Bushy Tree
+                var joinOutputIntermediate1 = matchedSupplierKey.Where(x => matchedCustomerKey.ContainsKey(x.Key))
+                    .ToDictionary(x => x.Key, x => x.Value + "," + matchedCustomerKey[x.Key]);
+
+                var joinOutputIntermediate2 = joinOutputIntermediate1.Where(x => matchedOrderDate.ContainsKey(x.Key))
+                    .ToDictionary(x => x.Key, x => x.Value + "," + matchedOrderDate[x.Key]);
+                sw.Stop();
+                #endregion Probing Phase
+
+                Console.WriteLine("[Parallel XYZ Join]: Key Hashing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
+                #region Value Extraction Phase
+                sw.Start();
+                List<int> loRevenue = Utils.ReadFromBinaryFile<List<int>>(loRevenueFile);
+
+                Dictionary<int, string> joinOutputFinal = new Dictionary<int, string>();
+                foreach (var item in joinOutputIntermediate2)
+                {
+                    joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
+                }
+
+                sw.Stop();
+                #endregion Value Extraction Phase
+                Console.WriteLine("[Parallel XYZ Join]: Key Hashing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                Console.WriteLine("[Parallel XYZ Join]: Total Rows {0}.", joinOutputFinal.Count);
 
             }
             catch (Exception ex)
@@ -264,16 +795,16 @@ namespace ParallelHashJoins
         {
             try
             {
-                Int64 totalRevenue = 0;
-                var dateHashTable = new Dictionary<int, int>();
+                var dateHashTable = new Dictionary<int, string>();
                 var customerHashTable = new Dictionary<int, string>();
                 var supplierHashTable = new Dictionary<int, string>();
-
+                Stopwatch sw = new Stopwatch();
                 #region Key Hashing Phase
+                sw.Start();
                 List<Date> dateDimension = Utils.ReadFromBinaryFile<List<Date>>(dateFile);
                 foreach (var row in dateDimension)
                 {
-                    if (row.dYear >= 1992 && row.dYear <= 1997)
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
                         dateHashTable.Add(row.dDateKey, row.dYear);
                 }
                 dateDimension.Clear();
@@ -293,50 +824,247 @@ namespace ParallelHashJoins
                         supplierHashTable.Add(row.sSuppKey, row.sNation);
                 }
                 supplierDimension.Clear();
+                ///sw.Stop();
                 #endregion Key Hashing Phase
 
+                //Console.WriteLine("[Invisble Join]: Key Hashing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                //sw.Reset();
+
                 #region Probing Phase
-                List<int> loOrderDate = Utils.ReadFromBinaryFile<List<int>>(loOrderDateFile);
+                //              sw.Start();
+                //            Stopwatch sw1 = new Stopwatch();
+                //          sw1.Start();
+                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loOrderDateFile);
 
                 var arraySize = loOrderDate.Count;
                 BitArray baOrderDate = new BitArray(arraySize);
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
-                    if (dateHashTable.ContainsKey(orderDate))
+                    string date;
+                    if (dateHashTable.TryGetValue(orderDate, out date))
                         baOrderDate.Set(i, true);
                     i++;
                 }
                 loOrderDate.Clear();
 
+                //        sw1.Stop();
+                //  Console.WriteLine("[Invisble Join]: Probing Phase (baOrderDate) took {0} ms.", sw1.ElapsedMilliseconds);
+                ////      sw1.Reset();
+                //sw1.Start();
 
-                List<int> loCustomerKey = Utils.ReadFromBinaryFile<List<int>>(loCustKeyFile);
+                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loCustKeyFile);
                 BitArray baCustomerKey = new BitArray(arraySize);
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
-                    if (customerHashTable.ContainsKey(custKey))
+                    string custNation;
+                    if (customerHashTable.TryGetValue(custKey, out custNation))
                         baCustomerKey.Set(j, true);
                     j++;
                 }
                 loCustomerKey.Clear();
 
-                List<int> loSupplierKey = Utils.ReadFromBinaryFile<List<int>>(loSuppKeyFile);
+                //sw1.Stop();
+                ///Console.WriteLine("[Invisble Join]: Probing Phase (baCustomerKey) took {0} ms.", sw1.ElapsedMilliseconds);
+                //sw1.Reset();
+                //sw1.Start();
+
+                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loSuppKeyFile);
                 BitArray baSupplierKey = new BitArray(arraySize);
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
-                    if (supplierHashTable.ContainsKey(suppKey))
+                    string suppNation;
+                    if (supplierHashTable.TryGetValue(suppKey, out suppNation))
                         baSupplierKey.Set(k, true);
                     k++;
                 }
                 loSupplierKey.Clear();
 
+                //sw1.Stop();
+                //Console.WriteLine("[Invisble Join]: Probing Phase (baSupplierKey) took {0} ms.", sw1.ElapsedMilliseconds);
+                //sw1.Reset();
+                //                sw1.Start();
+
                 baCustomerKey.And(baSupplierKey);
                 baCustomerKey.And(baOrderDate);
+
+                //              sw1.Stop();
+                //            Console.WriteLine("[Invisble Join]: Probing Phase (BITWISE AND) took {0} ms.", sw1.ElapsedMilliseconds);
+                //          sw.Stop();
                 #endregion Probing Phase
 
+                //        Console.WriteLine("[Invisble Join]: Probing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                //      sw.Reset();
+
                 #region Value Extraction Phase
+                //    sw.Start();
+                loOrderDate = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loOrderDateFile);
+                loCustomerKey = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loCustKeyFile);
+                loSupplierKey = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loSuppKeyFile);
+
+                List<string> cNation = Utils.ReadFromBinaryFiles<string>(binaryFilesDirectory + cNationFile);
+                List<string> sNation = Utils.ReadFromBinaryFiles<string>(binaryFilesDirectory + sNationFile);
+                // Use Date Hash Table
+                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(binaryFilesDirectory + loRevenueFile);
+
+                var joinOutputIntermediate = new Dictionary<int, string>();
+                var l = 0;
+                foreach (bool bitValue in baCustomerKey)
+                {
+                    if (bitValue)
+                    {
+                        try
+                        {
+                            var dateKey = loOrderDate[l];
+                            var custKey = loCustomerKey[l];
+                            var suppKey = loSupplierKey[l];
+
+                            // Position Look UP
+                            string dYear;
+                            dateHashTable.TryGetValue(dateKey, out dYear);
+
+                            string cNationOut = cNation[custKey];
+                            string sNationOut = sNation[suppKey-1];
+                            joinOutputIntermediate.Add(l, cNationOut + "," + sNationOut + "," + dYear);
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
+
+                    }
+                    l++;
+                }
+
+                var joinOutputFinal = new Dictionary<int, string>();
+                foreach (var item in joinOutputIntermediate)
+                {
+                    joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
+                }
+                //sw.Stop();
+                //Console.WriteLine("[Invisble Join]: Value Extraction Phase took {0} ms.", sw.ElapsedMilliseconds);
+                #endregion Value Extraction Phase
+                sw.Stop();
+                Console.WriteLine("[Invisble Join]: Total Time {0} secs.", sw.ElapsedMilliseconds / 1000);
+                Console.WriteLine("[Invisble Join]: Total Rows {0}.", joinOutputFinal.Count);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public void ParallelInvisibleJoin()
+        {
+
+            try
+            {
+                var dateHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<int, string>();
+                var supplierHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                #region Key Hashing Phase
+                sw.Start();
+                Parallel.Invoke(po, () =>
+                {
+                    List<Date> dateDimension = Utils.ReadFromBinaryFile<List<Date>>(dateFile);
+                    foreach (var row in dateDimension)
+                    {
+                        if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                            dateHashTable.Add(row.dDateKey, row.dYear);
+                    }
+                    dateDimension.Clear();
+                },
+               () =>
+               {
+                   List<Customer> customerDimension = Utils.ReadFromBinaryFile<List<Customer>>(customerFile);
+                   foreach (var row in customerDimension)
+                   {
+                       if (row.cRegion.Equals("ASIA"))
+                           customerHashTable.Add(row.cCustKey, row.cNation);
+                   }
+                   customerDimension.Clear();
+               },
+               () =>
+               {
+                   List<Supplier> supplierDimension = Utils.ReadFromBinaryFile<List<Supplier>>(supplierFile);
+                   foreach (var row in supplierDimension)
+                   {
+                       if (row.sRegion.Equals("ASIA"))
+                           supplierHashTable.Add(row.sSuppKey, row.sNation);
+                   }
+                   supplierDimension.Clear();
+               });
+                sw.Stop();
+                #endregion Key Hashing Phase
+
+                Console.WriteLine("[Parallel Invisible Join]: Key Hashing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
+                #region Probing Phase
+                sw.Start();
+                List<int> loOrderDate = null;
+                List<int> loCustomerKey = null;
+                List<int> loSupplierKey = null;
+                BitArray baCustomerKey = null;
+                BitArray baOrderDate = null;
+                BitArray baSupplierKey = null;
+
+                Parallel.Invoke(po, () =>
+                {
+                    loOrderDate = Utils.ReadFromBinaryFile<List<int>>(loOrderDateFile);
+                    baOrderDate = new BitArray(loOrderDate.Count);
+                    var i = 0;
+                    foreach (var orderDate in loOrderDate)
+                    {
+                        if (dateHashTable.ContainsKey(orderDate))
+                            baOrderDate.Set(i, true);
+                        i++;
+                    }
+                    loOrderDate.Clear();
+                },
+                () =>
+                {
+                    loCustomerKey = Utils.ReadFromBinaryFile<List<int>>(loCustKeyFile);
+                    baCustomerKey = new BitArray(loCustomerKey.Count);
+                    var j = 0;
+                    foreach (var custKey in loCustomerKey)
+                    {
+                        if (customerHashTable.ContainsKey(custKey))
+                            baCustomerKey.Set(j, true);
+                        j++;
+                    }
+                    loCustomerKey.Clear();
+                },
+                () =>
+                {
+                    loSupplierKey = Utils.ReadFromBinaryFile<List<int>>(loSuppKeyFile);
+                    baSupplierKey = new BitArray(loSupplierKey.Count);
+                    var k = 0;
+                    foreach (var suppKey in loSupplierKey)
+                    {
+                        if (supplierHashTable.ContainsKey(suppKey))
+                            baSupplierKey.Set(k, true);
+                        k++;
+                    }
+                    loSupplierKey.Clear();
+                });
+
+                baCustomerKey.And(baSupplierKey);
+                baCustomerKey.And(baOrderDate);
+
+                sw.Stop();
+                #endregion Probing Phase
+
+                Console.WriteLine("[Parallel Invisible Join]: Probing Phase took {0} ms.", sw.ElapsedMilliseconds);
+                sw.Reset();
+
+                #region Value Extraction Phase
+
+                sw.Start();
                 loOrderDate = Utils.ReadFromBinaryFile<List<int>>(loOrderDateFile);
                 loCustomerKey = Utils.ReadFromBinaryFile<List<int>>(loCustKeyFile);
                 loSupplierKey = Utils.ReadFromBinaryFile<List<int>>(loSuppKeyFile);
@@ -357,7 +1085,7 @@ namespace ParallelHashJoins
                         var suppKey = loSupplierKey[l];
 
                         // Position Look UP
-                        int dYear;
+                        string dYear;
                         dateHashTable.TryGetValue(dateKey, out dYear);
 
                         string cNationOut = cNation[custKey];
@@ -372,14 +1100,19 @@ namespace ParallelHashJoins
                 {
                     joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
                 }
+
+                sw.Stop();
                 #endregion Value Extraction Phase
-                Console.WriteLine("Total Rows: " + joinOutputFinal.Count);
+
+                Console.WriteLine("[Parallel Invisible Join]: Value Extraction Phase took {0} ms.", sw.ElapsedMilliseconds);
+                Console.WriteLine("[Parallel Invisible Join]: Total Rows {0}.", joinOutputFinal.Count);
             }
             catch (Exception ex)
             {
 
                 throw;
             }
+
         }
 
         public void loadColumns()
@@ -527,7 +1260,7 @@ namespace ParallelHashJoins
                     {
                         var data = line.Split('|');
                         date.Add(new Date(Convert.ToInt32(data[0]), data[1], data[2], data[3],
-                            Convert.ToInt32(data[4]), Convert.ToInt32(data[5]), data[6], Convert.ToInt32(data[7]),
+                            data[4], Convert.ToInt32(data[5]), data[6], Convert.ToInt32(data[7]),
                             Convert.ToInt32(data[8]), Convert.ToInt32(data[9]), Convert.ToInt32(data[10]), Convert.ToInt32(data[11]),
                             data[12], Convert.ToInt32(data[13]), Convert.ToInt32(data[14]), Convert.ToInt32(data[15]), Convert.ToInt32(data[16])));
                     }
@@ -636,7 +1369,6 @@ namespace ParallelHashJoins
             Utils.WriteToBinaryFile<List<string>>(pContainerFile, pContainer);
             Console.WriteLine("Creating Binary Files for columns in PART table complete.");
         }
-
 
     }
 }

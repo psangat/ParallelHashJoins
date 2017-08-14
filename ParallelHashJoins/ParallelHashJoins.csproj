@@ -48,13 +48,15 @@
     <Compile Include="ConcurrentBitArray.cs" />
     <Compile Include="ConcurrentBitMap.cs" />
     <Compile Include="Customer.cs" />
+    <Compile Include="DataCreator.cs" />
     <Compile Include="Date.cs" />
+    <Compile Include="FastBitMap.cs" />
+    <Compile Include="main.cs" />
     <Compile Include="StaticPartitioner.cs" />
     <Compile Include="ThreadSafeBitArray.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="LineOrder.cs" />
     <Compile Include="Part.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Supplier.cs" />
   </ItemGroup>

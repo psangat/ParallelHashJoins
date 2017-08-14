@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -29,6 +30,7 @@ namespace ParallelHashJoins
                 .Select(x => x.Select(v => v.Value).ToList())
                 .ToList();
         }
+
 
         /// <summary>
         /// Writes the given object instance to a binary file.
@@ -61,6 +63,16 @@ namespace ParallelHashJoins
                 var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                 return (T)binaryFormatter.Deserialize(stream);
             }
+        }
+
+        public static List<T> ReadFromBinaryFiles<T>(string filePath)
+        {
+            List<T> list = new List<T>();
+            foreach (var file in Directory.EnumerateFiles(filePath, "*.bin"))
+            {
+                list.AddRange(ReadFromBinaryFile<List<T>>(file));
+            }
+            return list;
         }
     }
 }

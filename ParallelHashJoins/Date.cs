@@ -15,7 +15,7 @@ namespace ParallelHashJoins
         public string dDate { get; set; }
         public string dDayOfWeek { get; set; }
         public string dMonth { get; set; }
-        public int dYear { get; set; }
+        public string dYear { get; set; }
         public int dYearMonthNum { get; set; }
         public string dYearMonth { get; set; }
         public int dDayNumInWeek { get; set; }
@@ -40,7 +40,7 @@ namespace ParallelHashJoins
             string dDate, 
             string dDayOfWeek, 
             string dMonth,
-            int dYear, 
+            string dYear, 
             int dYearMonthNum, 
             string dYearMonth, 
             int dDayNumInWeek, 
