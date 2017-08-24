@@ -10,7 +10,7 @@ namespace ParallelHashJoins
     static class DataCreator
     {
         #region Private Variables
-        private static string folderPath = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\SF 4";
+        private static string folderPath = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\SF 5";
         private static List<int> cCustKey = new List<int>();
         private static List<string> cName = new List<string>();
         private static List<string> cAddress = new List<string>();
@@ -83,7 +83,7 @@ namespace ParallelHashJoins
         private static List<LineOrder> lineOrder = new List<LineOrder>();
         private static List<Date> date = new List<Date>();
 
-        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BFSF4";
+        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BFSF5";
         private static string dateFile = Path.Combine(binaryFilesDirectory, "dateFile");
         private static string customerFile = Path.Combine(binaryFilesDirectory, "customerFile");
         private static string supplierFile = Path.Combine(binaryFilesDirectory, "supplierFile");
@@ -331,6 +331,7 @@ namespace ParallelHashJoins
                 //}
             }
         }
+
         public static void createBinaryChunks<T>(string filePath, List<T> sourceList, int chunkSize)
         {
             var lists = sourceList.ChunkBy<T>(chunkSize);
@@ -355,26 +356,6 @@ namespace ParallelHashJoins
             Utils.WriteToBinaryFile<List<Part>>(partFile, part);
 
             Console.WriteLine("Creating Binary Files for tables complete.");
-            //Utils.WriteToBinaryFile<List<int>>(dDateKeyFile, dDateKey);
-            //Utils.WriteToBinaryFile<List<int>>(dYearFile, dYear);
-            //Utils.WriteToBinaryFile<List<int>>(dYearMonthNumFile, dYearMonthNum);
-            //Utils.WriteToBinaryFile<List<int>>(dDayNumInWeekFile, dDayNumInWeek);
-            //Utils.WriteToBinaryFile<List<int>>(dDayNumInMonthFile, dDayNumInMonth);
-            //Utils.WriteToBinaryFile<List<int>>(dDayNumInYearFile, dDayNumInYear);
-            //Utils.WriteToBinaryFile<List<int>>(dMonthNumInYearFile, dMonthNumInYear);
-            //Utils.WriteToBinaryFile<List<int>>(dWeekNumInYearFile, dWeekNumInYear);
-            //Utils.WriteToBinaryFile<List<int>>(dLastDayInWeekFLFile, dLastDayInWeekFL);
-            //Utils.WriteToBinaryFile<List<int>>(dLastDayInMonthFLFile, dLastDayInMonthFL);
-            //Utils.WriteToBinaryFile<List<int>>(dHolidayFLFile, dHolidayFL);
-            //Utils.WriteToBinaryFile<List<int>>(dWeekDayFLFile, dWeekDayFL);
-            //Utils.WriteToBinaryFile<List<string>>(dDateFile, dDate);
-            //Utils.WriteToBinaryFile<List<string>>(dDayOfWeekFile, dDayOfWeek);
-            //Utils.WriteToBinaryFile<List<string>>(dMonthFile, dMonth);
-            //Utils.WriteToBinaryFile<List<string>>(dYearMonthFile, dYearMonth);
-            //Utils.WriteToBinaryFile<List<string>>(dSellingSeasonFile, dSellingSeason);
-
-
-
 
             createBinaryChunks<int>(dDateKeyFile, dDateKey, CHUNK_SIZE);
             createBinaryChunks<int>(dYearFile, dYear, CHUNK_SIZE);
@@ -448,17 +429,16 @@ namespace ParallelHashJoins
         //static void Main(string[] args)
         //{
         //    // Use if Needed to Create Binary Files Again
-        //    Console.WriteLine("Loading Columns...");
-        //    loadColumns();
-        //    Console.WriteLine("Loading Columns Completed.");
+        //    //Console.WriteLine("Loading Columns...");
+        //    //loadColumns();
+        //    //Console.WriteLine("Loading Columns Completed.");
         //    //Console.WriteLine("Loading Tables...");
-        //    loadTables();
+        //    //loadTables();
         //    //Console.WriteLine("Loading Tables Completed.");
-        //    createBinaryFiles();
-        //    Console.WriteLine("Completed.");
-        //    //Console.WriteLine();
-
-        //    Console.ReadKey();
+        //    //Console.WriteLine("Creating Binary Files...");
+        //    //createBinaryFiles();
+        //    //Console.WriteLine("Creating Binary Files Completed.");
+        //    //Console.ReadKey();
         //}
     }
 }
