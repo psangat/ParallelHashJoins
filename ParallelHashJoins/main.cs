@@ -1,36 +1,90 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
     class main
     {
-        static DataTable dt = null;
+        private static List<String> nimbleJoinOutput = new List<string>();
+        private static List<String> invisibleJoinOutput = new List<string>();
         static void Main(string[] args)
         {
-            Algorithms ag = new Algorithms();
-            List<String> lines = new List<string>();
-            string header = "TotalRecords, #D1, #D2, #D3, TotalOutput, Selectivity Ratio, P1Time, P2Time, P3Time, TET, IRT";
-            Console.WriteLine(header);
-            lines.Add(header);
-            for (int i = 0; i < 20; i++)
+
+            for (int i = 0; i < 10; i++)
             {
-                ag.resetGlobalVariables();
-                ag.NimbleJoinV2();
-                string record = ag.totalNumberOfRecords + ", "+ ag.totalRecordsD1 + ", " + ag.totalRecordsD2 + ", " + ag.totalRecordsD3+ ", " + ag.totalNumberOfOutput + ", " + ((Double)ag.totalNumberOfOutput / ag.totalNumberOfRecords) + ", " + ag.phase1Time + ", " + ag.phase2Time + ", " + ag.phase3Time + ", " + (ag.phase1Time + ag.phase2Time + ag.phase3Time) + ", " + ag.initialResposeTime;
-                Console.WriteLine(record);
-                lines.Add(record);
-                //foreach (var item in ag.outputRecordsList)
-                //{
-                //    Console.WriteLine(item);
-                //}
+                NimbleJoin nimbleJoin = new NimbleJoin("SF4");
+                nimbleJoin.Query_3_1();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(1000);
+                //nimbleJoinOutput.Add(nimbleJoin.testResults.toString());
+                Console.WriteLine(nimbleJoin.testResults.toString());
+
+                InvisibleJoin invisibleJoin = new InvisibleJoin("SF4");
+                invisibleJoin.Query_3_1();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(1000);
+                //invisibleJoinOutput.Add(invisibleJoin.testResults.toString());
+                Console.WriteLine(invisibleJoin.testResults.toString());
             }
-            System.IO.File.WriteAllLines(@"C:\Users\psangats\Google Drive\Study\0190 Doctor of Philosophy\My Research - Publication Works\Nimble Join\SF4_1.txt", lines);
-            //Console.ReadKey();
+            //string fileName = "Q31.txt";
+            //string nimbleJoinOutputFilePath = @"C:\Users\psangats\Google Drive\Study\0190 Doctor of Philosophy\My Research - Publication Works\Nimble Join\17_09_2017\";
+            //if (!Directory.Exists(nimbleJoinOutputFilePath))
+            //    Directory.CreateDirectory(nimbleJoinOutputFilePath);
+            //// System.IO.File.WriteAllLines(nimbleJoinOutputFilePath + fileName, nimbleJoinOutput);
+
+            //string invisibleJoinOutputFilePath = @"C:\Users\psangats\Google Drive\Study\0190 Doctor of Philosophy\My Research - Publication Works\Invisible Join\17_09_2017\";
+            //if (!Directory.Exists(invisibleJoinOutputFilePath))
+            //    Directory.CreateDirectory(invisibleJoinOutputFilePath);
+            ////System.IO.File.WriteAllLines(invisibleJoinOutputFilePath + fileName, invisibleJoinOutput);
+
+
+
+            //selectivityTest("SF3");
+
+            Console.WriteLine("Processing Complete.");
+            Console.ReadKey();
+        }
+
+        public static void selectivityTest(string scaleFactor)
+        {
+            //"SF1", "SF2", "SF3", "SF4"
+            // "0.007", "0.07", "0.7"
+            List<string> selectivityRatios = new List<string>() {"0.07"};
+            foreach (var selectivityRatio in selectivityRatios)
+            {
+                for (int i = 0; i < 20; i++)
+                {
+                    NimbleJoin nimbleJoin = new NimbleJoin(scaleFactor);
+                    nimbleJoin.Query_3_1(selectivityRatio);
+                    GC.Collect(2, GCCollectionMode.Forced, true);
+                    Thread.Sleep(100);
+                    nimbleJoinOutput.Add(nimbleJoin.testResults.toString());
+
+                    InvisibleJoin invisibleJoin = new InvisibleJoin(scaleFactor);
+                    invisibleJoin.Query_3_1(selectivityRatio);
+                    GC.Collect(2, GCCollectionMode.Forced, true);
+                    Thread.Sleep(100);
+                    invisibleJoinOutput.Add(invisibleJoin.testResults.toString());
+                }
+
+                string fileName = scaleFactor + "_" + selectivityRatio + ".txt";
+                string nimbleJoinOutputFilePath = @"C:\Users\psangats\Google Drive\Study\0190 Doctor of Philosophy\My Research - Publication Works\Nimble Join\" + DateTime.Now.ToString("dd MMMM yyyy") + "\\";
+                if (!Directory.Exists(nimbleJoinOutputFilePath))
+                    Directory.CreateDirectory(nimbleJoinOutputFilePath);
+                System.IO.File.WriteAllLines(nimbleJoinOutputFilePath + fileName, nimbleJoinOutput);
+                nimbleJoinOutput.Clear();
+                string invisibleJoinOutputFilePath = @"C:\Users\psangats\Google Drive\Study\0190 Doctor of Philosophy\My Research - Publication Works\Invisible Join\" + DateTime.Now.ToString("dd MMMM yyyy") + "\\";
+                if (!Directory.Exists(invisibleJoinOutputFilePath))
+                    Directory.CreateDirectory(invisibleJoinOutputFilePath);
+                System.IO.File.WriteAllLines(invisibleJoinOutputFilePath + fileName, invisibleJoinOutput);
+                invisibleJoinOutput.Clear();
+            }
         }
     }
 }

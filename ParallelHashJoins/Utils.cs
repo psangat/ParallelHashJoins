@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Devices;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
@@ -11,6 +13,10 @@ namespace ParallelHashJoins
 {
     public static class Utils
     {
+        public static float getAvailableRAM()
+        {
+            return new ComputerInfo().TotalPhysicalMemory;
+        }
         public static string convertObjectToCSVString(this Object value)
         {
             PropertyInfo[] properties = value.GetType().GetProperties();

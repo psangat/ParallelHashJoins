@@ -10,7 +10,8 @@ namespace ParallelHashJoins
     static class DataCreator
     {
         #region Private Variables
-        private static string folderPath = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\SF 5";
+        private static string folderPath = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\SF 4";
+        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BFSF4";
         private static List<int> cCustKey = new List<int>();
         private static List<string> cName = new List<string>();
         private static List<string> cAddress = new List<string>();
@@ -83,11 +84,11 @@ namespace ParallelHashJoins
         private static List<LineOrder> lineOrder = new List<LineOrder>();
         private static List<Date> date = new List<Date>();
 
-        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BFSF5";
-        private static string dateFile = Path.Combine(binaryFilesDirectory, "dateFile");
-        private static string customerFile = Path.Combine(binaryFilesDirectory, "customerFile");
-        private static string supplierFile = Path.Combine(binaryFilesDirectory, "supplierFile");
-        private static string partFile = Path.Combine(binaryFilesDirectory, "partFile");
+        
+        private static string dateFile = Path.Combine(binaryFilesDirectory, @"\date\dateFileFile");
+        private static string customerFile = Path.Combine(binaryFilesDirectory, @"\customer\customerFile");
+        private static string supplierFile = Path.Combine(binaryFilesDirectory, @"\supplier\supplierFile");
+        private static string partFile = Path.Combine(binaryFilesDirectory, @"\part\partFile");
 
         private static string dDateKeyFile = Path.Combine(binaryFilesDirectory, @"\dDateKey\dDateKeyFile");
         private static string dYearFile = Path.Combine(binaryFilesDirectory, @"\dYear\dYearFile");
@@ -152,7 +153,7 @@ namespace ParallelHashJoins
         private static string pTypeFile = Path.Combine(binaryFilesDirectory, @"\pType\pTypeFile");
         private static string pContainerFile = Path.Combine(binaryFilesDirectory, @"\pContainer\pContainerFile");
 
-        private static int CHUNK_SIZE = 10000;
+        private static int CHUNK_SIZE = 500;
         #endregion Private Variables
 
         public static void loadColumns()
@@ -350,10 +351,15 @@ namespace ParallelHashJoins
         public static void createBinaryFiles()
         {
             Console.WriteLine("Starting to Create Binary Files");
-            Utils.WriteToBinaryFile<List<Date>>(dateFile, date);
-            Utils.WriteToBinaryFile<List<Customer>>(customerFile, customer);
-            Utils.WriteToBinaryFile<List<Supplier>>(supplierFile, supplier);
-            Utils.WriteToBinaryFile<List<Part>>(partFile, part);
+            //Utils.WriteToBinaryFile<List<Date>>(dateFile, date);
+            //Utils.WriteToBinaryFile<List<Customer>>(customerFile, customer);
+            //Utils.WriteToBinaryFile<List<Supplier>>(supplierFile, supplier);
+            //Utils.WriteToBinaryFile<List<Part>>(partFile, part);
+
+            createBinaryChunks<Date>(dateFile, date, CHUNK_SIZE);
+            createBinaryChunks<Customer>(customerFile, customer, CHUNK_SIZE);
+            createBinaryChunks<Supplier>(supplierFile, supplier, CHUNK_SIZE);
+            createBinaryChunks<Part>(partFile, part, CHUNK_SIZE);
 
             Console.WriteLine("Creating Binary Files for tables complete.");
 
@@ -429,16 +435,16 @@ namespace ParallelHashJoins
         //static void Main(string[] args)
         //{
         //    // Use if Needed to Create Binary Files Again
-        //    //Console.WriteLine("Loading Columns...");
+        //    Console.WriteLine("Loading Columns...");
         //    //loadColumns();
-        //    //Console.WriteLine("Loading Columns Completed.");
-        //    //Console.WriteLine("Loading Tables...");
-        //    //loadTables();
-        //    //Console.WriteLine("Loading Tables Completed.");
-        //    //Console.WriteLine("Creating Binary Files...");
-        //    //createBinaryFiles();
-        //    //Console.WriteLine("Creating Binary Files Completed.");
-        //    //Console.ReadKey();
+        //    Console.WriteLine("Loading Columns Completed.");
+        //    Console.WriteLine("Loading Tables...");
+        //    loadTables();
+        //    Console.WriteLine("Loading Tables Completed.");
+        //    Console.WriteLine("Creating Binary Files...");
+        //    createBinaryFiles();
+        //    Console.WriteLine("Creating Binary Files Completed.");
+        //    Console.ReadKey();
         //}
     }
 }

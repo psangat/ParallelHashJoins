@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,15 +46,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms.cs" />
-    <Compile Include="ConcurrentBitArray.cs" />
-    <Compile Include="ConcurrentBitMap.cs" />
     <Compile Include="Customer.cs" />
-    <Compile Include="DataCreator.cs" />
     <Compile Include="Date.cs" />
-    <Compile Include="FastBitMap.cs" />
+    <Compile Include="InvisibleJoin.cs" />
     <Compile Include="main.cs" />
-    <Compile Include="StaticPartitioner.cs" />
-    <Compile Include="ThreadSafeBitArray.cs" />
+    <Compile Include="MemoryManagement.cs" />
+    <Compile Include="NimbleJoin.cs" />
+    <Compile Include="TestResults.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="LineOrder.cs" />
     <Compile Include="Part.cs" />
