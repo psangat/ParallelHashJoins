@@ -55,8 +55,8 @@ namespace ParallelHashJoins
             //{
             //    sb.Append(item.Item1 + "," + item.Item2 + ",");
             //}
-            //sb.Append(totalNumberOfOutput+ ","+ memoryUsed + ",");
-            sb.Append(memoryUsed + ",");
+            sb.Append(totalNumberOfOutput+ ","+ memoryUsed + ",");
+            //sb.Append(memoryUsed + ",");
             sb.Append(phase11IOTime + "," + phase11HashTime + "," + phase12IOTime + "," + phase12HashTime + "," + phase13IOTime + "," + phase13HashTime + "," + phase1Time + "," +
                 phase21IOTime + "," + phase21ProbeTime + "," + phase22IOTime + "," + phase22ProbeTime + "," + phase23IOTime + "," + phase23ProbeTime + "," + phase2Time + "," +
                 phase3IOTime + "," + phase3ExtractionTime + "," + phase3Time + "," +
