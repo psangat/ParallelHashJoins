@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
+    struct Triplets
+    {
+        public string x;
+        public string y;
+        public string z;
+    };
     class NimbleJoin
     {
 
@@ -169,6 +175,474 @@ namespace ParallelHashJoins
 
 
         public TestResults testResults = new TestResults();
+        public void Query_1_1()
+        {
+            try
+            {
+                long memoryStartPhase1 = GC.GetTotalMemory(true);
+                outputRecordsCounter = 0;
+                var dateHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                Stopwatch swInitialRecorder = new Stopwatch();
+                Stopwatch swOutputRecorder = new Stopwatch();
+
+                #region Key Hashing Phase
+                List<Date> dateDimension = null;
+
+                swInitialRecorder.Start();
+                swOutputRecorder.Start();
+                sw.Start();
+                dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase11IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.Equals("1993"))
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+                sw.Stop();
+                testResults.phase11HashTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                testResults.phase13HashTime = sw.ElapsedMilliseconds;
+                testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime +
+                    testResults.phase12HashTime + testResults.phase12IOTime +
+                    testResults.phase13HashTime + testResults.phase13IOTime;
+                sw.Reset();
+
+                dateDimension.Clear();
+
+                long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                long memoryStartPhase2 = GC.GetTotalMemory(true);
+
+                sw.Start();
+                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase22IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                var intermediateHashTable = new Dictionary<int, Triplets>();
+                var k = 0;
+                foreach (var orderDate in loOrderDate)
+                {
+                    string dYear = string.Empty;
+                    Triplets values = new Triplets();
+                    if (dateHashTable.TryGetValue(orderDate, out dYear))
+                    {
+                        intermediateHashTable.Add(k, values);
+                    }
+                    k++;
+                }
+
+                sw.Stop();
+                testResults.phase22ProbeTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime +
+                    testResults.phase22IOTime + testResults.phase22ProbeTime +
+                    testResults.phase23IOTime + testResults.phase23ProbeTime;
+                sw.Reset();
+
+                loOrderDate.Clear();
+
+                long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
+                #endregion Probing Phase
+
+                #region Value Extraction Phase
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
+                sw.Start();
+                //List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase3IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                //var joinOutputFinal = new Dictionary<int, string>();
+                //foreach (var item in intermediateHashTable)
+                //{
+                //    joinOutputFinal.Add(item.Key, item.Value + ", " + loRevenue[item.Key]); // Direct array lookup
+                //}
+
+                var j = 0;
+                int totalRevenue = 0;
+                foreach (var row in intermediateHashTable)
+                {
+                    string cNation = string.Empty;
+                    int key = row.Key;
+                    if (loQuantity[key] < 25)
+                    {
+                        int discount = loDiscount[key];
+                        if (discount >= 1 && discount <= 3)
+                        {
+                            var revenue = (loExtendedPrice[key] * discount);
+                            totalRevenue += revenue;
+                            if (isFirst)
+                            {
+                                swInitialRecorder.Stop();
+                                testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                                isFirst = false;
+                            }
+                            //Console.WriteLine(k +", "+ values.ToString() + ", " + sNation);
+                            outputRecordsCounter++;
+                            if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
+                            {
+                                swOutputRecorder.Stop();
+                                testResults.outputRateList.Add(new Tuple<long, long>(outputRecordsCounter, swOutputRecorder.ElapsedMilliseconds));
+                                swOutputRecorder.Start();
+                            }
+                        }
+                        else
+                        {
+                            // intermediateHashTable.Remove(j);
+                        }
+                    }
+                    else
+                    {
+                        // intermediateHashTable.Remove(j);
+                    }
+                    j++;
+                }
+
+                sw.Stop();
+
+                long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
+                #endregion Value Extraction Phase
+                testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
+                testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
+                testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
+                // Console.WriteLine("[Nimble Join]: Time taken {0} ms.", testResults.totalExecutionTime);
+                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
+                testResults.totalNumberOfOutput = totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void Query_1_2()
+        {
+            try
+            {
+                long memoryStartPhase1 = GC.GetTotalMemory(true);
+                outputRecordsCounter = 0;
+                var dateHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                Stopwatch swInitialRecorder = new Stopwatch();
+                Stopwatch swOutputRecorder = new Stopwatch();
+
+                #region Key Hashing Phase
+                List<Date> dateDimension = null;
+
+                swInitialRecorder.Start();
+                swOutputRecorder.Start();
+                sw.Start();
+                dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase11IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYearMonthNum == 199401)
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+                sw.Stop();
+                testResults.phase11HashTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                testResults.phase13HashTime = sw.ElapsedMilliseconds;
+                testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime +
+                    testResults.phase12HashTime + testResults.phase12IOTime +
+                    testResults.phase13HashTime + testResults.phase13IOTime;
+                sw.Reset();
+
+                dateDimension.Clear();
+
+                long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                long memoryStartPhase2 = GC.GetTotalMemory(true);
+
+                sw.Start();
+                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase22IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                var intermediateHashTable = new Dictionary<int, Triplets>();
+                var k = 0;
+                foreach (var orderDate in loOrderDate)
+                {
+                    string dYear = string.Empty;
+                    Triplets values = new Triplets();
+                    if (dateHashTable.TryGetValue(orderDate, out dYear))
+                    {
+                        intermediateHashTable.Add(k, values);
+                    }
+                    k++;
+                }
+
+                sw.Stop();
+                testResults.phase22ProbeTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime +
+                    testResults.phase22IOTime + testResults.phase22ProbeTime +
+                    testResults.phase23IOTime + testResults.phase23ProbeTime;
+                sw.Reset();
+
+                loOrderDate.Clear();
+
+                long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
+                #endregion Probing Phase
+
+                #region Value Extraction Phase
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
+                sw.Start();
+                //List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase3IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                //var joinOutputFinal = new Dictionary<int, string>();
+                //foreach (var item in intermediateHashTable)
+                //{
+                //    joinOutputFinal.Add(item.Key, item.Value + ", " + loRevenue[item.Key]); // Direct array lookup
+                //}
+
+                var j = 0;
+                int totalRevenue = 0;
+                foreach (var row in intermediateHashTable)
+                {
+                    string cNation = string.Empty;
+                    int key = row.Key;
+                    int quantity = loQuantity[key];
+                    if (quantity >= 26 && quantity <= 35)
+                    {
+                        int discount = loDiscount[key];
+                        if (discount >= 4 && discount <= 6)
+                        {
+                            var revenue = (loExtendedPrice[key] * discount);
+                            totalRevenue += revenue;
+                            if (isFirst)
+                            {
+                                swInitialRecorder.Stop();
+                                testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                                isFirst = false;
+                            }
+                            //Console.WriteLine(k +", "+ values.ToString() + ", " + sNation);
+                            outputRecordsCounter++;
+                            if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
+                            {
+                                swOutputRecorder.Stop();
+                                testResults.outputRateList.Add(new Tuple<long, long>(outputRecordsCounter, swOutputRecorder.ElapsedMilliseconds));
+                                swOutputRecorder.Start();
+                            }
+                        }
+                        else
+                        {
+                            // intermediateHashTable.Remove(j);
+                        }
+                    }
+                    else
+                    {
+                        // intermediateHashTable.Remove(j);
+                    }
+                    j++;
+                }
+
+                sw.Stop();
+
+                long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
+                #endregion Value Extraction Phase
+                testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
+                testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
+                testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
+                // Console.WriteLine("[Nimble Join]: Time taken {0} ms.", testResults.totalExecutionTime);
+                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
+                testResults.totalNumberOfOutput = totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void Query_1_3()
+        {
+            try
+            {
+                long memoryStartPhase1 = GC.GetTotalMemory(true);
+                outputRecordsCounter = 0;
+                var dateHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                Stopwatch swInitialRecorder = new Stopwatch();
+                Stopwatch swOutputRecorder = new Stopwatch();
+
+                #region Key Hashing Phase
+                List<Date> dateDimension = null;
+
+                swInitialRecorder.Start();
+                swOutputRecorder.Start();
+                sw.Start();
+                dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase11IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.Equals("1994") && row.dWeekNumInYear == 6)
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+                sw.Stop();
+                testResults.phase11HashTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                testResults.phase13HashTime = sw.ElapsedMilliseconds;
+                testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime +
+                    testResults.phase12HashTime + testResults.phase12IOTime +
+                    testResults.phase13HashTime + testResults.phase13IOTime;
+                sw.Reset();
+
+                dateDimension.Clear();
+
+                long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                long memoryStartPhase2 = GC.GetTotalMemory(true);
+
+                sw.Start();
+                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase22IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                var intermediateHashTable = new Dictionary<int, Triplets>();
+                var k = 0;
+                foreach (var orderDate in loOrderDate)
+                {
+                    string dYear = string.Empty;
+                    Triplets values = new Triplets();
+                    if (dateHashTable.TryGetValue(orderDate, out dYear))
+                    {
+                        intermediateHashTable.Add(k, values);
+                    }
+                    k++;
+                }
+
+                sw.Stop();
+                testResults.phase22ProbeTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime +
+                    testResults.phase22IOTime + testResults.phase22ProbeTime +
+                    testResults.phase23IOTime + testResults.phase23ProbeTime;
+                sw.Reset();
+
+                loOrderDate.Clear();
+
+                long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
+                #endregion Probing Phase
+
+                #region Value Extraction Phase
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
+                sw.Start();
+                //List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase3IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                //var joinOutputFinal = new Dictionary<int, string>();
+                //foreach (var item in intermediateHashTable)
+                //{
+                //    joinOutputFinal.Add(item.Key, item.Value + ", " + loRevenue[item.Key]); // Direct array lookup
+                //}
+
+                var j = 0;
+                int totalRevenue = 0;
+                foreach (var row in intermediateHashTable)
+                {
+                    string cNation = string.Empty;
+                    int key = row.Key;
+                    int quantity = loQuantity[key];
+                    if (quantity >= 26 && quantity <= 35)
+                    {
+                        int discount = loDiscount[key];
+                        if (discount >= 5 && discount <= 7)
+                        {
+                            var revenue = (loExtendedPrice[key] * discount);
+                            totalRevenue += revenue;
+                            if (isFirst)
+                            {
+                                swInitialRecorder.Stop();
+                                testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                                isFirst = false;
+                            }
+                            //Console.WriteLine(k +", "+ values.ToString() + ", " + sNation);
+                            outputRecordsCounter++;
+                            if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
+                            {
+                                swOutputRecorder.Stop();
+                                testResults.outputRateList.Add(new Tuple<long, long>(outputRecordsCounter, swOutputRecorder.ElapsedMilliseconds));
+                                swOutputRecorder.Start();
+                            }
+                        }
+                        else
+                        {
+                            // intermediateHashTable.Remove(j);
+                        }
+                    }
+                    else
+                    {
+                        // intermediateHashTable.Remove(j);
+                    }
+                    j++;
+                }
+
+                sw.Stop();
+
+                long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
+                #endregion Value Extraction Phase
+                testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
+                testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
+                testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
+                // Console.WriteLine("[Nimble Join]: Time taken {0} ms.", testResults.totalExecutionTime);
+                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
+                testResults.totalNumberOfOutput = totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         public void Query_3_1()
         {
             try
@@ -181,7 +655,7 @@ namespace ParallelHashJoins
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
-                
+
                 #region Key Hashing Phase
                 List<Date> dateDimension = null;
                 List<Supplier> supplierDimension = null;
@@ -243,7 +717,7 @@ namespace ParallelHashJoins
                 customerDimension.Clear();
                 dateDimension.Clear();
                 supplierDimension.Clear();
-             
+
                 long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
                 #endregion Key Hashing Phase
 
@@ -251,7 +725,7 @@ namespace ParallelHashJoins
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
                 List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                
+
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
@@ -268,7 +742,7 @@ namespace ParallelHashJoins
                     }
                     i++;
                 }
-              
+
                 sw.Stop();
                 testResults.phase21ProbeTime = sw.ElapsedMilliseconds;
                 sw.Reset();
@@ -342,7 +816,7 @@ namespace ParallelHashJoins
                     }
                     j++;
                 }
-                
+
                 sw.Stop();
                 testResults.phase23ProbeTime = sw.ElapsedMilliseconds;
                 testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime +
@@ -353,7 +827,7 @@ namespace ParallelHashJoins
                 loOrderDate.Clear();
                 loCustomerKey.Clear();
                 loSupplierKey.Clear();
-           
+
                 long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
                 #endregion Probing Phase
 
@@ -379,7 +853,7 @@ namespace ParallelHashJoins
                 testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
                 testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
                 // Console.WriteLine("[Nimble Join]: Time taken {0} ms.", testResults.totalExecutionTime);
-                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) +","+ (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3)/testResults.totalRAMAvailable) * 100) + "%";
+                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
                 testResults.totalNumberOfOutput = joinOutputFinal.Count;
             }
             catch (Exception ex)
@@ -461,7 +935,7 @@ namespace ParallelHashJoins
                 customerDimension.Clear();
                 dateDimension.Clear();
                 supplierDimension.Clear();
-                
+
                 long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
                 #endregion Key Hashing Phase
 
@@ -567,7 +1041,7 @@ namespace ParallelHashJoins
                 loOrderDate.Clear();
                 loCustomerKey.Clear();
                 loSupplierKey.Clear();
-               
+
                 long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
                 #endregion Probing Phase
 
@@ -586,7 +1060,7 @@ namespace ParallelHashJoins
                     joinOutputFinal.Add(item.Key, item.Value + ", " + loRevenue[item.Key]); // Direct array lookup
                 }
                 sw.Stop();
-                
+
                 long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
                 #endregion Value Extraction Phase
                 testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;

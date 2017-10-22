@@ -33,7 +33,7 @@ namespace ParallelHashJoins
                 Console.WriteLine();
 
                 InvisibleJoin invisibleJoin = new InvisibleJoin(scaleFactor);
-                invisibleJoin.Query_3_3();
+                invisibleJoin.Query_1_3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
                 invisibleJoinOutput.Add(invisibleJoin.testResults.toString());
@@ -41,7 +41,7 @@ namespace ParallelHashJoins
                 Console.WriteLine();
 
                 NimbleJoin nimbleJoin = new NimbleJoin(scaleFactor);
-                nimbleJoin.Query_3_3();
+                nimbleJoin.Query_1_3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
                 nimbleJoinOutput.Add(nimbleJoin.testResults.toString());
@@ -50,7 +50,7 @@ namespace ParallelHashJoins
 
 
                 ParallelInvisibleJoin pInvisibleJoin = new ParallelInvisibleJoin(scaleFactor);
-                pInvisibleJoin.Query_3_3();
+                pInvisibleJoin.Query_1_3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
                 pInvisibleJoinOutput.Add(pInvisibleJoin.testResults.toString());
@@ -58,7 +58,7 @@ namespace ParallelHashJoins
                 Console.WriteLine();
 
                 ParallelNimbleJoin pNimbleJoin = new ParallelNimbleJoin(scaleFactor);
-                pNimbleJoin.Query_3_3();
+                pNimbleJoin.Query_1_3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
                 pNimbleJoinOutput.Add(pNimbleJoin.testResults.toString());
@@ -71,7 +71,7 @@ namespace ParallelHashJoins
 
             }
 
-            printResultsToFile(scaleFactor + "_Q33.txt");
+            //printResultsToFile(scaleFactor + "_Q33.txt");
             //selectivityTest("SF3");
 
             Console.WriteLine("Processing Complete.");

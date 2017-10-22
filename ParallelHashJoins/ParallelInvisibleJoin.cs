@@ -174,6 +174,540 @@ namespace ParallelHashJoins
 
         ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
+        public void Query_1_1()
+        {
+            try
+            {
+                long memoryStartPhase1 = GC.GetTotalMemory(true);
+                outputRecordsCounter = 0;
+                var dateHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                Stopwatch swInitialRecorder = new Stopwatch();
+                Stopwatch swOutputRecorder = new Stopwatch();
+
+                #region Key Hashing Phase
+                List<Date> dateDimension = null;
+
+                swInitialRecorder.Start();
+                swOutputRecorder.Start();
+                sw.Start();
+                dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase11IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.Equals("1993"))
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+                sw.Stop();
+                testResults.phase11HashTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+
+                testResults.phase13HashTime = sw.ElapsedMilliseconds;
+                testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime +
+                    testResults.phase12HashTime + testResults.phase12IOTime +
+                    testResults.phase13HashTime + testResults.phase13IOTime;
+                sw.Reset();
+
+                dateDimension.Clear();
+
+                long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                long memoryStartPhase2 = GC.GetTotalMemory(true);
+                sw.Start();
+                List<int> loOrderDate = null;
+                List<int> loDiscount = null;
+                List<int> loQuantity = null;
+                Parallel.Invoke(parallelOptions, () => loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor)),
+                    () => loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor)),
+                    () => loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor)));
+
+                sw.Stop();
+                testResults.phase21IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                var listOrderDatePositions = new List<int>();
+                var listLineOrderDiscountPositions = new List<int>();
+                var listLineOrderQuantityPositions = new List<int>();
+
+                Parallel.Invoke(parallelOptions, () =>
+                {
+                    var i = 0;
+                    foreach (var orderDate in loOrderDate)
+                    {
+                        string dYear = "";
+                        if (dateHashTable.TryGetValue(orderDate, out dYear))
+                        {
+                            listOrderDatePositions.Add(i);
+                        }
+                        i++;
+                    }
+                },
+                () =>
+                {
+                    var j = 0;
+                    foreach (var _loDiscount in loDiscount)
+                    {
+                        if (_loDiscount >= 1 && _loDiscount <= 3)
+                        {
+                            listLineOrderDiscountPositions.Add(j);
+                        }
+                        j++;
+                    }
+                },
+                () =>
+                {
+                    var k = 0;
+                    foreach (var _loQuantity in loQuantity)
+                    {
+                        string sNationOut = string.Empty;
+                        if (_loQuantity < 25)
+                        {
+                            listLineOrderQuantityPositions.Add(k);
+                        }
+                        k++;
+                    }
+                });
+                var common = listLineOrderDiscountPositions.Intersect(listOrderDatePositions).Intersect(listLineOrderQuantityPositions).ToList();
+
+                sw.Stop();
+                testResults.phase21ProbeTime = sw.ElapsedMilliseconds;
+                testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime +
+                    testResults.phase22IOTime + testResults.phase22ProbeTime +
+                    testResults.phase23IOTime + testResults.phase23ProbeTime;
+                sw.Reset();
+
+                loOrderDate.Clear();
+                dateHashTable.Clear();
+                listLineOrderDiscountPositions.Clear();
+                listLineOrderQuantityPositions.Clear();
+                loQuantity.Clear();
+
+                long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
+                #endregion Probing Phase
+
+
+                #region Value Extraction Phase
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
+                sw.Start();
+                loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase3IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                int totalRevenue = 0;
+                object lockObject = new object();
+                Parallel.ForEach(common, (index) =>
+                {
+                    try
+                    {
+                        lock (lockObject)
+                        {
+                            var revenue = loDiscount[index] * loExtendedPrice[index];
+                            totalRevenue += revenue;
+                        }
+                        if (isFirst)
+                        {
+                            swInitialRecorder.Stop();
+                            testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                            isFirst = false;
+                        }
+
+                        outputRecordsCounter++;
+                        if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
+                        {
+                            swOutputRecorder.Stop();
+                            //testResults.outputRateList.Add(new Tuple<long, long>(outputRecordsCounter, swOutputRecorder.ElapsedMilliseconds));
+                            swOutputRecorder.Start();
+                        }
+                        // Console.WriteLine(l +", "+ dYear  + ", " + sNationOut + ", " + cNationOut);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                });
+                sw.Stop();
+                long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
+                #endregion Value Extraction Phase
+                testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
+                testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
+                testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
+                //Console.WriteLine("[Invisble Join]: Time taken {0} ms.", sw.ElapsedMilliseconds);
+                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
+                testResults.totalNumberOfOutput = totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void Query_1_2()
+        {
+            try
+            {
+                long memoryStartPhase1 = GC.GetTotalMemory(true);
+                outputRecordsCounter = 0;
+                var dateHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                Stopwatch swInitialRecorder = new Stopwatch();
+                Stopwatch swOutputRecorder = new Stopwatch();
+
+                #region Key Hashing Phase
+                List<Date> dateDimension = null;
+
+                swInitialRecorder.Start();
+                swOutputRecorder.Start();
+                sw.Start();
+                dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase11IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYearMonthNum == 199401)
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+                sw.Stop();
+                testResults.phase11HashTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+
+                testResults.phase13HashTime = sw.ElapsedMilliseconds;
+                testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime +
+                    testResults.phase12HashTime + testResults.phase12IOTime +
+                    testResults.phase13HashTime + testResults.phase13IOTime;
+                sw.Reset();
+
+                dateDimension.Clear();
+
+                long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                long memoryStartPhase2 = GC.GetTotalMemory(true);
+                sw.Start();
+                List<int> loOrderDate = null;
+                List<int> loDiscount = null;
+                List<int> loQuantity = null;
+                Parallel.Invoke(parallelOptions, () => loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor)),
+                    () => loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor)),
+                    () => loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor)));
+
+                sw.Stop();
+                testResults.phase21IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                var listOrderDatePositions = new List<int>();
+                var listLineOrderDiscountPositions = new List<int>();
+                var listLineOrderQuantityPositions = new List<int>();
+
+                Parallel.Invoke(parallelOptions, () =>
+                {
+                    var i = 0;
+                    foreach (var orderDate in loOrderDate)
+                    {
+                        string dYear = "";
+                        if (dateHashTable.TryGetValue(orderDate, out dYear))
+                        {
+                            listOrderDatePositions.Add(i);
+                        }
+                        i++;
+                    }
+                },
+                () =>
+                {
+                    var j = 0;
+                    foreach (var _loDiscount in loDiscount)
+                    {
+                        if (_loDiscount >= 4 && _loDiscount <= 6)
+                        {
+                            listLineOrderDiscountPositions.Add(j);
+                        }
+                        j++;
+                    }
+                },
+                () =>
+                {
+                    var k = 0;
+                    foreach (var _loQuantity in loQuantity)
+                    {
+                        string sNationOut = string.Empty;
+                        if (_loQuantity >= 26 && _loQuantity <= 35)
+                        {
+                            listLineOrderQuantityPositions.Add(k);
+                        }
+                        k++;
+                    }
+                });
+                var common = listLineOrderDiscountPositions.Intersect(listOrderDatePositions).Intersect(listLineOrderQuantityPositions).ToList();
+
+                sw.Stop();
+                testResults.phase21ProbeTime = sw.ElapsedMilliseconds;
+                testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime +
+                    testResults.phase22IOTime + testResults.phase22ProbeTime +
+                    testResults.phase23IOTime + testResults.phase23ProbeTime;
+                sw.Reset();
+
+                loOrderDate.Clear();
+                dateHashTable.Clear();
+                listLineOrderDiscountPositions.Clear();
+                listLineOrderQuantityPositions.Clear();
+                loQuantity.Clear();
+
+                long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
+                #endregion Probing Phase
+
+
+                #region Value Extraction Phase
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
+                sw.Start();
+                loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase3IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                int totalRevenue = 0;
+                object lockObject = new object();
+                Parallel.ForEach(common, (index) =>
+                {
+                    try
+                    {
+                        lock (lockObject)
+                        {
+                            var revenue = loDiscount[index] * loExtendedPrice[index];
+                            totalRevenue += revenue;
+                        }
+                        if (isFirst)
+                        {
+                            swInitialRecorder.Stop();
+                            testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                            isFirst = false;
+                        }
+
+                        outputRecordsCounter++;
+                        if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
+                        {
+                            swOutputRecorder.Stop();
+                            //testResults.outputRateList.Add(new Tuple<long, long>(outputRecordsCounter, swOutputRecorder.ElapsedMilliseconds));
+                            swOutputRecorder.Start();
+                        }
+                        // Console.WriteLine(l +", "+ dYear  + ", " + sNationOut + ", " + cNationOut);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                });
+                sw.Stop();
+                long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
+                #endregion Value Extraction Phase
+                testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
+                testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
+                testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
+                //Console.WriteLine("[Invisble Join]: Time taken {0} ms.", sw.ElapsedMilliseconds);
+                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
+                testResults.totalNumberOfOutput = totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void Query_1_3()
+        {
+            try
+            {
+                long memoryStartPhase1 = GC.GetTotalMemory(true);
+                outputRecordsCounter = 0;
+                var dateHashTable = new Dictionary<int, string>();
+                Stopwatch sw = new Stopwatch();
+                Stopwatch swInitialRecorder = new Stopwatch();
+                Stopwatch swOutputRecorder = new Stopwatch();
+
+                #region Key Hashing Phase
+                List<Date> dateDimension = null;
+
+                swInitialRecorder.Start();
+                swOutputRecorder.Start();
+                sw.Start();
+                dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase11IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.Equals("1994") && row.dWeekNumInYear == 6 )
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+                sw.Stop();
+                testResults.phase11HashTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+
+                testResults.phase13HashTime = sw.ElapsedMilliseconds;
+                testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime +
+                    testResults.phase12HashTime + testResults.phase12IOTime +
+                    testResults.phase13HashTime + testResults.phase13IOTime;
+                sw.Reset();
+
+                dateDimension.Clear();
+
+                long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                long memoryStartPhase2 = GC.GetTotalMemory(true);
+                sw.Start();
+                List<int> loOrderDate = null;
+                List<int> loDiscount = null;
+                List<int> loQuantity = null;
+                Parallel.Invoke(parallelOptions, () => loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor)),
+                    () => loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor)),
+                    () => loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor)));
+
+                sw.Stop();
+                testResults.phase21IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                var listOrderDatePositions = new List<int>();
+                var listLineOrderDiscountPositions = new List<int>();
+                var listLineOrderQuantityPositions = new List<int>();
+
+                Parallel.Invoke(parallelOptions, () =>
+                {
+                    var i = 0;
+                    foreach (var orderDate in loOrderDate)
+                    {
+                        string dYear = "";
+                        if (dateHashTable.TryGetValue(orderDate, out dYear))
+                        {
+                            listOrderDatePositions.Add(i);
+                        }
+                        i++;
+                    }
+                },
+                () =>
+                {
+                    var j = 0;
+                    foreach (var _loDiscount in loDiscount)
+                    {
+                        if (_loDiscount >= 5 && _loDiscount <= 7)
+                        {
+                            listLineOrderDiscountPositions.Add(j);
+                        }
+                        j++;
+                    }
+                },
+                () =>
+                {
+                    var k = 0;
+                    foreach (var _loQuantity in loQuantity)
+                    {
+                        string sNationOut = string.Empty;
+                        if (_loQuantity >= 26 && _loQuantity <= 35)
+                        {
+                            listLineOrderQuantityPositions.Add(k);
+                        }
+                        k++;
+                    }
+                });
+                var common = listLineOrderDiscountPositions.Intersect(listOrderDatePositions).Intersect(listLineOrderQuantityPositions).ToList();
+
+                sw.Stop();
+                testResults.phase21ProbeTime = sw.ElapsedMilliseconds;
+                testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime +
+                    testResults.phase22IOTime + testResults.phase22ProbeTime +
+                    testResults.phase23IOTime + testResults.phase23ProbeTime;
+                sw.Reset();
+
+                loOrderDate.Clear();
+                dateHashTable.Clear();
+                listLineOrderDiscountPositions.Clear();
+                listLineOrderQuantityPositions.Clear();
+                loQuantity.Clear();
+
+                long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
+                #endregion Probing Phase
+
+
+                #region Value Extraction Phase
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
+                sw.Start();
+                loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                sw.Stop();
+                testResults.phase3IOTime = sw.ElapsedMilliseconds;
+                sw.Reset();
+
+                sw.Start();
+                int totalRevenue = 0;
+                object lockObject = new object();
+                Parallel.ForEach(common, (index) =>
+                {
+                    try
+                    {
+                        lock (lockObject)
+                        {
+                            var revenue = loDiscount[index] * loExtendedPrice[index];
+                            totalRevenue += revenue;
+                        }
+                        if (isFirst)
+                        {
+                            swInitialRecorder.Stop();
+                            testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                            isFirst = false;
+                        }
+
+                        outputRecordsCounter++;
+                        if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
+                        {
+                            swOutputRecorder.Stop();
+                            //testResults.outputRateList.Add(new Tuple<long, long>(outputRecordsCounter, swOutputRecorder.ElapsedMilliseconds));
+                            swOutputRecorder.Start();
+                        }
+                        // Console.WriteLine(l +", "+ dYear  + ", " + sNationOut + ", " + cNationOut);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                });
+                sw.Stop();
+                long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
+                #endregion Value Extraction Phase
+                testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
+                testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
+                testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
+                //Console.WriteLine("[Invisble Join]: Time taken {0} ms.", sw.ElapsedMilliseconds);
+                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
+                testResults.totalNumberOfOutput = totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
         public void Query_3_1()
         {
             try
@@ -385,7 +919,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 });
-                
+
                 var joinOutputFinal = new Dictionary<int, string>();
                 foreach (var item in joinOutputIntermediate)
                 {
@@ -605,9 +1139,9 @@ namespace ParallelHashJoins
                         sCityOut = sCity[suppKey - 1];
                         if (isFirst)
                         {
-                                swInitialRecorder.Stop();
-                                testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
-                                isFirst = false;
+                            swInitialRecorder.Stop();
+                            testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                            isFirst = false;
                         }
                         outputRecordsCounter++;
                         if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
@@ -704,7 +1238,7 @@ namespace ParallelHashJoins
                 {
                     foreach (var row in supplierDimension)
                     {
-                        if (row.sCity.Equals("UNITED KI1")|| row.sCity.Equals("UNITED KI5"))
+                        if (row.sCity.Equals("UNITED KI1") || row.sCity.Equals("UNITED KI5"))
                             supplierHashTable.Add(row.sSuppKey, row.sCity);
                     }
                 });
@@ -844,9 +1378,9 @@ namespace ParallelHashJoins
                         sCityOut = sCity[suppKey - 1];
                         if (isFirst)
                         {
-                                swInitialRecorder.Stop();
-                                testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
-                                isFirst = false;
+                            swInitialRecorder.Stop();
+                            testResults.initialResposeTime = swInitialRecorder.ElapsedMilliseconds;
+                            isFirst = false;
                         }
                         outputRecordsCounter++;
                         if (outputRecordsCounter % NUMBER_OF_RECORDS_OUTPUT == 0)
