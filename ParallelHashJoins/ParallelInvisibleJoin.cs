@@ -14,11 +14,18 @@ namespace ParallelHashJoins
         private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BF";
         private string scaleFactor { get; set; }
         private MemoryManagement memoryManagement { get; set; }
-        public ParallelInvisibleJoin(string scaleFactor, MemoryManagement memoryManagement = MemoryManagement.LAZY)
+
+
+        private ParallelOptions parallelOptions = null;
+        public ParallelInvisibleJoin(string scaleFactor, int degreeOfParallelism = 1)
         {
             this.scaleFactor = scaleFactor;
-            this.memoryManagement = memoryManagement;
             testResults.totalRAMAvailable = Utils.getAvailableRAM();
+            parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
+        }
+
+        ~ParallelInvisibleJoin() {
+            saveAndPrintResults();
         }
 
         #region Private Variables
@@ -172,7 +179,7 @@ namespace ParallelHashJoins
 
         public TestResults testResults = new TestResults();
 
-        ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+       
 
         public void Query_1_1()
         {
@@ -707,7 +714,14 @@ namespace ParallelHashJoins
                 throw ex;
             }
         }
-        
+
+        public void Query_2_1() { }
+        public void Query_2_2() { }
+        public void Query_2_3() { }
+
+        public void Query_4_1() { }
+        public void Query_4_2() { }
+        public void Query_4_3() { }
         public void Query_3_1()
         {
             try
@@ -1423,6 +1437,14 @@ namespace ParallelHashJoins
                 throw;
             }
 
+        }
+
+
+        private void saveAndPrintResults()
+        {
+            TestResultsDatabase.pInvisibleJoinOutput.Add(testResults.toString());
+            Console.WriteLine("Parallel Invisible: " + testResults.toString());
+            Console.WriteLine();
         }
     }
 }

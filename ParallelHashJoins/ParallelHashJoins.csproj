@@ -49,12 +49,15 @@
     <Compile Include="Customer.cs" />
     <Compile Include="Date.cs" />
     <Compile Include="InvisibleJoin.cs" />
+    <Compile Include="Invoker.cs" />
+    <Compile Include="MAAT.cs" />
     <Compile Include="main.cs" />
     <Compile Include="MemoryManagement.cs" />
     <Compile Include="NimbleJoin.cs" />
     <Compile Include="ParallelInvisibleJoin.cs" />
     <Compile Include="ParallelNimbleJoin.cs" />
     <Compile Include="TestResults.cs" />
+    <Compile Include="TestResultsDatabase.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="LineOrder.cs" />
     <Compile Include="Part.cs" />

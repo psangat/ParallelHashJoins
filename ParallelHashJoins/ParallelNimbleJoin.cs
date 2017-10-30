@@ -20,13 +20,18 @@ namespace ParallelHashJoins
         private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BF";
         private string scaleFactor { get; set; }
         private MemoryManagement memoryManagement { get; set; }
-        public ParallelNimbleJoin(string scaleFactor, MemoryManagement memoryManagement = MemoryManagement.LAZY)
+
+        private ParallelOptions parallelOptions = null;
+
+        public ParallelNimbleJoin(string scaleFactor, int degreeOfParallelism = 1)
         {
             this.scaleFactor = scaleFactor;
-            this.memoryManagement = memoryManagement;
             testResults.totalRAMAvailable = Utils.getAvailableRAM();
+            parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
         }
-
+        ~ParallelNimbleJoin() {
+            saveAndPrintResults();
+        }
         #region Private Variables
         private List<int> cCustKey = new List<int>();
         private List<string> cName = new List<string>();
@@ -176,8 +181,6 @@ namespace ParallelHashJoins
 
 
         public TestResults testResults = new TestResults();
-
-        ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
         public void Query_1_1()
         {
@@ -648,6 +651,14 @@ namespace ParallelHashJoins
                 throw ex;
             }
         }
+
+        public void Query_2_1() { }
+        public void Query_2_2() { }
+        public void Query_2_3() { }
+
+        public void Query_4_1() { }
+        public void Query_4_2() { }
+        public void Query_4_3() { }
         public void Query_3_1()
         {
             try
@@ -836,7 +847,6 @@ namespace ParallelHashJoins
                 throw ex;
             }
         }
-
         public void Query_3_2()
         {
             try
@@ -1025,7 +1035,6 @@ namespace ParallelHashJoins
                 throw ex;
             }
         }
-
         public void Query_3_3()
         {
             try
@@ -1214,190 +1223,197 @@ namespace ParallelHashJoins
                 throw ex;
             }
         }
-        public void Query_3_1_Using_ConcurrentDictionary()
+        //public void Query_3_1_Using_ConcurrentDictionary()
+        //{
+        //    try
+        //    {
+        //        long memoryStartPhase1 = GC.GetTotalMemory(true);
+        //        outputRecordsCounter = 0;
+        //        var dateHashTable = new Dictionary<int, string>();
+        //        var customerHashTable = new Dictionary<int, string>();
+        //        var supplierHashTable = new Dictionary<int, string>();
+        //        Stopwatch sw = new Stopwatch();
+        //        Stopwatch swInitialRecorder = new Stopwatch();
+        //        Stopwatch swOutputRecorder = new Stopwatch();
+
+        //        #region Key Hashing Phase
+        //        List<Date> dateDimension = null;
+        //        List<Supplier> supplierDimension = null;
+        //        List<Customer> customerDimension = null;
+
+        //        swInitialRecorder.Start();
+        //        swOutputRecorder.Start();
+        //        sw.Start();
+
+        //        Parallel.Invoke(parallelOptions,
+        //            () => dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor)),
+        //            () => customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor)),
+        //            () => supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor))
+        //             );
+        //        sw.Stop();
+        //        testResults.phase11IOTime = sw.ElapsedMilliseconds;
+        //        sw.Reset();
+
+        //        sw.Start();
+        //        Parallel.Invoke(parallelOptions, () =>
+        //        {
+        //            foreach (var row in dateDimension)
+        //            {
+        //                if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+        //                    dateHashTable.Add(row.dDateKey, row.dYear);
+        //            }
+        //        },
+        //        () =>
+        //        {
+        //            foreach (var row in customerDimension)
+        //            {
+        //                if (row.cRegion.Equals("ASIA"))
+        //                    customerHashTable.Add(row.cCustKey, row.cNation);
+        //            }
+        //        },
+        //        () =>
+        //        {
+        //            foreach (var row in supplierDimension)
+        //            {
+        //                if (row.sRegion.Equals("ASIA"))
+        //                    supplierHashTable.Add(row.sSuppKey, row.sNation);
+        //            }
+        //        });
+        //        sw.Stop();
+        //        testResults.phase11HashTime = sw.ElapsedMilliseconds;
+        //        testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime;
+        //        sw.Reset();
+
+        //        customerDimension.Clear();
+        //        dateDimension.Clear();
+        //        supplierDimension.Clear();
+
+        //        long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
+        //        #endregion Key Hashing Phase
+
+        //        #region Probing Phase
+        //        long memoryStartPhase2 = GC.GetTotalMemory(true);
+        //        sw.Start();
+        //        List<int> loOrderDate = null;
+        //        List<int> loCustomerKey = null;
+        //        List<int> loSupplierKey = null;
+        //        Parallel.Invoke(parallelOptions,
+        //            () => loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor)),
+        //            () => loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor)),
+        //            () => loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor)));
+        //        sw.Stop();
+        //        testResults.phase21IOTime = sw.ElapsedMilliseconds;
+        //        sw.Reset();
+
+        //        sw.Start();
+        //        var intermediateHashTable = new ConcurrentDictionary<int, Triplets>();
+        //        var i = 0;
+        //        foreach (var suppKey in loSupplierKey)
+        //        {
+        //            string sNation = string.Empty;
+        //            if (supplierHashTable.TryGetValue(suppKey, out sNation))
+        //            {
+        //                Triplets t = new Triplets();
+        //                t.x = sNation;
+        //                intermediateHashTable.TryAdd(i, t);
+        //            }
+        //            i++;
+        //        }
+
+        //        Parallel.Invoke(() =>
+        //        {
+        //            var k = 0;
+        //            foreach (var orderDate in loOrderDate)
+        //            {
+        //                string dYear = string.Empty;
+        //                if (dateHashTable.TryGetValue(orderDate, out dYear))
+        //                {
+        //                    Triplets values;
+        //                    if (intermediateHashTable.TryGetValue(k, out values))
+        //                    {
+        //                        values.y = dYear;
+        //                        intermediateHashTable[k] = values;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    Triplets values;
+        //                    intermediateHashTable.TryRemove(k, out values);
+        //                }
+        //                k++;
+        //            }
+        //        }, () =>
+        //        {
+        //            var j = 0;
+        //            foreach (var custKey in loCustomerKey)
+        //            {
+        //                string cNation = string.Empty;
+        //                if (customerHashTable.TryGetValue(custKey, out cNation))
+        //                {
+        //                    Triplets values;
+        //                    if (intermediateHashTable.TryGetValue(j, out values))
+        //                    {
+        //                        values.z = cNation;
+        //                        intermediateHashTable[j] = values;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    Triplets values;
+        //                    intermediateHashTable.TryRemove(j, out values);
+        //                }
+        //                j++;
+        //            }
+        //        });
+
+        //        sw.Stop();
+        //        testResults.phase21ProbeTime = sw.ElapsedMilliseconds;
+        //        testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime;
+        //        sw.Reset();
+
+        //        loOrderDate.Clear();
+        //        loCustomerKey.Clear();
+        //        loSupplierKey.Clear();
+
+        //        long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
+        //        #endregion Probing Phase
+
+        //        #region Value Extraction Phase
+        //        long memoryStartPhase3 = GC.GetTotalMemory(true);
+        //        sw.Start();
+        //        List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+        //        sw.Stop();
+        //        testResults.phase3IOTime = sw.ElapsedMilliseconds;
+        //        sw.Reset();
+
+        //        sw.Start();
+        //        var joinOutputFinal = new Dictionary<int, string>();
+        //        foreach (var item in intermediateHashTable)
+        //        {
+        //            joinOutputFinal.Add(item.Key, item.Value + ", " + loRevenue[item.Key]); // Direct array lookup
+        //        }
+        //        sw.Stop();
+
+        //        long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
+        //        #endregion Value Extraction Phase
+        //        testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
+        //        testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
+        //        testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
+        //        // Console.WriteLine("[Nimble Join]: Time taken {0} ms.", testResults.totalExecutionTime);
+        //        testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
+        //        testResults.totalNumberOfOutput = intermediateHashTable.Count;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        private void saveAndPrintResults()
         {
-            try
-            {
-                long memoryStartPhase1 = GC.GetTotalMemory(true);
-                outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
-                Stopwatch sw = new Stopwatch();
-                Stopwatch swInitialRecorder = new Stopwatch();
-                Stopwatch swOutputRecorder = new Stopwatch();
-
-                #region Key Hashing Phase
-                List<Date> dateDimension = null;
-                List<Supplier> supplierDimension = null;
-                List<Customer> customerDimension = null;
-
-                swInitialRecorder.Start();
-                swOutputRecorder.Start();
-                sw.Start();
-
-                Parallel.Invoke(parallelOptions,
-                    () => dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor)),
-                    () => customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor)),
-                    () => supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor))
-                     );
-                sw.Stop();
-                testResults.phase11IOTime = sw.ElapsedMilliseconds;
-                sw.Reset();
-
-                sw.Start();
-                Parallel.Invoke(parallelOptions, () =>
-                {
-                    foreach (var row in dateDimension)
-                    {
-                        if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
-                            dateHashTable.Add(row.dDateKey, row.dYear);
-                    }
-                },
-                () =>
-                {
-                    foreach (var row in customerDimension)
-                    {
-                        if (row.cRegion.Equals("ASIA"))
-                            customerHashTable.Add(row.cCustKey, row.cNation);
-                    }
-                },
-                () =>
-                {
-                    foreach (var row in supplierDimension)
-                    {
-                        if (row.sRegion.Equals("ASIA"))
-                            supplierHashTable.Add(row.sSuppKey, row.sNation);
-                    }
-                });
-                sw.Stop();
-                testResults.phase11HashTime = sw.ElapsedMilliseconds;
-                testResults.phase1Time = testResults.phase11HashTime + testResults.phase11IOTime;
-                sw.Reset();
-
-                customerDimension.Clear();
-                dateDimension.Clear();
-                supplierDimension.Clear();
-
-                long memoryUsedPhase1 = GC.GetTotalMemory(true) - memoryStartPhase1;
-                #endregion Key Hashing Phase
-
-                #region Probing Phase
-                long memoryStartPhase2 = GC.GetTotalMemory(true);
-                sw.Start();
-                List<int> loOrderDate = null;
-                List<int> loCustomerKey = null;
-                List<int> loSupplierKey = null;
-                Parallel.Invoke(parallelOptions,
-                    () => loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor)),
-                    () => loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor)),
-                    () => loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor)));
-                sw.Stop();
-                testResults.phase21IOTime = sw.ElapsedMilliseconds;
-                sw.Reset();
-
-                sw.Start();
-                var intermediateHashTable = new ConcurrentDictionary<int, Triplets>();
-                var i = 0;
-                foreach (var suppKey in loSupplierKey)
-                {
-                    string sNation = string.Empty;
-                    if (supplierHashTable.TryGetValue(suppKey, out sNation))
-                    {
-                        Triplets t = new Triplets();
-                        t.x = sNation;
-                        intermediateHashTable.TryAdd(i, t);
-                    }
-                    i++;
-                }
-
-                Parallel.Invoke(() =>
-                {
-                    var k = 0;
-                    foreach (var orderDate in loOrderDate)
-                    {
-                        string dYear = string.Empty;
-                        if (dateHashTable.TryGetValue(orderDate, out dYear))
-                        {
-                            Triplets values;
-                            if (intermediateHashTable.TryGetValue(k, out values))
-                            {
-                                values.y = dYear;
-                                intermediateHashTable[k] = values;
-                            }
-                        }
-                        else
-                        {
-                            Triplets values;
-                            intermediateHashTable.TryRemove(k, out values);
-                        }
-                        k++;
-                    }
-                }, () =>
-                {
-                    var j = 0;
-                    foreach (var custKey in loCustomerKey)
-                    {
-                        string cNation = string.Empty;
-                        if (customerHashTable.TryGetValue(custKey, out cNation))
-                        {
-                            Triplets values;
-                            if (intermediateHashTable.TryGetValue(j, out values))
-                            {
-                                values.z = cNation;
-                                intermediateHashTable[j] = values;
-                            }
-                        }
-                        else
-                        {
-                            Triplets values;
-                            intermediateHashTable.TryRemove(j, out values);
-                        }
-                        j++;
-                    }
-                });
-
-                sw.Stop();
-                testResults.phase21ProbeTime = sw.ElapsedMilliseconds;
-                testResults.phase2Time = testResults.phase21IOTime + testResults.phase21ProbeTime;
-                sw.Reset();
-
-                loOrderDate.Clear();
-                loCustomerKey.Clear();
-                loSupplierKey.Clear();
-
-                long memoryUsedPhase2 = GC.GetTotalMemory(true) - memoryStartPhase2;
-                #endregion Probing Phase
-
-                #region Value Extraction Phase
-                long memoryStartPhase3 = GC.GetTotalMemory(true);
-                sw.Start();
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                sw.Stop();
-                testResults.phase3IOTime = sw.ElapsedMilliseconds;
-                sw.Reset();
-
-                sw.Start();
-                var joinOutputFinal = new Dictionary<int, string>();
-                foreach (var item in intermediateHashTable)
-                {
-                    joinOutputFinal.Add(item.Key, item.Value + ", " + loRevenue[item.Key]); // Direct array lookup
-                }
-                sw.Stop();
-
-                long memoryUsedPhase3 = GC.GetTotalMemory(true) - memoryStartPhase3;
-                #endregion Value Extraction Phase
-                testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
-                testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
-                testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
-                // Console.WriteLine("[Nimble Join]: Time taken {0} ms.", testResults.totalExecutionTime);
-                testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
-                testResults.totalNumberOfOutput = intermediateHashTable.Count;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            TestResultsDatabase.pNimbleJoinOutput.Add(testResults.toString());
+            Console.WriteLine("Parallel Nimble: " + testResults.toString());
+            Console.WriteLine();
         }
     }
 }
