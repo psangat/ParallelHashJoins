@@ -33,8 +33,8 @@ namespace ParallelHashJoins
             //RunAllTests(scaleFactor, 6);
             //RunAllTests(scaleFactor, 8);
             //RunAllTests(scaleFactor, 10);
-            for (int i = 1; i <= 5; i++) {
-
+            for (int i = 1; i <= 5; i++)
+            {
                 InvisibleJoin invisibleJoin = new InvisibleJoin(scaleFactor);
                 invisibleJoin.Query_4_3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
@@ -44,16 +44,18 @@ namespace ParallelHashJoins
                 Console.WriteLine();
                 TestResultsDatabase.clearAllDatabase();
 
-                NimbleJoin nj = new NimbleJoin(scaleFactor);
-                nj.Query_4_3();
+
+                ParallelInvisibleJoin pInvisibleJoin = new ParallelInvisibleJoin(scaleFactor, 4);
+                pInvisibleJoin.Query_4_3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
-                //invisibleJoinOutput.Add(invisibleJoin.testResults.toString());
-                //Console.WriteLine("Invisible: " + invisibleJoin.testResults.toString());
+                //pInvisibleJoinOutput.Add(pInvisibleJoin.testResults.toString());
+                //Console.WriteLine("Parallel Invisible: " + pInvisibleJoin.testResults.toString());
                 Console.WriteLine();
+
                 TestResultsDatabase.clearAllDatabase();
             }
-               
+
             //for (int i = 1; i <= 20; i++)
             //{
             //    Console.WriteLine("Run #" + i);
@@ -126,7 +128,7 @@ namespace ParallelHashJoins
                     for (int k = 1; k <= 2; k++)
                     {
 
-                        Console.WriteLine(String.Format("Run #{0} for Query {1}.{2}",k, i, j));
+                        Console.WriteLine(String.Format("Run #{0} for Query {1}.{2}", k, i, j));
                         Console.WriteLine();
 
                         Invoker.CreateAndInvoke("ParallelHashJoins.InvisibleJoin", new object[] { scaleFactor }, String.Format("Query_{0}_{1}", i, j), null);
@@ -190,7 +192,8 @@ namespace ParallelHashJoins
             TestResultsDatabase.clearAllDatabase();
         }
 
-        public static void MultiAttributeAssociativeArrayTest() {
+        public static void MultiAttributeAssociativeArrayTest()
+        {
             Stopwatch sw = new Stopwatch();
             sw.Start();
             int totalSize = 300000;
