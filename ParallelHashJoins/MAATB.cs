@@ -7,27 +7,15 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
-    class Record
-    {
-        public string s1;
-        public string s2;
-        public string s3;
-        public int i1;
-        public int i2;
-    }
-
-
-    class MAAT
+    class MAATB
     {
 
         private Record[] recordList;
         public BitArray bitMap;
 
-        public List<int> positions;
-        public MAAT(int arraySize)
+        public MAATB(int arraySize)
         {
             recordList = new Record[arraySize];
-            positions = new List<int>();
             bitMap = new BitArray(arraySize);
         }
 

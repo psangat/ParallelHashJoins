@@ -10,8 +10,8 @@ namespace ParallelHashJoins
     static class DataCreator
     {
         #region Private Variables
-        private static string folderPath = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\SF 4";
-        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BFSF4";
+        private static string folderPath = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\SF 10";
+        private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BFSF10";
         private static List<int> cCustKey = new List<int>();
         private static List<string> cName = new List<string>();
         private static List<string> cAddress = new List<string>();
