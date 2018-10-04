@@ -15,29 +15,77 @@ namespace ParallelHashJoins
     class main
     {
         private const int TIMETOSLEEP = 1000;
-        static void Main() {
+
+        static void Main()
+        {
+
+           int[,,,] array = new int[4,4,4,4];
+            array[0, 0, 0, 0] = 1;
+            array[3, 3, 3, 3] = 1;
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    for (int k = 0; k < 4; k++)
+                    {
+                        for (int l = 0; l < 4; l++)
+                        {
+                            Console.WriteLine(i + "," + j + "," + k + "," + l + " : " + array[i, j, k, l]);
+
+                        }
+                    }
+
+                }
+
+            }
+            Console.Read();
+        }
+        static void Main1() {
+            List<int> l1 = new List<int>() { 1,3,5,7,9};
+            List<int> l2 = new List<int>() { 2, 4, 6, 8, 10, 9 };
+
             InMemoryAggregation im = new InMemoryAggregation();
             //im.generateSmallSampleData();
             im.generateBigSampleData();
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 5; i++)
             {
+                //im.IMA_Simple_V2();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
-                im.ABC();
+                im.IMA_V3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
 
-               
-                im.ABC_V2();
+
+                im.IMA_V3_Parallel();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(100);
+                //im.ABC();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                im.ABC_V3();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
 
-                im.IMA_Simple_V2();
+                im.ABC_V3_Parallel();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
+
+                // Failed Experiment
+                //im.ABC_V5();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+
+                //im.ABC_V3();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
             }
             Console.ReadKey();
         }
+
         //static void Main(string[] args)
         //{
         //    //for (int i = 0; i < 10; i++)

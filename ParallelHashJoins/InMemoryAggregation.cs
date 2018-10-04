@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -26,7 +27,7 @@ namespace ParallelHashJoins
         int numberOfDimensionRecords = 6000;
         int numberOfFactRecords = 1000000;
 
-      
+
         public void generateSmallSampleData()
         {
             storeId.Add(1);
@@ -245,7 +246,8 @@ namespace ParallelHashJoins
                     {
                         kvStoreDim.Add(storeIndex + 1, dgKey);
                     }
-                    else {
+                    else
+                    {
                         dgKeyStore++;
                         kvStoreDim.Add(storeIndex + 1, dgKeyStore);
                         tempTableStoreDim.Add(sName, dgKeyStore);
@@ -266,19 +268,20 @@ namespace ParallelHashJoins
             {
                 if (type == 'b')
                 {
-                    
+
                     string pName = productName[productIndex];
                     int dgKey = 0;
                     if (tempTableProductDim.TryGetValue(pName, out dgKey))
                     {
                         kvProductDim.Add(productIndex + 1, dgKey);
                     }
-                    else {
+                    else
+                    {
                         dgKeyProduct++;
                         kvProductDim.Add(productIndex + 1, dgKeyProduct);
                         tempTableProductDim.Add(pName, dgKeyProduct);
                     }
-                    
+
                 }
                 else
                 {
@@ -334,10 +337,345 @@ namespace ParallelHashJoins
             //}
 
             Console.WriteLine("==============================================");
-            Console.WriteLine("[IMA] Memory Used: " + memoryUsed +", Total:"+ finalTable.Count);
+            Console.WriteLine("[IMA] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
             Console.WriteLine("[IMA] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
 
         }
+
+        /// <summary>
+        /// Key Vector is implemented as Dictionary <int, int>
+        /// InMemory Accumulator is a MultiDimensional Array
+        /// Temporary Table is a Datatable
+        /// </summary>
+        public void IMA_V3()
+        {
+            long memoryStart = GC.GetTotalMemory(true);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            Dictionary<int, int> kvStoreDim = new Dictionary<int, int>();
+            DataTable tempTableStoreDim = new DataTable();
+            tempTableStoreDim.Columns.Add("storeName", typeof(string));
+            tempTableStoreDim.Columns.Add("denseGroupingKey", typeof(int));
+            // Dictionary<string, int> tempTableStoreDim = new Dictionary<string, int>();
+
+
+            int storeIndex = 0;
+            int dgKeyStore = 0;
+            foreach (var type in storeType)
+            {
+                if (type == 'a')
+                {
+                    string sName = storeName[storeIndex];
+                    if (tempTableStoreDim.Rows.Count > 0)
+                    {
+                        var tempTable = tempTableStoreDim.Copy();
+                        var found = false;
+                        foreach (DataRow row in tempTableStoreDim.Rows)
+                        {
+                            var storeName = row.Field<string>("storeName");
+                            if (storeName.Equals(sName))
+                            {
+                                int dgKey = row.Field<int>("denseGroupingKey");
+                                kvStoreDim.Add(storeIndex + 1, dgKey);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            dgKeyStore++;
+                            tempTable.Rows.Add(sName, dgKeyStore);
+                            kvStoreDim.Add(storeIndex + 1, dgKeyStore);
+                        }
+                        tempTableStoreDim = tempTable;
+                    }
+                    else
+                    {
+                        dgKeyStore++;
+                        tempTableStoreDim.Rows.Add(sName, dgKeyStore);
+                        kvStoreDim.Add(storeIndex + 1, dgKeyStore);
+                    }
+                }
+                else
+                {
+                    kvStoreDim.Add(storeIndex + 1, 0);
+                }
+                storeIndex++;
+            }
+
+            Dictionary<int, int> kvProductDim = new Dictionary<int, int>();
+            DataTable tempTableProductDim = new DataTable();
+            tempTableProductDim.Columns.Add("productName", typeof(string));
+            tempTableProductDim.Columns.Add("denseGroupingKey", typeof(int));
+
+            int productIndex = 0;
+            int dgKeyProduct = 0;
+            foreach (var type in productType)
+            {
+                if (type == 'b')
+                {
+                    string pName = productName[productIndex];
+                    if (tempTableProductDim.Rows.Count > 0)
+                    {
+                        var tempTable = tempTableProductDim.Copy();
+                        var found = false;
+                        foreach (DataRow row in tempTableProductDim.Rows)
+                        {
+                            var productName = row.Field<string>("productName");
+                            if (productName.Equals(pName))
+                            {
+                                int dgKey = row.Field<int>("denseGroupingKey");
+                                kvProductDim.Add(productIndex + 1, dgKey);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            dgKeyProduct++;
+                            tempTable.Rows.Add(pName, dgKeyProduct);
+                            kvProductDim.Add(productIndex + 1, dgKeyProduct);
+                        }
+
+
+                        tempTableProductDim = tempTable;
+                    }
+                    else
+                    {
+                        dgKeyProduct++;
+                        tempTableProductDim.Rows.Add(pName, dgKeyProduct);
+                        kvProductDim.Add(productIndex + 1, dgKeyProduct);
+                    }
+
+                }
+                else
+                {
+                    kvProductDim.Add(productIndex + 1, 0);
+                }
+                productIndex++;
+            }
+
+            int dgkLengthStore = tempTableStoreDim.Rows.Count + 1;
+            int dgkLengthProduct = tempTableProductDim.Rows.Count + 1;
+
+            int[,] inMemoryAccumulator = new int[dgkLengthStore, dgkLengthProduct];
+
+            for (int i = 0; i < sID.Count(); i++)
+            {
+                int storeId = sID[i];
+                int productId = pID[i];
+                int dgkStoreDim = 0;
+                int dgkProductDim = 0;
+                if (kvStoreDim.TryGetValue(storeId, out dgkStoreDim) && kvProductDim.TryGetValue(productId, out dgkProductDim))
+                {
+                    if (dgkStoreDim == 0 || dgkProductDim == 0)
+                    {
+                        // skip
+                    }
+                    else
+                    {
+                        inMemoryAccumulator[dgkStoreDim, dgkProductDim] += revenue[i];
+                    }
+                }
+            }
+
+            List<string> finalTable = new List<string>();
+            foreach (DataRow sdRow in tempTableStoreDim.Rows)
+            {
+                foreach (DataRow pdRow in tempTableProductDim.Rows)
+                {
+                    int sumRevenue = inMemoryAccumulator[sdRow.Field<int>("denseGroupingKey"), pdRow.Field<int>("denseGroupingKey")];
+                    if (sumRevenue != 0)
+                    {
+                        finalTable.Add(sdRow.Field<string>("storeName") + ", " + pdRow.Field<string>("productName") + ", " + sumRevenue);
+                    }
+
+                }
+            }
+
+            long memoryUsed = GC.GetTotalMemory(true) - memoryStart;
+            sw.Stop();
+
+            //foreach (var item in finalTable)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            Console.WriteLine("==============================================");
+            Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
+            Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
+
+        }
+
+        public void IMA_V3_Parallel()
+        {
+            long memoryStart = GC.GetTotalMemory(true);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            Dictionary<int, int> kvStoreDim = new Dictionary<int, int>();
+            DataTable tempTableStoreDim = new DataTable();
+            tempTableStoreDim.Columns.Add("storeName", typeof(string));
+            tempTableStoreDim.Columns.Add("denseGroupingKey", typeof(int));
+            // Dictionary<string, int> tempTableStoreDim = new Dictionary<string, int>();
+
+            Dictionary<int, int> kvProductDim = new Dictionary<int, int>();
+            DataTable tempTableProductDim = new DataTable();
+            tempTableProductDim.Columns.Add("productName", typeof(string));
+            tempTableProductDim.Columns.Add("denseGroupingKey", typeof(int));
+            Parallel.Invoke(po, () =>
+            {
+
+                int storeIndex = 0;
+                int dgKeyStore = 0;
+                foreach (var type in storeType)
+                {
+                    if (type == 'a')
+                    {
+                        string sName = storeName[storeIndex];
+                        if (tempTableStoreDim.Rows.Count > 0)
+                        {
+                            var tempTable = tempTableStoreDim.Copy();
+                            var found = false;
+                            foreach (DataRow row in tempTableStoreDim.Rows)
+                            {
+                                var storeName = row.Field<string>("storeName");
+                                if (storeName.Equals(sName))
+                                {
+                                    int dgKey = row.Field<int>("denseGroupingKey");
+                                    kvStoreDim.Add(storeIndex + 1, dgKey);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found)
+                            {
+                                dgKeyStore++;
+                                tempTable.Rows.Add(sName, dgKeyStore);
+                                kvStoreDim.Add(storeIndex + 1, dgKeyStore);
+                            }
+                            tempTableStoreDim = tempTable;
+                        }
+                        else
+                        {
+                            dgKeyStore++;
+                            tempTableStoreDim.Rows.Add(sName, dgKeyStore);
+                            kvStoreDim.Add(storeIndex + 1, dgKeyStore);
+                        }
+                    }
+                    else
+                    {
+                        kvStoreDim.Add(storeIndex + 1, 0);
+                    }
+                    storeIndex++;
+                }
+            }, () =>
+            {
+                int productIndex = 0;
+                int dgKeyProduct = 0;
+                foreach (var type in productType)
+                {
+                    if (type == 'b')
+                    {
+                        string pName = productName[productIndex];
+                        if (tempTableProductDim.Rows.Count > 0)
+                        {
+                            var tempTable = tempTableProductDim.Copy();
+                            var found = false;
+                            foreach (DataRow row in tempTableProductDim.Rows)
+                            {
+                                var productName = row.Field<string>("productName");
+                                if (productName.Equals(pName))
+                                {
+                                    int dgKey = row.Field<int>("denseGroupingKey");
+                                    kvProductDim.Add(productIndex + 1, dgKey);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found)
+                            {
+                                dgKeyProduct++;
+                                tempTable.Rows.Add(pName, dgKeyProduct);
+                                kvProductDim.Add(productIndex + 1, dgKeyProduct);
+                            }
+
+
+                            tempTableProductDim = tempTable;
+                        }
+                        else
+                        {
+                            dgKeyProduct++;
+                            tempTableProductDim.Rows.Add(pName, dgKeyProduct);
+                            kvProductDim.Add(productIndex + 1, dgKeyProduct);
+                        }
+
+                    }
+                    else
+                    {
+                        kvProductDim.Add(productIndex + 1, 0);
+                    }
+                    productIndex++;
+                }
+
+            });
+            
+            int dgkLengthStore = tempTableStoreDim.Rows.Count + 1;
+            int dgkLengthProduct = tempTableProductDim.Rows.Count + 1;
+
+            int[,] inMemoryAccumulator = new int[dgkLengthStore, dgkLengthProduct];
+
+            for (int i = 0; i < sID.Count(); i++)
+            {
+                int storeId = sID[i];
+                int productId = pID[i];
+                int dgkStoreDim = 0;
+                int dgkProductDim = 0;
+                if (kvStoreDim.TryGetValue(storeId, out dgkStoreDim) && kvProductDim.TryGetValue(productId, out dgkProductDim))
+                {
+                    if (dgkStoreDim == 0 || dgkProductDim == 0)
+                    {
+                        // skip
+                    }
+                    else
+                    {
+                        inMemoryAccumulator[dgkStoreDim, dgkProductDim] += revenue[i];
+                    }
+                }
+            }
+
+            List<string> finalTable = new List<string>();
+            foreach (DataRow sdRow in tempTableStoreDim.Rows)
+            {
+                foreach (DataRow pdRow in tempTableProductDim.Rows)
+                {
+                    int sumRevenue = inMemoryAccumulator[sdRow.Field<int>("denseGroupingKey"), pdRow.Field<int>("denseGroupingKey")];
+                    if (sumRevenue != 0)
+                    {
+                        finalTable.Add(sdRow.Field<string>("storeName") + ", " + pdRow.Field<string>("productName") + ", " + sumRevenue);
+                    }
+
+                }
+            }
+
+            long memoryUsed = GC.GetTotalMemory(true) - memoryStart;
+            sw.Stop();
+
+            //foreach (var item in finalTable)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            Console.WriteLine("==============================================");
+            Console.WriteLine("[IMA_V3_Parallel] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
+            Console.WriteLine("[IMA_V3_Parallel] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
+
+        }
+
+        /// <summary>
+        /// Uses List with ROW ID and Revenue Value and stores it in Hash Table with DICTIONARY of GROUPING attribute
+        /// </summary>
         public void ABC()
         {
             long memoryStart = GC.GetTotalMemory(true);
@@ -444,6 +782,10 @@ namespace ParallelHashJoins
             Console.WriteLine("[ABC] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
         }
 
+        /// <summary>
+        /// used DIC in step 1
+        /// Uses DICTIONARY to store GROUPING attribute as key and row ID as value
+        /// </summary>
         public void ABC_V2()
         {
             long memoryStart = GC.GetTotalMemory(true);
@@ -497,7 +839,7 @@ namespace ParallelHashJoins
                 scounter++;
             }
 
-            Dictionary<string,HashSet<int>> productGroupDict = new Dictionary<string, HashSet<int>>();
+            Dictionary<string, HashSet<int>> productGroupDict = new Dictionary<string, HashSet<int>>();
             int pcounter = 0;
             foreach (var pid in pID)
             {
@@ -546,8 +888,486 @@ namespace ParallelHashJoins
             //}
 
             Console.WriteLine("==============================================");
-            Console.WriteLine("[ABC_V2] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count;
+            Console.WriteLine("[ABC_V2] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
             Console.WriteLine("[ABC_V2] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
+        }
+
+        /// <summary>
+        /// used HashSet in step 1
+        /// Uses DICTIONARY to store GROUPING attribute as key and HASH SET of row ID as value
+        /// </summary>
+        public void ABC_V3()
+        {
+            long memoryStart = GC.GetTotalMemory(true);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            HashSet<int> storeDict = new HashSet<int>();
+            int storeIndex = 0;
+            foreach (var type in storeType)
+            {
+                if (type == 'a')
+                {
+                    storeDict.Add(storeIndex + 1);
+                }
+                storeIndex++;
+            }
+
+            HashSet<int> productDict = new HashSet<int>();
+            int productIndex = 0;
+            foreach (var type in productType)
+            {
+                if (type == 'b')
+                {
+                    productDict.Add(productIndex + 1);
+                }
+                productIndex++;
+            }
+
+            Dictionary<string, HashSet<int>> storeGroupDict = new Dictionary<string, HashSet<int>>();
+            int scounter = 0;
+            foreach (var sid in sID)
+            {
+                if (storeDict.Contains(sid))
+                {
+                    string sName = storeName[sid - 1];
+                    HashSet<int> coll = null;
+                    if (storeGroupDict.TryGetValue(sName, out coll))
+                    {
+                        coll.Add(scounter + 1);
+                        storeGroupDict[sName] = coll;
+                    }
+                    else
+                    {
+                        coll = new HashSet<int>();
+                        coll.Add(scounter + 1);
+                        storeGroupDict.Add(sName, coll);
+                    }
+                }
+                scounter++;
+            }
+
+            Dictionary<string, HashSet<int>> productGroupDict = new Dictionary<string, HashSet<int>>();
+            int pcounter = 0;
+            foreach (var pid in pID)
+            {
+                if (productDict.Contains(pid))
+                {
+                    string pName = productName[pid - 1];
+                    HashSet<int> coll = null;
+                    if (productGroupDict.TryGetValue(pName, out coll))
+                    {
+                        coll.Add(pcounter + 1);
+                        productGroupDict[pName] = coll;
+                    }
+                    else
+                    {
+                        coll = new HashSet<int>();
+                        coll.Add(pcounter + 1);
+                        productGroupDict.Add(pName, coll);
+                    }
+                }
+                pcounter++;
+            }
+
+            List<string> finalTable = new List<string>();
+            foreach (var sGItem in storeGroupDict)
+            {
+                foreach (var pGItem in productGroupDict)
+                {
+                    // http://codebetter.com/patricksmacchia/2011/06/16/linq-intersect-2-7x-faster-with-hashset/
+                    //                    If the HashSet < T > is bigger than the other sequence, gains factor can be high (like 15x).
+                    //If the HashSet < T > is smaller than the other sequence, gains factor tends to 1x.
+                    //   If the HashSet<T> size is comparable to the other sequence size, the gain factor is around 2.7.
+
+                    var collectionIntersect = sGItem.Value.Count > pGItem.Value.Count ? sGItem.Value.Intersect(pGItem.Value) : pGItem.Value.Intersect(sGItem.Value);
+                    if (collectionIntersect.Count() > 0)
+                    {
+                        int sum = 0;
+                        foreach (var item in collectionIntersect)
+                        {
+                            sum += revenue[item - 1];
+                        }
+                        finalTable.Add(sGItem.Key + ", " + pGItem.Key + ", " + sum);
+                    }
+                }
+            }
+            long memoryUsed = GC.GetTotalMemory(true) - memoryStart;
+            sw.Stop();
+
+            //foreach (var item in finalTable)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            Console.WriteLine("==============================================");
+            Console.WriteLine("[ABC_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
+            Console.WriteLine("[ABC_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
+        }
+
+
+        public void ABC_V3_Parallel()
+        {
+            long memoryStart = GC.GetTotalMemory(true);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            HashSet<int> storeDict = new HashSet<int>();
+            HashSet<int> productDict = new HashSet<int>();
+
+            Parallel.Invoke(po, () =>
+            {
+
+                int storeIndex = 0;
+                foreach (var type in storeType)
+                {
+                    if (type == 'a')
+                    {
+                        storeDict.Add(storeIndex + 1);
+                    }
+                    storeIndex++;
+                }
+            }, () =>
+            {
+
+                int productIndex = 0;
+                foreach (var type in productType)
+                {
+                    if (type == 'b')
+                    {
+                        productDict.Add(productIndex + 1);
+                    }
+                    productIndex++;
+                }
+            });
+
+            Dictionary<string, HashSet<int>> storeGroupDict = new Dictionary<string, HashSet<int>>();
+            Dictionary<string, HashSet<int>> productGroupDict = new Dictionary<string, HashSet<int>>();
+            Parallel.Invoke(po, () =>
+            {
+                int scounter = 0;
+                foreach (var sid in sID)
+                {
+                    if (storeDict.Contains(sid))
+                    {
+                        string sName = storeName[sid - 1];
+                        HashSet<int> coll = null;
+                        if (storeGroupDict.TryGetValue(sName, out coll))
+                        {
+                            coll.Add(scounter + 1);
+                            storeGroupDict[sName] = coll;
+                        }
+                        else
+                        {
+                            coll = new HashSet<int>();
+                            coll.Add(scounter + 1);
+                            storeGroupDict.Add(sName, coll);
+                        }
+                    }
+                    scounter++;
+                }
+            }, () =>
+            {
+                int pcounter = 0;
+                foreach (var pid in pID)
+                {
+                    if (productDict.Contains(pid))
+                    {
+                        string pName = productName[pid - 1];
+                        HashSet<int> coll = null;
+                        if (productGroupDict.TryGetValue(pName, out coll))
+                        {
+                            coll.Add(pcounter + 1);
+                            productGroupDict[pName] = coll;
+                        }
+                        else
+                        {
+                            coll = new HashSet<int>();
+                            coll.Add(pcounter + 1);
+                            productGroupDict.Add(pName, coll);
+                        }
+                    }
+                    pcounter++;
+                }
+            });
+
+            List<string> finalTable = new List<string>();
+            foreach (var sGItem in storeGroupDict)
+            {
+                foreach (var pGItem in productGroupDict)
+                {
+                    // http://codebetter.com/patricksmacchia/2011/06/16/linq-intersect-2-7x-faster-with-hashset/
+                    //                    If the HashSet < T > is bigger than the other sequence, gains factor can be high (like 15x).
+                    //If the HashSet < T > is smaller than the other sequence, gains factor tends to 1x.
+                    //   If the HashSet<T> size is comparable to the other sequence size, the gain factor is around 2.7.
+
+                    var collectionIntersect = sGItem.Value.Count > pGItem.Value.Count ? sGItem.Value.Intersect(pGItem.Value) : pGItem.Value.Intersect(sGItem.Value);
+                    if (collectionIntersect.Count() > 0)
+                    {
+                        int sum = 0;
+                        foreach (var item in collectionIntersect)
+                        {
+                            sum += revenue[item - 1];
+                        }
+                        finalTable.Add(sGItem.Key + ", " + pGItem.Key + ", " + sum);
+                    }
+                }
+            }
+            long memoryUsed = GC.GetTotalMemory(true) - memoryStart;
+            sw.Stop();
+
+            //foreach (var item in finalTable)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            Console.WriteLine("==============================================");
+            Console.WriteLine("[ABC_V3_Parallel] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
+            Console.WriteLine("[ABC_V3_Parallel] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
+        }
+
+        /// <summary>
+        /// Failed Experiment
+        /// used HashSet in step 1
+        /// Uses DICTIONARY to store GROUPING attribute as key and BIT MAP of row ID as value
+        /// </summary>
+        public void ABC_V4()
+        {
+            long memoryStart = GC.GetTotalMemory(true);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            HashSet<int> storeDict = new HashSet<int>();
+            int storeIndex = 0;
+            foreach (var type in storeType)
+            {
+                if (type == 'a')
+                {
+                    storeDict.Add(storeIndex + 1);
+                }
+                storeIndex++;
+            }
+
+            HashSet<int> productDict = new HashSet<int>();
+            int productIndex = 0;
+            foreach (var type in productType)
+            {
+                if (type == 'b')
+                {
+                    productDict.Add(productIndex + 1);
+                }
+                productIndex++;
+            }
+
+            Dictionary<string, BitArray> storeGroupDict = new Dictionary<string, BitArray>();
+            int scounter = 0;
+            foreach (var sid in sID)
+            {
+                if (storeDict.Contains(sid))
+                {
+                    string sName = storeName[sid - 1];
+                    BitArray coll = null;
+                    if (storeGroupDict.TryGetValue(sName, out coll))
+                    {
+                        coll.Set(scounter + 1, true);
+                        storeGroupDict[sName] = coll;
+                    }
+                    else
+                    {
+                        coll = new BitArray(sID.Count);
+                        coll.Set(scounter + 1, true);
+                        storeGroupDict.Add(sName, coll);
+                    }
+                }
+                scounter++;
+            }
+
+            Dictionary<string, BitArray> productGroupDict = new Dictionary<string, BitArray>();
+            int pcounter = 0;
+            foreach (var pid in pID)
+            {
+                if (productDict.Contains(pid))
+                {
+                    string pName = productName[pid - 1];
+                    BitArray coll = null;
+                    if (productGroupDict.TryGetValue(pName, out coll))
+                    {
+                        coll.Set(pcounter + 1, true);
+                        productGroupDict[pName] = coll;
+                    }
+                    else
+                    {
+                        coll = new BitArray(pID.Count);
+                        coll.Set(pcounter + 1, true);
+                        productGroupDict.Add(pName, coll);
+                    }
+                }
+                pcounter++;
+            }
+
+            List<string> finalTable = new List<string>();
+
+            foreach (var sGItem in storeGroupDict)
+            {
+                foreach (var pGItem in productGroupDict)
+                {
+                    // http://codebetter.com/patricksmacchia/2011/06/16/linq-intersect-2-7x-faster-with-hashset/
+                    //                    If the HashSet < T > is bigger than the other sequence, gains factor can be high (like 15x).
+                    //If the HashSet < T > is smaller than the other sequence, gains factor tends to 1x.
+                    //   If the HashSet<T> size is comparable to the other sequence size, the gain factor is around 2.7.
+
+
+                    BitArray collectionIntersect = (BitArray)sGItem.Value.Clone();
+                    BitArray item2 = (BitArray)pGItem.Value.Clone();
+                    collectionIntersect.And(item2);
+                    var isTrue = false;
+                    foreach (bool bit in collectionIntersect)
+                    {
+                        if (bit)
+                        {
+                            isTrue = true;
+                            break;
+                        }
+                    }
+                    if (isTrue)
+                    {
+                        int sum = 0;
+                        int index = 0;
+                        foreach (bool item in collectionIntersect)
+                        {
+                            if (item)
+                                sum += revenue[index - 1];
+                            index++;
+                        }
+                        finalTable.Add(sGItem.Key + ", " + pGItem.Key + ", " + sum);
+                    }
+
+
+                }
+            }
+            long memoryUsed = GC.GetTotalMemory(true) - memoryStart;
+            sw.Stop();
+
+            //foreach (var item in finalTable)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            Console.WriteLine("==============================================");
+            Console.WriteLine("[ABC_V4] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
+            Console.WriteLine("[ABC_V4] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
+        }
+
+        /// <summary>
+        /// Failed Experiment
+        /// 
+        /// </summary>
+        public void ABC_V5()
+        {
+            long memoryStart = GC.GetTotalMemory(true);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            BitArray storeBA = new BitArray(storeId.Count + 1);
+            int storeIndex = 1;
+            foreach (var type in storeType)
+            {
+                if (type == 'a')
+                {
+                    storeBA.Set(storeIndex, true);
+                }
+                storeIndex++;
+            }
+
+            BitArray productBA = new BitArray(productId.Count + 1);
+            int productIndex = 1;
+            foreach (var type in productType)
+            {
+                if (type == 'b')
+                {
+                    productBA.Set(productIndex, true);
+                }
+                productIndex++;
+            }
+
+            Dictionary<int, HashSet<int>> storeGroupDict = new Dictionary<int, HashSet<int>>();
+            int scounter = 0;
+            foreach (var sid in sID)
+            {
+                if (storeBA[sid])
+                {
+                    //string sName = storeName[sid - 1];
+                    HashSet<int> coll = null;
+                    if (storeGroupDict.TryGetValue(sid, out coll))
+                    {
+                        coll.Add(scounter + 1);
+                        storeGroupDict[sid] = coll;
+                    }
+                    else
+                    {
+                        coll = new HashSet<int>();
+                        coll.Add(scounter + 1);
+                        storeGroupDict.Add(sid, coll);
+                    }
+                }
+                scounter++;
+            }
+
+            Dictionary<int, HashSet<int>> productGroupDict = new Dictionary<int, HashSet<int>>();
+            int pcounter = 0;
+            foreach (var pid in pID)
+            {
+                if (productBA[pid])
+                {
+                    // string pName = productName[pid - 1];
+                    HashSet<int> coll = null;
+                    if (productGroupDict.TryGetValue(pid, out coll))
+                    {
+                        coll.Add(pcounter + 1);
+                        productGroupDict[pid] = coll;
+                    }
+                    else
+                    {
+                        coll = new HashSet<int>();
+                        coll.Add(pcounter + 1);
+                        productGroupDict.Add(pid, coll);
+                    }
+                }
+                pcounter++;
+            }
+
+            List<string> finalTable = new List<string>();
+            foreach (var sGItem in storeGroupDict)
+            {
+                foreach (var pGItem in productGroupDict)
+                {
+                    // http://codebetter.com/patricksmacchia/2011/06/16/linq-intersect-2-7x-faster-with-hashset/
+                    //                    If the HashSet < T > is bigger than the other sequence, gains factor can be high (like 15x).
+                    //If the HashSet < T > is smaller than the other sequence, gains factor tends to 1x.
+                    //   If the HashSet<T> size is comparable to the other sequence size, the gain factor is around 2.7.
+
+                    var collectionIntersect = sGItem.Value.Count > pGItem.Value.Count ? sGItem.Value.Intersect(pGItem.Value) : pGItem.Value.Intersect(sGItem.Value);
+                    if (collectionIntersect.Count() > 0)
+                    {
+                        int sum = 0;
+                        foreach (var item in collectionIntersect)
+                        {
+                            sum += revenue[item - 1];
+                        }
+                        finalTable.Add(storeName[sGItem.Key - 1] + ", " + productName[pGItem.Key - 1] + ", " + sum);
+                    }
+                }
+            }
+            long memoryUsed = GC.GetTotalMemory(true) - memoryStart;
+            sw.Stop();
+
+            //foreach (var item in finalTable)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            Console.WriteLine("==============================================");
+            Console.WriteLine("[ABC_V5] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
+            Console.WriteLine("[ABC_V5] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
         }
 
         public void GroupByAttributeSameAsJoinAttribute()
