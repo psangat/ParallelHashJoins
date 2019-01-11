@@ -16,10 +16,10 @@ namespace ParallelHashJoins
     {
         private const int TIMETOSLEEP = 1000;
 
-        static void Main()
+        static void Main1()
         {
 
-           int[,,,] array = new int[4,4,4,4];
+            int[,,,] array = new int[4, 4, 4, 4];
             array[0, 0, 0, 0] = 1;
             array[3, 3, 3, 3] = 1;
 
@@ -41,48 +41,100 @@ namespace ParallelHashJoins
             }
             Console.Read();
         }
-        static void Main1() {
-            List<int> l1 = new List<int>() { 1,3,5,7,9};
-            List<int> l2 = new List<int>() { 2, 4, 6, 8, 10, 9 };
+        static void Main()
+        {
 
-            InMemoryAggregation im = new InMemoryAggregation();
-            //im.generateSmallSampleData();
-            im.generateBigSampleData();
+            //List<List<string>> data = new List<List<string>>();
+
+            //List<string> item1 = new List<string>() { "1", "2", "3" };
+            //List<string> item2 = new List<string>() { "1", "2", "4" };
+            //List<string> item3 = new List<string>() { "1", "3", "4" };
+            //List<string> item4 = new List<string>() { "1", "2", "3" };
+            //List<string> item5 = new List<string>() { "1", "2", "3" };
+
+
+
+            //data.Add(item1);
+            //data.Add(item2);
+            //data.Add(item3);
+            //data.Add(item4);
+            //data.Add(item5);
+
+            //Atire tire = new Atire();
+            //foreach (var item in data)
+            //{
+            //    tire.insert(tire, item, 10);
+            //}
+
+            //tire.getResults(tire);
+
+            //Console.ReadKey();
 
             for (int i = 0; i < 5; i++)
             {
-                //im.IMA_Simple_V2();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
+                DictionaryGroupByJoin DGJoin = new DictionaryGroupByJoin("SF3");
 
-                im.IMA_V3();
+                DGJoin.Query_3_1_TRIE();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
 
-
-                im.IMA_V3_Parallel();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-                //im.ABC();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                im.ABC_V3();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-
-                im.ABC_V3_Parallel();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-
-                // Failed Experiment
-                //im.ABC_V5();
+                //NimbleJoin NJoin = new NimbleJoin("SF1");
+                //NJoin.Query_3_1();
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
 
-                //im.ABC_V3();
+                //InvisibleJoin IJoin = new InvisibleJoin("SF1");
+                //IJoin.Query_3_1();
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
+                InMemoryAggregation IMA = new InMemoryAggregation("SF3");
+                IMA.Query_3_1();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(100);
             }
+
+
+            //List<int> l1 = new List<int>() { 1,3,5,7,9};
+            //List<int> l2 = new List<int>() { 2, 4, 6, 8, 10, 9 };
+
+            //InMemoryAggregation im = new InMemoryAggregation();
+            ////im.generateSmallSampleData();
+            //im.generateBigSampleData();
+
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    //im.IMA_Simple_V2();
+            //    //GC.Collect(2, GCCollectionMode.Forced, true);
+            //    //Thread.Sleep(100);
+
+            //    im.IMA_V3();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
+
+
+            //    im.IMA_V3_Parallel();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
+            //    //im.ABC();
+            //    //GC.Collect(2, GCCollectionMode.Forced, true);
+            //    //Thread.Sleep(100);
+            //    im.ABC_V3();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
+
+            //    im.ABC_V3_Parallel();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
+
+            //    // Failed Experiment
+            //    //im.ABC_V5();
+            //    //GC.Collect(2, GCCollectionMode.Forced, true);
+            //    //Thread.Sleep(100);
+
+            //    //im.ABC_V3();
+            //    //GC.Collect(2, GCCollectionMode.Forced, true);
+            //    //Thread.Sleep(100);
+            //}
             Console.ReadKey();
         }
 
@@ -271,7 +323,7 @@ namespace ParallelHashJoins
             }
             long memoryUsed1 = GC.GetTotalMemory(true) - memoryStart1;
             sw.Stop();
-            Console.WriteLine("Insert Time MAAA: " + sw.ElapsedMilliseconds + " ms, Memory Used: " + memoryUsed1 );
+            Console.WriteLine("Insert Time MAAA: " + sw.ElapsedMilliseconds + " ms, Memory Used: " + memoryUsed1);
             sw.Reset();
             sw.Restart();
             long memoryStart2 = GC.GetTotalMemory(true);

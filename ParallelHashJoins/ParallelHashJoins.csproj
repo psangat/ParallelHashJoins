@@ -61,8 +61,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms.cs" />
+    <Compile Include="Atire.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="Date.cs" />
+    <Compile Include="DictionaryGroupByJoin.cs" />
     <Compile Include="InMemoryAggregation.cs" />
     <Compile Include="InvisibleJoin.cs" />
     <Compile Include="Invoker.cs" />
