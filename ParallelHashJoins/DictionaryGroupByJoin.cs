@@ -202,7 +202,11 @@ namespace ParallelHashJoins
 
         #endregion Private Variables
 
-        public void Query_3_1()
+        /// <summary>
+        /// Failed Experiment
+        /// Intersect based approach
+        /// </summary>
+        public void Query_3_1_Intersect()
         {
             try
             {
@@ -407,7 +411,11 @@ namespace ParallelHashJoins
             }
         }
 
-        public void Query_3_1_New()
+        /// <summary>
+        /// Hash all the grouping attributes as key. Way better than Intersect Based
+        /// Still slower than IMA
+        /// </summary>
+        public void Query_3_1_Hashed()
         {
             try
             {
@@ -607,6 +615,9 @@ namespace ParallelHashJoins
             }
         }
 
+        /// <summary>
+        /// Tire based approach. Better than all.
+        /// </summary>
         public void Query_3_1_TRIE()
         {
             try
@@ -631,12 +642,13 @@ namespace ParallelHashJoins
 
                 var customerHashTable = new Dictionary<int, string>();
                 var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<int, string>();
 
-                //foreach (var row in dateDimension)
-                //{
-                //    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
-                //        dateDictionary.Add(row.dDateKey, row.dYear);
-                //}
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
 
                 //int i = 1;
                 //foreach (var row in customerDimension)
@@ -667,7 +679,7 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[Atire Join] T0 Time: {0}", t0));
                 #endregion Phase1
 
                 sw.Start();
@@ -677,31 +689,31 @@ namespace ParallelHashJoins
                     int custKey = loCustomerKey[j];
                     int suppKey = loSupplierKey[j];
                     int dateKey = loOrderDate[j];
-                    int dYear = dateKey / 10000; // We dont even need to load the dimension attributes
-                    bool yearPredicate = dYear >= 1992 && dYear <= 1997 ? true : false;
+                    // int dYear = dateKey / 10000; // We dont even need to load the dimension attributes
+                    // bool yearPredicate = dYear >= 1992 && dYear <= 1997 ? true : false;
                     string custNation = string.Empty;
                     string suppNation = string.Empty;
-                    if (customerHashTable.TryGetValue(custKey, out custNation) && supplierHashTable.TryGetValue(suppKey, out suppNation) && yearPredicate)
+                    string dYear = string.Empty;
+                    if (customerHashTable.TryGetValue(custKey, out custNation) && supplierHashTable.TryGetValue(suppKey, out suppNation) && dateHashTable.TryGetValue(dateKey, out dYear))
                     //if (customerBitMap[custKey] && supplierBitMap[suppKey] && yearPredicate)
                     {
-                        tire.insert(tire, new List<string> { custNation, suppNation, Convert.ToString(dYear) }, loRevenue[j]);
+                        tire.Insert(tire, new List<string> { custNation, suppNation, dYear }, loRevenue[j]);
                     }
                 }
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
                 // Console.WriteLine(String.Format("Count: {0}", count));
-                Console.WriteLine(String.Format("T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[Atire Join] T1 Time: {0}", t1));
                
-                Console.WriteLine(String.Format("Total Time: {0}", t0 + t1 ));
-                tire.getResults(tire);
+                Console.WriteLine(String.Format("[Atire Join] Total Time: {0}", t0 + t1 ));
+                var finalTable = tire.GetResults(tire);
+                Console.WriteLine(String.Format("[Atire Join] Total Items: {0}", finalTable.Count));
+               
+                //foreach (var item in results)
+                //{
+                //    Console.WriteLine(item);
+                //}
                 Console.WriteLine();
-                //testResults.phase3ExtractionTime = sw.ElapsedMilliseconds;
-                //testResults.phase3Time = testResults.phase3IOTime + testResults.phase3ExtractionTime;
-                //testResults.totalExecutionTime = testResults.phase1Time + testResults.phase2Time + testResults.phase3Time;
-                //// Console.WriteLine("[Nimble Join]: Time taken {0} ms.", testResults.totalExecutionTime);
-                //testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
-                //testResults.totalNumberOfOutput = joinOutputFinal.Count();
-                // Console.WriteLine("[DGJoin] Total: " + finalTable.Count);
             }
             catch (Exception ex)
             {

@@ -73,6 +73,8 @@
     <Compile Include="main.cs" />
     <Compile Include="MemoryManagement.cs" />
     <Compile Include="NimbleJoin.cs" />
+    <Compile Include="ParallelAtire.cs" />
+    <Compile Include="ParallelInMemoryAggregation.cs" />
     <Compile Include="ParallelInvisibleJoin.cs" />
     <Compile Include="ParallelNimbleJoin.cs" />
     <Compile Include="TestResults.cs" />

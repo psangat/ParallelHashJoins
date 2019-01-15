@@ -490,14 +490,16 @@ namespace ParallelHashJoins
             long memoryUsed = GC.GetTotalMemory(true) - memoryStart;
             sw.Stop();
 
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
+           
 
             Console.WriteLine("==============================================");
             Console.WriteLine("[IMA] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
             Console.WriteLine("[IMA] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
+            foreach (var item in finalTable)
+            {
+                Console.WriteLine(item);
+            }
+
 
         }
 
@@ -896,7 +898,8 @@ namespace ParallelHashJoins
             sw.Stop();
             long t2 = sw.ElapsedMilliseconds;
             Console.WriteLine("[IMA] Phase2 Time: " + t2);
-            Console.WriteLine(String.Format("Total Time: {0}", t1 + t2));
+            Console.WriteLine(String.Format("[IMA] Total Time: {0}", t1 + t2));
+            Console.WriteLine(String.Format("[IMA] Total Items: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
 
@@ -905,6 +908,10 @@ namespace ParallelHashJoins
             //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
             // Console.WriteLine("[IMA] Total: " + finalTable.Count);
 
+            //foreach (var item in finalTable)
+            //{
+            //    Console.WriteLine(item);
+            //}
         }
 
         public void IMA_V3_Parallel()

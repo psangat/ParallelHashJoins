@@ -80,5 +80,33 @@ namespace ParallelHashJoins
             }
             return list;
         }
+
+        /// <summary>
+        /// Returns the mutually exclusive boundaries
+        /// </summary>
+        /// <param name="total"></param>
+        /// <param name="processorCount"></param>
+        /// <returns></returns>
+        public static List<Tuple<int, int>> getPartitionIndexes(int total, int processorCount)
+        {
+            List<Tuple<int, int>> boundaries = new List<Tuple<int, int>>();
+            int min = 0;
+            int max = total / processorCount;
+
+            for (int i = 0; i < processorCount; i++)
+            {
+                if (i == processorCount - 1)
+                {
+                    max = total - 1;
+                }
+
+                boundaries.Add(new Tuple<int, int>(min, max));
+                min = max + 1;
+                max = max + total/processorCount;
+
+            }
+            return boundaries;
+
+        }
     }
 }

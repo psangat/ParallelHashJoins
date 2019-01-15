@@ -44,54 +44,80 @@ namespace ParallelHashJoins
         static void Main()
         {
 
-            //List<List<string>> data = new List<List<string>>();
+            List<List<string>> data1 = new List<List<string>>();
+            List<List<string>> data2 = new List<List<string>>();
 
-            //List<string> item1 = new List<string>() { "1", "2", "3" };
-            //List<string> item2 = new List<string>() { "1", "2", "4" };
-            //List<string> item3 = new List<string>() { "1", "3", "4" };
-            //List<string> item4 = new List<string>() { "1", "2", "3" };
-            //List<string> item5 = new List<string>() { "1", "2", "3" };
+            List<string> item1 = new List<string>() { "1", "2", "3" };
+            List<string> item2 = new List<string>() { "1", "2", "4" };
+            List<string> item3 = new List<string>() { "1", "3", "4" };
+            List<string> item4 = new List<string>() { "1", "2", "3" };
+            List<string> item5 = new List<string>() { "3", "2", "3" };
+
+            List<string> item6 = new List<string>() { "1", "2", "3" };
+            List<string> item7 = new List<string>() { "2", "3", "4" };
+            //List<string> item8 = new List<string>() { "1", "2", "3" };
+            List<string> item9 = new List<string>() { "1", "3", "3" };
+            List<string> item10 = new List<string>() { "1", "3", "3" };
 
 
+            data1.Add(item1);
+            data1.Add(item2);
+            //data1.Add(item3);
+            //data1.Add(item4);
+            //data1.Add(item5);
 
-            //data.Add(item1);
-            //data.Add(item2);
-            //data.Add(item3);
-            //data.Add(item4);
-            //data.Add(item5);
+            //data2.Add(item8);
+            //data2.Add(item6);
+            //data2.Add(item7);
+           
+            //data2.Add(item9);
+            //data2.Add(item10);
 
-            //Atire tire = new Atire();
-            //foreach (var item in data)
+            Atire tire1 = new Atire();
+            foreach (var item in data1)
+            {
+                tire1.Insert(tire1, item, 10);
+            }
+
+            //Atire tire2 = new Atire();
+            //foreach (var item in data2)
             //{
-            //    tire.insert(tire, item, 10);
+            //    tire2.Insert(tire2, item, 5);
             //}
 
-            //tire.getResults(tire);
+            //var merged = tire2.MergeAtires(tire1, tire2);
+            tire1.GetResults(tire1);
+            //Atire atire = new Atire();
+            //tire1.MergeAtires(atire, tire1, tire2);
 
-            //Console.ReadKey();
+            Console.ReadKey();
 
-            for (int i = 0; i < 5; i++)
-            {
-                DictionaryGroupByJoin DGJoin = new DictionaryGroupByJoin("SF3");
+            var chunkIndexes = Utils.getPartitionIndexes(1150, 4);
+            Console.ReadKey();
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    DictionaryGroupByJoin DGJoin = new DictionaryGroupByJoin("SF3");
 
-                DGJoin.Query_3_1_TRIE();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+            //    DGJoin.Query_3_1_TRIE();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
 
-                //NimbleJoin NJoin = new NimbleJoin("SF1");
-                //NJoin.Query_3_1();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
 
-                //InvisibleJoin IJoin = new InvisibleJoin("SF1");
-                //IJoin.Query_3_1();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                InMemoryAggregation IMA = new InMemoryAggregation("SF3");
-                IMA.Query_3_1();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-            }
+            //    ParallelAtire aTireJoin = new ParallelAtire("SF3", 3);
+            //    aTireJoin.Query_3_1();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
+
+            //    InMemoryAggregation IMA = new InMemoryAggregation("SF3");
+            //    IMA.Query_3_1();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
+
+            //    ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation("SF3", 3);
+            //    PIMA.Query_3_1();
+            //    GC.Collect(2, GCCollectionMode.Forced, true);
+            //    Thread.Sleep(100);
+            //}
 
 
             //List<int> l1 = new List<int>() { 1,3,5,7,9};
