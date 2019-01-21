@@ -170,7 +170,7 @@ namespace ParallelHashJoins
 
         #endregion Private Variables
 
-        public void Query_3_1()
+        public void Query_3_1(bool isLockFree = true)
         {
             try
             {
@@ -241,7 +241,7 @@ namespace ParallelHashJoins
                             string dYear = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out custNation) && supplierHashTable.TryGetValue(suppKey, out suppNation) && dateHashTable.TryGetValue(dateKey, out dYear))
                             {
-                                atire.Insert(atire, new List<string> { custNation, suppNation, dYear }, loRevenue[i]);
+                                    atire.Insert(atire, new List<string> { custNation, suppNation, dYear }, loRevenue[i], isLockFree);
                             }
                         }
                         return atire;

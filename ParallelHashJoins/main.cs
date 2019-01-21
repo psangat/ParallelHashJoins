@@ -98,45 +98,54 @@ namespace ParallelHashJoins
             int numberOfProcessor = 3;
             for (int i = 0; i < 3; i++)
             {
-                InvisibleJoin InJ = new InvisibleJoin(scaleFactor);
-                InJ.Query_3_1_IM();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //InvisibleJoin InJ = new InvisibleJoin(scaleFactor);
+                //InJ.Query_3_1_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
-                NimbleJoin NJ = new NimbleJoin(scaleFactor);
-                NJ.Query_3_1_IM();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //NimbleJoin NJ = new NimbleJoin(scaleFactor);
+                //NJ.Query_3_1_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
-                InMemoryAggregation IMA = new InMemoryAggregation(scaleFactor);
-                IMA.Query_3_1();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //InMemoryAggregation IMA = new InMemoryAggregation(scaleFactor);
+                //IMA.Query_3_1();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
-                AtireJoin ATireJoin = new AtireJoin(scaleFactor);
-                ATireJoin.Query_3_1();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //AtireJoin ATireJoin = new AtireJoin(scaleFactor);
+                //ATireJoin.Query_3_1();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
-                ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, numberOfProcessor);
-                PInJ.Query_3_1_IM();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, numberOfProcessor);
+                //PInJ.Query_3_1_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
-                ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, numberOfProcessor);
-                PNJ.Query_3_1_IM();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, numberOfProcessor);
+                //PNJ.Query_3_1_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
-                ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, numberOfProcessor);
-                PIMA.Query_3_1();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, numberOfProcessor);
+                //PIMA.Query_3_1();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
 
                 ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, numberOfProcessor);
-                PATireJoin.Query_3_1();
+
+                PATireJoin.Query_3_1(false);
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
+                Console.WriteLine("Was using lock");
+                Console.WriteLine();
+
+                PATireJoin.Query_3_1(true);
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(100);
+                Console.WriteLine("Wasnt using lock");
+                Console.WriteLine();
 
             }
             Console.ReadKey();

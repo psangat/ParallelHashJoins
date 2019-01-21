@@ -35,14 +35,31 @@ namespace ParallelHashJoins
         /// <param name="attributes">List of attiributes to insert into the Atire</param>
         /// <param name="value">Value associated with the grouping of the attributes</param>
 
-        public void Insert(Atire root, List<string> attributes, int value, bool isParallel = true )
+        public void Insert(Atire root, List<string> attributes, int value, bool isLockFree = true )
         {
             try
             {
                 Atire node = root;
                 int height = -1;
-                if (isParallel)
+                if (isLockFree)
                 {
+                    foreach (var attribute in attributes)
+                    {
+
+                        if (!node.children.ContainsKey(attribute))
+                        {
+                            node.children.Add(attribute, new Atire());
+                        }
+                        node.height = ++height;
+                        node = node.children[attribute];
+
+                    }
+                    node.height = ++height;
+                    // Store value in the terminal node
+                    // Aggregation on the fly
+                    node.value += value;
+                }
+                else {
                     lock (nodeLock)
                     {
                         foreach (var attribute in attributes)
@@ -62,24 +79,6 @@ namespace ParallelHashJoins
                         node.value += value;
                     }
                 }
-                else {
-                    foreach (var attribute in attributes)
-                    {
-
-                        if (!node.children.ContainsKey(attribute))
-                        {
-                            node.children.Add(attribute, new Atire());
-                        }
-                        node.height = ++height;
-                        node = node.children[attribute];
-
-                    }
-                    node.height = ++height;
-                    // Store value in the terminal node
-                    // Aggregation on the fly
-                    node.value += value;
-                }
-                
             }
             catch (Exception ex)
             {
