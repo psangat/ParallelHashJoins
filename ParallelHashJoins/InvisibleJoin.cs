@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace ParallelHashJoins
         }
         ~InvisibleJoin()
         {
-            saveAndPrintResults();
+            //saveAndPrintResults();
         }
 
         #region Private Variables
@@ -2545,6 +2546,160 @@ namespace ParallelHashJoins
                 //Console.WriteLine("[Invisble Join]: Time taken {0} ms.", sw.ElapsedMilliseconds);
                 testResults.memoryUsed = memoryUsedPhase1 + "," + memoryUsedPhase2 + "," + memoryUsedPhase3 + "," + (memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) + "," + (((memoryUsedPhase1 + memoryUsedPhase2 + memoryUsedPhase3) / testResults.totalRAMAvailable) * 100) + "%";
                 testResults.totalNumberOfOutput = joinOutputFinal.Count;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// IM refers inmemory version of the algorithm
+        /// </summary>
+        public void Query_3_1_IM()
+        {
+            try
+            {
+                Stopwatch sw = new Stopwatch();
+
+                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
+                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
+                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
+                List<string> sNation = Utils.ReadFromBinaryFiles<string>(sNationFile.Replace("BF", "BF" + scaleFactor));
+
+                sw.Start();
+                #region Key Hashing Phase 
+
+                var customerHashTable = new Dictionary<int, string>();
+                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<int, string>();
+
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+
+                foreach (var row in customerDimension)
+                {
+                    if (row.cRegion.Equals("ASIA"))
+                        customerHashTable.Add(row.cCustKey, row.cNation);
+                }
+
+                foreach (var row in supplierDimension)
+                {
+                    if (row.sRegion.Equals("ASIA"))
+                        supplierHashTable.Add(row.sSuppKey, row.sNation);
+                }
+
+                sw.Stop();
+                long t0 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Invisible Join] T0 Time: {0}", t0));
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                sw.Reset();
+                sw.Start();
+
+                var listOrderDatePositions = new BitArray(loOrderDate.Count);
+                var i = 0;
+                foreach (var orderDate in loOrderDate)
+                {
+                    string dYear = "";
+                    if (dateHashTable.TryGetValue(orderDate, out dYear))
+                    {
+                        listOrderDatePositions.Set(i, true);
+                    }
+                    i++;
+                }
+
+                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
+                var j = 0;
+                foreach (var custKey in loCustomerKey)
+                {
+                    string cNationOut = string.Empty;
+                    if (customerHashTable.TryGetValue(custKey, out cNationOut))
+                    {
+                        listCustomerKeyPositions.Set(j, true);
+                    }
+                    j++;
+                }
+
+                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var k = 0;
+                foreach (var suppKey in loSupplierKey)
+                {
+                    string sNationOut = string.Empty;
+                    if (supplierHashTable.TryGetValue(suppKey, out sNationOut))
+                    {
+                        listSupplierKeyPositions.Set(k, true);
+                    }
+                    k++;
+                }
+
+                var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
+                sw.Stop();
+                long t1 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Invisible Join] T1 Time: {0}", t1));
+                sw.Reset();
+
+                #endregion Probing Phase
+
+
+                #region Value Extraction Phase
+                sw.Start();
+                var joinOutputFinal = new Dictionary<string, int>();
+                int index = 0;
+                foreach (bool bit in common)
+                {
+
+                    try
+                    {
+                        if (bit)
+                        {
+                            var dateKey = loOrderDate[index];
+                            var custKey = loCustomerKey[index];
+                            var suppKey = loSupplierKey[index];
+
+                            // Position Look UP
+                            string dYear;
+                            dateHashTable.TryGetValue(dateKey, out dYear);
+                            string cNationOut;
+                            customerHashTable.TryGetValue(custKey, out cNationOut);
+                            string sNationOut;
+                            supplierHashTable.TryGetValue(suppKey, out sNationOut);
+                            string key = cNationOut + ", " + sNationOut + ", " + dYear;
+                            int revenue = 0;
+                            if (joinOutputFinal.TryGetValue(key, out revenue))
+                            {
+                                joinOutputFinal[key] = revenue + loRevenue[index];
+                            }
+                            else
+                            {
+                                joinOutputFinal.Add(key, loRevenue[index]);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(index);
+                        throw;
+                    }
+                    index++;
+                }
+
+                sw.Stop();
+                long t2 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Invisible Join] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[Invisible Join] Total Time: {0}", t0 + t1 + t2));
+                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine();
+                #endregion Value Extraction Phase
             }
             catch (Exception ex)
             {

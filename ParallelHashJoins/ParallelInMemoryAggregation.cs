@@ -429,7 +429,7 @@ namespace ParallelHashJoins
             long t2 = sw.ElapsedMilliseconds;
             Console.WriteLine("[PIMA] Phase2 Time: " + t2);
             Console.WriteLine(String.Format("[PIMA] Total Time: {0}", t1 + t2));
-            Console.WriteLine(String.Format("[PIMA] Total Items: {0}", finalTable.Count));
+            //Console.WriteLine(String.Format("[PIMA] Total Items: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
 
@@ -442,6 +442,7 @@ namespace ParallelHashJoins
             //{
             //    Console.WriteLine(item);
             //}
+            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
         }
         public void saveAndPrintResults()
         {

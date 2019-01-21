@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
-
     class InMemoryAggregation
     {
         private List<int> storeId = new List<int>();
@@ -39,7 +38,7 @@ namespace ParallelHashJoins
 
         ~InMemoryAggregation()
         {
-            saveAndPrintResults();
+            //saveAndPrintResults();
         }
 
         #region Private Variables
@@ -185,7 +184,6 @@ namespace ParallelHashJoins
         private string pContainerFile = binaryFilesDirectory + @"\pContainer\";
 
         #endregion Private Variables
-
 
         public void generateSmallSampleData()
         {
@@ -899,7 +897,7 @@ namespace ParallelHashJoins
             long t2 = sw.ElapsedMilliseconds;
             Console.WriteLine("[IMA] Phase2 Time: " + t2);
             Console.WriteLine(String.Format("[IMA] Total Time: {0}", t1 + t2));
-            Console.WriteLine(String.Format("[IMA] Total Items: {0}", finalTable.Count));
+           // Console.WriteLine(String.Format("[IMA] Total Items: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
 
@@ -912,6 +910,7 @@ namespace ParallelHashJoins
             //{
             //    Console.WriteLine(item);
             //}
+            //System.IO.File.WriteAllLines(@"C:\Results\IMA.txt", finalTable);
         }
 
         public void IMA_V3_Parallel()

@@ -9,34 +9,77 @@ namespace ParallelHashJoins
 {
     class Atire
     {
-        public int value { get; set; }
+        private int value { get; set; }
+        private int height { get; set; }
 
-        private List<string> attributes = new List<string>();
+        private Dictionary<int, string> attributes = new Dictionary<int, string>();
 
-        public Dictionary<string, Atire> children { get; set; }
+        private List<string> mergingAttributes = new List<string>();
+        private Dictionary<string, Atire> children { get; set; }
+
+        public List<string> results = new List<string>();
+
+        private readonly object nodeLock = new object();
 
         public Atire()
         {
             this.value = 0;
             this.children = new Dictionary<string, Atire>();
+            this.height = -1;
         }
 
-        public void Insert(Atire root, List<string> attributes, int value)
+        /// <summary>
+        /// Insert the items or attributes in the Atire
+        /// </summary>
+        /// <param name="root">First node of the Atire</param>
+        /// <param name="attributes">List of attiributes to insert into the Atire</param>
+        /// <param name="value">Value associated with the grouping of the attributes</param>
+
+        public void Insert(Atire root, List<string> attributes, int value, bool isParallel = true )
         {
             try
             {
                 Atire node = root;
-                foreach (var attribute in attributes)
+                int height = -1;
+                if (isParallel)
                 {
-                    if (!node.children.ContainsKey(attribute))
+                    lock (nodeLock)
                     {
-                        node.children.Add(attribute, new Atire());
+                        foreach (var attribute in attributes)
+                        {
+
+                            if (!node.children.ContainsKey(attribute))
+                            {
+                                node.children.Add(attribute, new Atire());
+                            }
+                            node.height = ++height;
+                            node = node.children[attribute];
+
+                        }
+                        node.height = ++height;
+                        // Store value in the terminal node
+                        // Aggregation on the fly
+                        node.value += value;
                     }
-                    node = node.children[attribute];
                 }
-                // Store value in the terminal node
-                // Aggregation on the fly
-                node.value += value;
+                else {
+                    foreach (var attribute in attributes)
+                    {
+
+                        if (!node.children.ContainsKey(attribute))
+                        {
+                            node.children.Add(attribute, new Atire());
+                        }
+                        node.height = ++height;
+                        node = node.children[attribute];
+
+                    }
+                    node.height = ++height;
+                    // Store value in the terminal node
+                    // Aggregation on the fly
+                    node.value += value;
+                }
+                
             }
             catch (Exception ex)
             {
@@ -44,50 +87,63 @@ namespace ParallelHashJoins
             }
         }
 
-
-
-        public List<string> GetResults(Atire root)
+        /// <summary>
+        /// Display the result after the grouping.
+        /// </summary>
+        /// <param name="root">Fully formed Atire</param>
+        public void GetResults(Atire root)
         {
-            List<string> finalResult = new List<string>();
-            foreach (var l0 in root.children)
+            if (root.children.Count == 0)
             {
-                foreach (var l1 in l0.Value.children)
+                if (attributes.ContainsKey(root.height))
                 {
-                    foreach (var l2 in l1.Value.children)
-                    {
-                        finalResult.Add(String.Format("{0}, {1}, {2}, {3}", l0.Key, l1.Key, l2.Key, l2.Value.value));
-                        Console.WriteLine(String.Format("{0}, {1}, {2}, {3}", l0.Key, l1.Key, l2.Key, l2.Value.value));
-                    }
+                    attributes[root.height] = Convert.ToString(root.value);
                 }
+                else
+                {
+                    attributes.Add(root.height, Convert.ToString(root.value));
+                }
+                StringBuilder sb = new StringBuilder();
+                foreach (var item in attributes)
+                {
+                    sb.Append(String.Format("{0} ", item.Value));
+                }
+                //Console.WriteLine(sb.ToString());
+                results.Add(sb.ToString());
+                return;
             }
 
-            //foreach (var key in root.children.Keys)
-            //{
-            //    attributes.Add(key);
-            //    Console.Write(String.Format("{0}, ", key));
-            //    var tempAtire = root.children[key];
-            //    if (tempAtire.value != 0)
-            //    {
-            //        Console.WriteLine(String.Format("{0}", tempAtire.value));
-            //        attributes.Clear();
-            //        break;
-            //    }
-            //    GetResults(tempAtire);
-            //}
-            return finalResult;
+            foreach (var child in root.children)
+            {
+                if (attributes.ContainsKey(root.height))
+                {
+                    attributes[root.height] = child.Key;
+                }
+                else
+                {
+                    attributes.Add(root.height, child.Key);
+                }
+                GetResults(child.Value);
+            }
+
         }
 
+        /// <summary>
+        /// Merge LEFT Atires to get a single Atire
+        /// </summary>
+        /// <param name="atire1">LEFT Atire</param>
+        /// <param name="atire2">RIGHT Atire to be merged into LEFT Atire</param>
+        /// <returns>LEFT Aitre</returns>
         public Atire MergeAtires(Atire atire1, Atire atire2)
         {
             foreach (var key in atire2.children.Keys)
             {
-                attributes.Add(key);
+                mergingAttributes.Add(key);
                 var tempAtire = atire2.children[key];
                 if (tempAtire.value != 0)
                 {
-                    //Console.WriteLine(String.Format("{0},{1},{2},{3}", keys[0], keys[1], keys[2], tempAtire.value));
-                    Insert(atire1, attributes, tempAtire.value);
-                    attributes.Clear();
+                    Insert(atire1, mergingAttributes, tempAtire.value);
+                    mergingAttributes.Clear();
                     break;
                 }
                 MergeAtires(atire1, tempAtire);

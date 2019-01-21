@@ -8,52 +8,19 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
-    class GroupingAttributes
-    {
-        public string X { get; set; }
-        public string Y { get; set; }
-        public int Z { get; set; }
-        public string Key { get; set; }
-
-        public GroupingAttributes()
-        {
-            this.X = string.Empty;
-            this.Y = string.Empty;
-            this.Z = 0;
-            this.Key = string.Empty;
-        }
-        public bool isFilled()
-        {
-            if (string.IsNullOrEmpty(X) || string.IsNullOrEmpty(Y) || Z == 0)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public string getKey()
-        {
-            if (string.IsNullOrEmpty(Key))
-            {
-                Key = X + ", " + Y + ", " + Z;
-            }
-            return Key;
-        }
-    }
-
-    class DictionaryGroupByJoin
+    class AtireJoin
     {
         private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BF";
         private string scaleFactor { get; set; }
 
         public TestResults testResults = new TestResults();
-        public DictionaryGroupByJoin(string scaleFactor)
+        public AtireJoin(string scaleFactor)
         {
             this.scaleFactor = scaleFactor;
             testResults.totalRAMAvailable = Utils.getAvailableRAM();
         }
 
-        ~DictionaryGroupByJoin()
+        ~AtireJoin()
         {
             saveAndPrintResults();
         }
@@ -618,7 +585,7 @@ namespace ParallelHashJoins
         /// <summary>
         /// Tire based approach. Better than all.
         /// </summary>
-        public void Query_3_1_TRIE()
+        public void Query_3_1()
         {
             try
             {
@@ -636,10 +603,6 @@ namespace ParallelHashJoins
                 sw.Start();
                 #region Phase 1
 
-                // var dateDictionary = new Dictionary<int, string>(dateDimension.Count);
-                //var customerBitMap = new BitArray(customerDimension.Count + 1);
-                //var supplierBitMap = new BitArray(supplierDimension.Count + 1);
-
                 var customerHashTable = new Dictionary<int, string>();
                 var supplierHashTable = new Dictionary<int, string>();
                 var dateHashTable = new Dictionary<int, string>();
@@ -650,27 +613,12 @@ namespace ParallelHashJoins
                         dateHashTable.Add(row.dDateKey, row.dYear);
                 }
 
-                //int i = 1;
-                //foreach (var row in customerDimension)
-                //{
-                //    if (row.cRegion.Equals("ASIA"))
-                //        customerBitMap.Set(i, true);
-                //    i++;
-                //}
-
                 foreach (var row in customerDimension)
                 {
                     if (row.cRegion.Equals("ASIA"))
                         customerHashTable.Add(row.cCustKey, row.cNation);
                 }
 
-                //i = 1;
-                //foreach (var row in supplierDimension)
-                //{
-                //    if (row.sRegion.Equals("ASIA"))
-                //        supplierBitMap.Set(i, true);
-                //    i++;
-                //}
                 foreach (var row in supplierDimension)
                 {
                     if (row.sRegion.Equals("ASIA"))
@@ -684,35 +632,29 @@ namespace ParallelHashJoins
 
                 sw.Start();
                 Atire tire = new Atire();
-                for (int j = 0; j < loCustomerKey.Count(); j++)
+                for (int i = 0; i < loCustomerKey.Count(); i++)
                 {
-                    int custKey = loCustomerKey[j];
-                    int suppKey = loSupplierKey[j];
-                    int dateKey = loOrderDate[j];
-                    // int dYear = dateKey / 10000; // We dont even need to load the dimension attributes
-                    // bool yearPredicate = dYear >= 1992 && dYear <= 1997 ? true : false;
+                    int custKey = loCustomerKey[i];
+                    int suppKey = loSupplierKey[i];
+                    int dateKey = loOrderDate[i];
                     string custNation = string.Empty;
                     string suppNation = string.Empty;
                     string dYear = string.Empty;
                     if (customerHashTable.TryGetValue(custKey, out custNation) && supplierHashTable.TryGetValue(suppKey, out suppNation) && dateHashTable.TryGetValue(dateKey, out dYear))
-                    //if (customerBitMap[custKey] && supplierBitMap[suppKey] && yearPredicate)
                     {
-                        tire.Insert(tire, new List<string> { custNation, suppNation, dYear }, loRevenue[j]);
+                        tire.Insert(tire, new List<string> { custNation, suppNation, dYear }, loRevenue[i], false);
                     }
                 }
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
                 // Console.WriteLine(String.Format("Count: {0}", count));
                 Console.WriteLine(String.Format("[Atire Join] T1 Time: {0}", t1));
-               
-                Console.WriteLine(String.Format("[Atire Join] Total Time: {0}", t0 + t1 ));
-                var finalTable = tire.GetResults(tire);
-                Console.WriteLine(String.Format("[Atire Join] Total Items: {0}", finalTable.Count));
-               
-                //foreach (var item in results)
-                //{
-                //    Console.WriteLine(item);
-                //}
+
+                Console.WriteLine(String.Format("[Atire Join] Total Time: {0}", t0 + t1));
+                tire.GetResults(tire);
+                var results = tire.results;
+                //System.IO.File.WriteAllLines(@"C:\Results\AtireJoin.txt", results);
+                //Console.WriteLine(String.Format("[Atire Join] Total Items: {0}", finalTable.Count));
                 Console.WriteLine();
             }
             catch (Exception ex)
@@ -728,5 +670,38 @@ namespace ParallelHashJoins
             //Console.WriteLine();
         }
 
+    }
+
+    class GroupingAttributes
+    {
+        public string X { get; set; }
+        public string Y { get; set; }
+        public int Z { get; set; }
+        public string Key { get; set; }
+
+        public GroupingAttributes()
+        {
+            this.X = string.Empty;
+            this.Y = string.Empty;
+            this.Z = 0;
+            this.Key = string.Empty;
+        }
+        public bool isFilled()
+        {
+            if (string.IsNullOrEmpty(X) || string.IsNullOrEmpty(Y) || Z == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public string getKey()
+        {
+            if (string.IsNullOrEmpty(Key))
+            {
+                Key = X + ", " + Y + ", " + Z;
+            }
+            return Key;
+        }
     }
 }

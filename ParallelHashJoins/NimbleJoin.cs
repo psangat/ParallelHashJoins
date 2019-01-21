@@ -26,7 +26,7 @@ namespace ParallelHashJoins
         }
         ~NimbleJoin()
         {
-            saveAndPrintResults();
+            //saveAndPrintResults();
         }
 
         #region Private Variables
@@ -2425,6 +2425,150 @@ namespace ParallelHashJoins
             }
         }
 
+        /// <summary>
+        /// IM refers Inmemory
+        /// </summary>
+        public void Query_3_1_IM()
+        {
+            try
+            {
+                Stopwatch sw = new Stopwatch();
+
+                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
+                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
+                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+
+                sw.Start();
+                #region Key Hashing Phase 
+
+                var customerHashTable = new Dictionary<int, string>();
+                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<int, string>();
+
+                foreach (var row in dateDimension)
+                {
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                        dateHashTable.Add(row.dDateKey, row.dYear);
+                }
+
+                foreach (var row in customerDimension)
+                {
+                    if (row.cRegion.Equals("ASIA"))
+                        customerHashTable.Add(row.cCustKey, row.cNation);
+                }
+
+                foreach (var row in supplierDimension)
+                {
+                    if (row.sRegion.Equals("ASIA"))
+                        supplierHashTable.Add(row.sSuppKey, row.sNation);
+                }
+
+                sw.Stop();
+                long t0 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Nimble Join] T0 Time: {0}", t0));
+                sw.Reset();
+                #endregion Key Hashing Phase
+
+                var _maat = new MAATIM(loSupplierKey.Count);
+
+                #region Probing Phase
+                sw.Start();
+                for (int i = 0; i < loCustomerKey.Count; i++)
+                {
+                    int custKey = loCustomerKey[i];
+                    int suppKey = loSupplierKey[i];
+                    int orderDate = loOrderDate[i];
+                    string cNation = string.Empty;
+                    string sNation = string.Empty;
+                    string dYear = string.Empty;
+                    if (customerHashTable.TryGetValue(custKey, out cNation)
+                        && supplierHashTable.TryGetValue(suppKey, out sNation)
+                        && dateHashTable.TryGetValue(orderDate, out dYear))
+                    {
+                        _maat.AddOrUpdate(i, new List<object> { cNation, sNation, dYear, loRevenue[i] });
+
+
+                    }
+                }
+                //var j = 0;
+                //foreach (var custKey in loCustomerKey)
+                //{
+                //    string cNation = string.Empty;
+                //    if (customerHashTable.TryGetValue(custKey, out cNation))
+                //    {
+                //        _maat.AddOrUpdate(j, cNation);
+                //    }
+                //    j++;
+                //}
+
+                //var i = 0;
+                //foreach (var suppKey in loSupplierKey)
+                //{
+                //    string sNation = string.Empty;
+                //    if (supplierHashTable.TryGetValue(suppKey, out sNation))
+                //    {
+                //        _maat.AddOrUpdate(i, sNation);
+                //    }
+                //    i++;
+                //}
+
+                //var k = 0;
+                //foreach (var orderDate in loOrderDate)
+                //{
+                //    string dYear = string.Empty;
+                //    if (dateHashTable.TryGetValue(orderDate, out dYear))
+                //    {
+                //            _maat.AddOrUpdate(k, dYear);
+                //    }
+                //    k++;
+                //}
+                sw.Stop();
+                long t1 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Nimble Join] T1 Time: {0}", t1));
+                sw.Reset();
+
+                #endregion Probing Phase
+
+                #region Value Extraction Phase
+                sw.Start();
+
+                var joinOutputFinal = new Dictionary<string, int>();
+                int index = 0;
+                foreach (var item in _maat.GetAll())
+                {
+                    if (item != null)
+                    {
+                        string key = item[0] + ", " + item[1] + ", " + item[2];
+                        int revenue = 0;
+                        if (joinOutputFinal.TryGetValue(key, out revenue))
+                        {
+                            joinOutputFinal[key] = revenue + Convert.ToInt32(item[3]);
+                        }
+                        else
+                        {
+                            joinOutputFinal.Add(key, Convert.ToInt32(item[3]));
+                        }
+                    }
+                    index++;
+                }
+                sw.Stop();
+                long t2 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Nimble Join] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[Nimble Join] Total Time: {0}", t0 + t1 + t2));
+                //Console.WriteLine(String.Format("[Nimble Join] Total Count: {0}", joinOutputFinal.Count()));
+                Console.WriteLine();
+                #endregion Value Extraction Phase
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void Query_3_1_BitMap()
         {
             try
@@ -2633,7 +2777,8 @@ namespace ParallelHashJoins
                 var o = 0;
                 foreach (bool postion in _maat.bitMap)
                 {
-                    if (postion) {
+                    if (postion)
+                    {
                         var item = _maat.GetValue(o);
                         item.i1 = loRevenue[o];
                         joinOutputFinal.AddOrUpdate(o, item);

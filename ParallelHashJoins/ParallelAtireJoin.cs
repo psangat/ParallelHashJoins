@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
-    class ParallelAtire
+    class ParallelAtireJoin
     {
         private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BF";
         private string scaleFactor { get; set; }
 
         public TestResults testResults = new TestResults();
         private ParallelOptions parallelOptions = null;
-        public ParallelAtire(string scaleFactor, int degreeOfParallelism = 1)
+        public ParallelAtireJoin(string scaleFactor, int degreeOfParallelism = 1)
         {
             this.scaleFactor = scaleFactor;
             testResults.totalRAMAvailable = Utils.getAvailableRAM();
             parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
         }
 
-        ~ParallelAtire()
+        ~ParallelAtireJoin()
         {
             saveAndPrintResults();
         }
@@ -223,12 +223,14 @@ namespace ParallelHashJoins
                 #endregion Phase1
 
                 sw.Start();
-                Atire tire = new Atire();
+                
+                // Local Aggregation 
                 var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
-                var tasks = new List<Task>();
+                List<Task<Atire>> tasks = new List<Task<Atire>>();
                 foreach (var indexes in partitionIndexes)
                 {
-                    var t = Task.Factory.StartNew(()=> {
+                    Task<Atire> t = Task<Atire>.Factory.StartNew(()=> {
+                        Atire atire = new Atire();
                         for (int i = indexes.Item1; i <= indexes.Item2; i++)
                         {
                             int custKey = loCustomerKey[i];
@@ -239,26 +241,30 @@ namespace ParallelHashJoins
                             string dYear = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out custNation) && supplierHashTable.TryGetValue(suppKey, out suppNation) && dateHashTable.TryGetValue(dateKey, out dYear))
                             {
-                                tire.Insert(tire, new List<string> { custNation, suppNation, dYear }, loRevenue[i]);
+                                atire.Insert(atire, new List<string> { custNation, suppNation, dYear }, loRevenue[i]);
                             }
                         }
+                        return atire;
                     });
                     tasks.Add(t);
                 }
 
                 Task.WaitAll(tasks.ToArray());
 
+                // Global Aggregation [Serial]
+                Atire mergedAtire = null;
+                for (int i = 0; i < tasks.Count - 1; i++)
+                {
+                    mergedAtire = tasks[i].Result.MergeAtires(tasks[i].Result, tasks[i + 1].Result);
+                }
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
                 Console.WriteLine(String.Format("[PAtire] T1 Time: {0}", t1));
                 Console.WriteLine(String.Format("[PAtire] Total Time: {0}", t0 + t1));
-                var finalTable = tire.GetResults(tire);
-                Console.WriteLine(String.Format("[Atire Join] Total Items: {0}", finalTable.Count));
 
-                //foreach (var item in results)
-                //{
-                //    Console.WriteLine(item);
-                //}
+                mergedAtire.GetResults(mergedAtire);
+                var results = mergedAtire.results;
+                //System.IO.File.WriteAllLines(@"C:\Results\PAtireJoin.txt", results);
                 Console.WriteLine();
             }
             catch (Exception ex)
