@@ -10,6 +10,9 @@ namespace ParallelHashJoins
     class Atire
     {
         private int value { get; set; }
+
+        private long[] values { get; set; }
+
         private int height { get; set; }
 
         private Dictionary<int, string> attributes = new Dictionary<int, string>();
@@ -24,6 +27,7 @@ namespace ParallelHashJoins
         public Atire()
         {
             this.value = 0;
+            this.values = new long[10];
             this.children = new Dictionary<string, Atire>();
             this.height = -1;
         }
@@ -35,7 +39,7 @@ namespace ParallelHashJoins
         /// <param name="attributes">List of attiributes to insert into the Atire</param>
         /// <param name="value">Value associated with the grouping of the attributes</param>
 
-        public void Insert(Atire root, List<string> attributes, int value, bool isLockFree = true )
+        public void Insert(Atire root, List<string> attributes, bool isLockFree = true , params long[] values)
         {
             try
             {
@@ -55,9 +59,14 @@ namespace ParallelHashJoins
 
                     }
                     node.height = ++height;
+                    node.values = new long[values.Count()];
                     // Store value in the terminal node
                     // Aggregation on the fly
-                    node.value += value;
+                    for (int i = 0; i < values.Count(); i++)
+                    {
+                        node.values[i] += values[i];
+                    } 
+                    
                 }
                 else {
                     lock (nodeLock)
@@ -76,7 +85,10 @@ namespace ParallelHashJoins
                         node.height = ++height;
                         // Store value in the terminal node
                         // Aggregation on the fly
-                        node.value += value;
+                        for (int i = 0; i < values.Count(); i++)
+                        {
+                            node.values[i] += values[i];
+                        }
                     }
                 }
             }
@@ -139,9 +151,9 @@ namespace ParallelHashJoins
             {
                 mergingAttributes.Add(key);
                 var tempAtire = atire2.children[key];
-                if (tempAtire.value != 0)
+                if (tempAtire.values != null)
                 {
-                    Insert(atire1, mergingAttributes, tempAtire.value);
+                    Insert(atire1,  mergingAttributes, true, tempAtire.values);
                     mergingAttributes.Clear();
                     break;
                 }

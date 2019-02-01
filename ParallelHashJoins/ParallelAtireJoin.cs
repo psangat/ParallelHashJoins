@@ -241,7 +241,7 @@ namespace ParallelHashJoins
                             string dYear = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out custNation) && supplierHashTable.TryGetValue(suppKey, out suppNation) && dateHashTable.TryGetValue(dateKey, out dYear))
                             {
-                                    atire.Insert(atire, new List<string> { custNation, suppNation, dYear }, loRevenue[i], isLockFree);
+                                    atire.Insert(atire, new List<string> { custNation, suppNation, dYear }, isLockFree, loRevenue[i] );
                             }
                         }
                         return atire;

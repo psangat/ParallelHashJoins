@@ -16,222 +16,105 @@ namespace ParallelHashJoins
     {
         private const int TIMETOSLEEP = 1000;
 
-        static void Main1()
-        {
-
-            int[,,,] array = new int[4, 4, 4, 4];
-            array[0, 0, 0, 0] = 1;
-            array[3, 3, 3, 3] = 1;
-
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    for (int k = 0; k < 4; k++)
-                    {
-                        for (int l = 0; l < 4; l++)
-                        {
-                            Console.WriteLine(i + "," + j + "," + k + "," + l + " : " + array[i, j, k, l]);
-
-                        }
-                    }
-
-                }
-
-            }
-            Console.Read();
-        }
         static void Main()
         {
-
-            //List<List<string>> data1 = new List<List<string>>();
-            //List<List<string>> data2 = new List<List<string>>();
-
-            //List<string> item1 = new List<string>() { "1", "2", "3" };
-            //List<string> item2 = new List<string>() { "1", "2", "4" };
-            //List<string> item3 = new List<string>() { "1", "3", "4" };
-            //List<string> item4 = new List<string>() { "1", "2", "3" };
-            //List<string> item5 = new List<string>() { "3", "2", "3" };
-
-            //List<string> item6 = new List<string>() { "1", "2", "3" };
-            //List<string> item7 = new List<string>() { "2", "3", "4" };
-            ////List<string> item8 = new List<string>() { "1", "2", "3" };
-            //List<string> item9 = new List<string>() { "1", "3", "3" };
-            //List<string> item10 = new List<string>() { "1", "3", "3" };
-
-
-            //data1.Add(item1);
-            //data1.Add(item2);
-            ////data1.Add(item3);
-            ////data1.Add(item4);
-            ////data1.Add(item5);
-
-            ////data2.Add(item8);
-            //data2.Add(item6);
-            //data2.Add(item7);
-
-            ////data2.Add(item9);
-            ////data2.Add(item10);
-
-            //Atire tire1 = new Atire();
-            //foreach (var item in data1)
-            //{
-            //    tire1.Insert(tire1, item, 10);
-            //}
-
-            //Atire tire2 = new Atire();
-            //foreach (var item in data2)
-            //{
-            //    tire2.Insert(tire2, item, 5);
-            //}
-
-            //var merged = tire2.MergeAtires(tire1, tire2);
-            //merged.GetResults(merged);
-            ////Atire atire = new Atire();
-            ////tire1.MergeAtires(atire, tire1, tire2);
-
-            //Console.ReadKey();
-
-            //var chunkIndexes = Utils.getPartitionIndexes(1150, 4);
-            //Console.ReadKey();
             string scaleFactor = "SF3";
-            int numberOfProcessor = 3;
+            int numberOfProcessor = 1;
             for (int i = 0; i < 3; i++)
             {
+                Console.WriteLine("Iteration " + (i + 1));
+                Console.WriteLine();
+
                 //InvisibleJoin InJ = new InvisibleJoin(scaleFactor);
                 //InJ.Query_3_1_IM();
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
 
+                ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, i + 1);
+                PInJ.Query_2_3_IM();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(100);
+                //PInJ.Query_2_2_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_2_3_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_3_1_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_3_2_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_3_3_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_3_4_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_4_1_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_4_2_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //PInJ.Query_4_3_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+
+                ////InJ.AggregationScalabilityTest2(i + 1);
+                ////GC.Collect(2, GCCollectionMode.Forced, true);
+                ////Thread.Sleep(100);
+
                 //NimbleJoin NJ = new NimbleJoin(scaleFactor);
-                //NJ.Query_3_1_IM();
+                //NJ.GroupingAttributeScalabilityTest(i + 1);
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
 
                 //InMemoryAggregation IMA = new InMemoryAggregation(scaleFactor);
-                //IMA.Query_3_1();
+                //IMA.GroupingAttributeScalabilityTest(i + 1);
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+
+                //AtireJoin AJ = new AtireJoin(scaleFactor);
+                //AJ.Query_3_1();
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
 
                 //AtireJoin ATireJoin = new AtireJoin(scaleFactor);
-                //ATireJoin.Query_3_1();
+                //ATireJoin.GroupingAttributeScalabilityTest(i + 1);
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
 
-                //ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, numberOfProcessor);
-                //PInJ.Query_3_1_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
 
-                //ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, numberOfProcessor);
-                //PNJ.Query_3_1_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
+
+                ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, i+1);
+                PNJ.Query_2_3_IM();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(100);
 
                 //ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, numberOfProcessor);
                 //PIMA.Query_3_1();
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
 
-                ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, numberOfProcessor);
+                //ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, numberOfProcessor);
 
-                PATireJoin.Query_3_1(false);
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-                Console.WriteLine("Was using lock");
-                Console.WriteLine();
+                //PATireJoin.Query_3_1(false);
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //Console.WriteLine("Was using lock");
+                //Console.WriteLine();
 
-                PATireJoin.Query_3_1(true);
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-                Console.WriteLine("Wasnt using lock");
-                Console.WriteLine();
+                //PATireJoin.Query_3_1(true);
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
+                //Console.WriteLine("Wasnt using lock");
+                //Console.WriteLine();
 
             }
             Console.ReadKey();
         }
-
-        //static void Main(string[] args)
-        //{
-        //    //for (int i = 0; i < 10; i++)
-        //    //{
-        //    //    Console.WriteLine("===============================================================================");
-        //    //    MultiAttributeAssociativeArrayTest();
-        //    //    Console.WriteLine("===============================================================================");
-        //    //}
-        //    string scaleFactor = string.Empty;
-        //    if (args.Length <= 0)
-        //    {
-        //        scaleFactor = "SF1";
-        //    }
-        //    else
-        //    {
-        //        scaleFactor = args[0];
-        //    }
-
-        //    //RunAllTests(scaleFactor, Environment.ProcessorCount);
-        //    ////RunAllTests(scaleFactor, 1);
-        //    ////RunAllTests(scaleFactor, 2);
-        //    ////RunAllTests(scaleFactor, 4);
-        //    ////RunAllTests(scaleFactor, 6);
-        //    ////RunAllTests(scaleFactor, 8);
-        //    ////RunAllTests(scaleFactor, 10);
-
-
-        //    //for (int i = 1; i <= 5; i++)
-        //    //{
-        //    //    //InvisibleJoin invisibleJoin = new InvisibleJoin(scaleFactor);
-        //    //    //invisibleJoin.Query_4_3();
-        //    //    //GC.Collect(2, GCCollectionMode.Forced, true);
-        //    //    //Thread.Sleep(100);
-        //    //    ////invisibleJoinOutput.Add(invisibleJoin.testResults.toString());
-        //    //    ////Console.WriteLine("Invisible: " + invisibleJoin.testResults.toString());
-        //    //    //Console.WriteLine();
-        //    //    //TestResultsDatabase.clearAllDatabase();
-
-        //    //    //ParallelInvisibleJoin pInvisibleJoin = new ParallelInvisibleJoin(scaleFactor);
-        //    //    //pInvisibleJoin.Query_4_3();
-        //    //    //GC.Collect(2, GCCollectionMode.Forced, true);
-        //    //    //Thread.Sleep(100);
-        //    //    ////pInvisibleJoinOutput.Add(pInvisibleJoin.testResults.toString());
-        //    //    ////Console.WriteLine("Parallel Invisible: " + pInvisibleJoin.testResults.toString());
-        //    //    //Console.WriteLine();
-        //    //    //TestResultsDatabase.clearAllDatabase();
-
-        //    //    NimbleJoin nimbleJoin = new NimbleJoin(scaleFactor);
-        //    //    nimbleJoin.Query_3_1();
-        //    //    GC.Collect(2, GCCollectionMode.Forced, true);
-        //    //    Thread.Sleep(100);
-        //    //    //nimbleJoinOutput.Add(nimbleJoin.testResults.toString());
-        //    //    // nimbleJoin.saveAndPrintResults();
-        //    //    Console.WriteLine("NJ");
-        //    //    TestResultsDatabase.clearAllDatabase();
-
-        //    //    NimbleJoin nimbleJoin1 = new NimbleJoin(scaleFactor);
-        //    //    nimbleJoin1.Query_3_1_BitMap();
-        //    //    GC.Collect(2, GCCollectionMode.Forced, true);
-        //    //    Thread.Sleep(100);
-        //    //    //nimbleJoinOutput.Add(nimbleJoin.testResults.toString());
-        //    //    // nimbleJoin.saveAndPrintResults();
-        //    //    Console.WriteLine("NJB");
-        //    //    TestResultsDatabase.clearAllDatabase();
-
-
-        //    //    //ParallelNimbleJoin pNimbleJoin = new ParallelNimbleJoin(scaleFactor, 4);
-        //    //    //pNimbleJoin.Query_4_3();
-        //    //    //GC.Collect(2, GCCollectionMode.Forced, true);
-        //    //    //Thread.Sleep(100);
-        //    //    ////pNimbleJoinOutput.Add(pNimbleJoin.testResults.toString());
-        //    //    //// Console.WriteLine("Parallel Nimble: " + pNimbleJoin.testResults.toString());
-        //    //    //Console.WriteLine();
-        //    //    //TestResultsDatabase.clearAllDatabase();
-
-        //    //}
-
-        //    selectivityTest(scaleFactor);
-        //    Console.WriteLine("Test Complete.");
-        //    Console.ReadKey();
-        //}
 
         public static void RunAllTests(string scaleFactor, int processorCount)
         {
@@ -398,6 +281,61 @@ namespace ParallelHashJoins
             }
             sw.Stop();
             Console.WriteLine("Remove Time HashTable: " + sw.ElapsedMilliseconds + " ms");
+        }
+
+        public static void ATireTest()
+        {
+            //List<List<string>> data1 = new List<List<string>>();
+            //List<List<string>> data2 = new List<List<string>>();
+
+            //List<string> item1 = new List<string>() { "1", "2", "3" };
+            //List<string> item2 = new List<string>() { "1", "2", "4" };
+            //List<string> item3 = new List<string>() { "1", "3", "4" };
+            //List<string> item4 = new List<string>() { "1", "2", "3" };
+            //List<string> item5 = new List<string>() { "3", "2", "3" };
+
+            //List<string> item6 = new List<string>() { "1", "2", "3" };
+            //List<string> item7 = new List<string>() { "2", "3", "4" };
+            ////List<string> item8 = new List<string>() { "1", "2", "3" };
+            //List<string> item9 = new List<string>() { "1", "3", "3" };
+            //List<string> item10 = new List<string>() { "1", "3", "3" };
+
+
+            //data1.Add(item1);
+            //data1.Add(item2);
+            ////data1.Add(item3);
+            ////data1.Add(item4);
+            ////data1.Add(item5);
+
+            ////data2.Add(item8);
+            //data2.Add(item6);
+            //data2.Add(item7);
+
+            ////data2.Add(item9);
+            ////data2.Add(item10);
+
+            //Atire tire1 = new Atire();
+            //foreach (var item in data1)
+            //{
+            //    tire1.Insert(tire1, item, 10);
+            //}
+
+            //Atire tire2 = new Atire();
+            //foreach (var item in data2)
+            //{
+            //    tire2.Insert(tire2, item, 5);
+            //}
+
+            //var merged = tire2.MergeAtires(tire1, tire2);
+            //merged.GetResults(merged);
+            ////Atire atire = new Atire();
+            ////tire1.MergeAtires(atire, tire1, tire2);
+
+
+
+            //var chunkIndexes = Utils.getPartitionIndexes(1150, 4);
+            //Console.ReadKey();
+            //Console.ReadKey();
         }
         public static void selectivityTest(string scaleFactor)
         {
