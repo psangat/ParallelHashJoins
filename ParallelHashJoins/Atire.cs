@@ -108,11 +108,11 @@ namespace ParallelHashJoins
             {
                 if (attributes.ContainsKey(root.height))
                 {
-                    attributes[root.height] = Convert.ToString(root.value);
+                    attributes[root.height] = Convert.ToString(root.values[0]);
                 }
                 else
                 {
-                    attributes.Add(root.height, Convert.ToString(root.value));
+                    attributes.Add(root.height, Convert.ToString(root.values[0]));
                 }
                 StringBuilder sb = new StringBuilder();
                 foreach (var item in attributes)

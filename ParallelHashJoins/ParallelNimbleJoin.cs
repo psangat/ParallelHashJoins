@@ -3075,10 +3075,12 @@ namespace ParallelHashJoins
                         {
                             int partKey = loPartKey[i];
                             int dateKey = loOrderDate[i];
+                            int suppKey = loSupplierKey[i];
                             string pBrand = string.Empty;
                             string dYear = string.Empty;
                             if (partHashTable.TryGetValue(partKey, out pBrand)
-                            && dateHashTable.TryGetValue(dateKey, out dYear))
+                            && dateHashTable.TryGetValue(dateKey, out dYear)
+                             && supplierHashTable.ContainsKey(suppKey))
                             {
                                 _maat.AddOrUpdate(i, new List<object> { dYear, pBrand, loRevenue[i] });
                             }
@@ -3199,10 +3201,12 @@ namespace ParallelHashJoins
                         {
                             int partKey = loPartKey[i];
                             int dateKey = loOrderDate[i];
+                            int suppKey = loSupplierKey[i];
                             string pBrand = string.Empty;
                             string dYear = string.Empty;
                             if (partHashTable.TryGetValue(partKey, out pBrand)
-                            && dateHashTable.TryGetValue(dateKey, out dYear))
+                            && dateHashTable.TryGetValue(dateKey, out dYear)
+                             && supplierHashTable.ContainsKey(suppKey))
                             {
                                 _maat.AddOrUpdate(i, new List<object> { dYear, pBrand, loRevenue[i] });
                             }
@@ -3322,10 +3326,12 @@ namespace ParallelHashJoins
                         {
                             int partKey = loPartKey[i];
                             int dateKey = loOrderDate[i];
+                            int suppKey = loSupplierKey[i];
                             string pBrand = string.Empty;
                             string dYear = string.Empty;
                             if (partHashTable.TryGetValue(partKey, out pBrand)
-                            && dateHashTable.TryGetValue(dateKey, out dYear))
+                            && dateHashTable.TryGetValue(dateKey, out dYear)
+                             && supplierHashTable.ContainsKey(suppKey))
                             {
                                 _maat.AddOrUpdate(i, new List<object> { dYear, pBrand, loRevenue[i] });
                             }
@@ -3976,10 +3982,14 @@ namespace ParallelHashJoins
                         {
                             int custKey = loCustomerKey[i];
                             int dateKey = loOrderDate[i];
+                            int suppKey = loSupplierKey[i];
+                            int partKey = loPartKey[i];
                             string custNation = string.Empty;
                             string dYear = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out custNation)
-                            && dateHashTable.TryGetValue(dateKey, out dYear))
+                            && dateHashTable.TryGetValue(dateKey, out dYear)
+                            && supplierHashTable.ContainsKey(suppKey)
+                            && partHashTable.ContainsKey(partKey))
                             {
                                 _maat.AddOrUpdate(i, new List<object> { dYear, custNation, (loRevenue[i] - loSupplyCost[i]) });
                             }
@@ -4120,12 +4130,14 @@ namespace ParallelHashJoins
                             int suppKey = loSupplierKey[i];
                             int dateKey = loOrderDate[i];
                             int partKey = loPartKey[i];
+                            int custKey = loCustomerKey[i];
                             string suppNation = string.Empty;
                             string dYear = string.Empty;
                             string pCategory = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out suppNation)
                             && partHashTable.TryGetValue(partKey, out pCategory)
-                            && dateHashTable.TryGetValue(dateKey, out dYear))
+                            && dateHashTable.TryGetValue(dateKey, out dYear)
+                            && customerHashTable.ContainsKey(custKey))
                             {
                                 _maat.AddOrUpdate(i, new List<object> { dYear, suppNation, pCategory, (loRevenue[i] - loSupplyCost[i]) });
                             }
@@ -4262,12 +4274,14 @@ namespace ParallelHashJoins
                             int suppKey = loSupplierKey[i];
                             int dateKey = loOrderDate[i];
                             int partKey = loPartKey[i];
+                            int custKey = loCustomerKey[i];
                             string suppCity = string.Empty;
                             string dYear = string.Empty;
                             string pBrand = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out suppCity)
                             && partHashTable.TryGetValue(partKey, out pBrand)
-                            && dateHashTable.TryGetValue(dateKey, out dYear))
+                            && dateHashTable.TryGetValue(dateKey, out dYear)
+                            && customerHashTable.ContainsKey(custKey))
                             {
                                 _maat.AddOrUpdate(i, new List<object> { dYear, suppCity, pBrand, (loRevenue[i] - loSupplyCost[i]) });
                             }

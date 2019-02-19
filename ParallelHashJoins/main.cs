@@ -88,7 +88,7 @@ namespace ParallelHashJoins
 
 
 
-                ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, i+1);
+                ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, i + 1);
                 PNJ.Query_2_3_IM();
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
@@ -98,10 +98,9 @@ namespace ParallelHashJoins
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
 
-                //ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, numberOfProcessor);
-
-                //PATireJoin.Query_3_1(false);
-                //GC.Collect(2, GCCollectionMode.Forced, true);
+                ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, i + 1);
+                PATireJoin.Query_2_3_IM(true);
+                GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
                 //Console.WriteLine("Was using lock");
                 //Console.WriteLine();

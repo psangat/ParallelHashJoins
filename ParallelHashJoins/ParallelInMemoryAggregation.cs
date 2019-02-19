@@ -2464,10 +2464,14 @@ namespace ParallelHashJoins
                     {
                         int custKey = loCustomerKey[i];
                         int dateKey = loOrderDate[i];
+                        int suppKey = loSupplierKey[i];
+                        int partKey = loPartKey[i];
                         int dgkCustomerDim = 0;
                         int dgkDateDim = 0;
                         if (kvCustomerDim.TryGetValue(custKey, out dgkCustomerDim)
-                            && kvDateDim.TryGetValue(dateKey, out dgkDateDim))
+                            && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
+                            && kvSupplierDim.ContainsKey(suppKey)
+                            && kvPartDim.ContainsKey(partKey))
                         {
                             if (dgkCustomerDim == 0 || dgkDateDim == 0)
                             {
@@ -2774,12 +2778,14 @@ namespace ParallelHashJoins
                         int suppKey = loSupplierKey[i];
                         int dateKey = loOrderDate[i];
                         int partKey = loPartKey[i];
+                        int custKey = loCustomerKey[i];
                         int dgkSupplierDim = 0;
                         int dgkDateDim = 0;
                         int dgkPartDim = 0;
                         if (kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
-                            && kvPartDim.TryGetValue(partKey, out dgkPartDim))
+                            && kvPartDim.TryGetValue(partKey, out dgkPartDim)
+                            && kvCustomerDim.ContainsKey(custKey))
                         {
                             if (dgkSupplierDim == 0 || dgkDateDim == 0 || dgkPartDim == 0)
                             {
@@ -3090,12 +3096,14 @@ namespace ParallelHashJoins
                         int suppKey = loSupplierKey[i];
                         int dateKey = loOrderDate[i];
                         int partKey = loPartKey[i];
+                        int custKey = loCustomerKey[i];
                         int dgkSupplierDim = 0;
                         int dgkDateDim = 0;
                         int dgkPartDim = 0;
                         if (kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
-                            && kvPartDim.TryGetValue(partKey, out dgkPartDim))
+                            && kvPartDim.TryGetValue(partKey, out dgkPartDim)
+                            && kvCustomerDim.ContainsKey(custKey))
                         {
                             if (dgkSupplierDim == 0 || dgkDateDim == 0 || dgkPartDim == 0)
                             {
