@@ -1876,7 +1876,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                dgKeyDate++;
+                                dgKeyPart++;
                                 tempTablePartDim.Rows.Add(pMFGR, dgKeyPart);
                                 kvPartDim.Add(partIndex + 1, dgKeyPart);
                             }

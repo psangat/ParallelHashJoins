@@ -3499,7 +3499,7 @@ namespace ParallelHashJoins
                 long t2 = sw.ElapsedMilliseconds;
                 Console.WriteLine(String.Format("[PNimble Join] T2 Time: {0}", t2));
                 Console.WriteLine(String.Format("[PNimble Join] Total Time: {0}", t0 + t1 + t2));
-                //Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
+                Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
             }
@@ -3630,7 +3630,7 @@ namespace ParallelHashJoins
                 long t2 = sw.ElapsedMilliseconds;
                 Console.WriteLine(String.Format("[PNimble Join] T2 Time: {0}", t2));
                 Console.WriteLine(String.Format("[PNimble Join] Total Time: {0}", t0 + t1 + t2));
-                //Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
+                Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
             }
@@ -4024,7 +4024,7 @@ namespace ParallelHashJoins
                 long t2 = sw.ElapsedMilliseconds;
                 Console.WriteLine(String.Format("[PNimble Join] T2 Time: {0}", t2));
                 Console.WriteLine(String.Format("[PNimble Join] Total Time: {0}", t0 + t1 + t2));
-                //Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
+                Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
             }
@@ -4170,7 +4170,7 @@ namespace ParallelHashJoins
                 long t2 = sw.ElapsedMilliseconds;
                 Console.WriteLine(String.Format("[PNimble Join] T2 Time: {0}", t2));
                 Console.WriteLine(String.Format("[PNimble Join] Total Time: {0}", t0 + t1 + t2));
-                //Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
+                Console.WriteLine(String.Format("[PNimble Join] Total Count: {0}", joinOutputFinal.Count()));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
             }

@@ -30,10 +30,10 @@ namespace ParallelHashJoins
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
 
-                ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, i + 1);
-                PInJ.Query_2_3_IM();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
+                //ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, i + 1);
+                //PInJ.Query_3_4_IM();
+                //GC.Collect(2, GCCollectionMode.Forced, true);
+                //Thread.Sleep(100);
                 //PInJ.Query_2_2_IM();
                 //GC.Collect(2, GCCollectionMode.Forced, true);
                 //Thread.Sleep(100);
@@ -93,10 +93,10 @@ namespace ParallelHashJoins
                 GC.Collect(2, GCCollectionMode.Forced, true);
                 Thread.Sleep(100);
 
-                //ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, numberOfProcessor);
-                //PIMA.Query_3_1();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
+                ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, i + 1);
+                PIMA.Query_2_3_IM();
+                GC.Collect(2, GCCollectionMode.Forced, true);
+                Thread.Sleep(100);
 
                 //ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, numberOfProcessor);
 
