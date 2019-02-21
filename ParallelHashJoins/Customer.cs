@@ -9,7 +9,7 @@ namespace ParallelHashJoins
     [Serializable]
     class Customer
     {
-        public int cCustKey { get; set; }
+        public Int64 cCustKey { get; set; }
         public string cName { get; set; }
         public string cAddress { get; set; }
         public string cCity { get; set; }
@@ -18,7 +18,7 @@ namespace ParallelHashJoins
         public string cPhone { get; set; }
         public string cMktSegment { get; set; }
 
-        public Customer(int cCustKey,
+        public Customer(Int64 cCustKey,
             string cName,
             string cAddress,
             string cCity, 

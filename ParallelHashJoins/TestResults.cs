@@ -38,7 +38,7 @@ namespace ParallelHashJoins
 
         public string memoryUsed { get; set; }
 
-        public int totalNumberOfOutput { get; set; }
+        public Int64 totalNumberOfOutput { get; set; }
 
         public List<Tuple<long, long>> outputRateList { get; set; }
 

@@ -9,7 +9,7 @@ namespace ParallelHashJoins
     [Serializable]
     class Supplier
     {
-        public int sSuppKey { get; set; }
+        public Int64 sSuppKey { get; set; }
         public string sName { get; set; }
         public string sAddress { get; set; }
         public string sCity { get; set; }
@@ -17,7 +17,7 @@ namespace ParallelHashJoins
         public string sRegion { get; set; }
         public string sPhone { get; set; }
 
-        public Supplier(int sSuppKey,
+        public Supplier(Int64 sSuppKey,
             string sName,
             string sAddress,
             string sCity, 

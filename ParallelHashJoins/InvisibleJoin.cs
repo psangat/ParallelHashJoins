@@ -25,12 +25,12 @@ namespace ParallelHashJoins
         }
         ~InvisibleJoin()
         {
-            //saveAndPrintResults();
+            //saveAndPrInt64Results();
         }
 
         #region Private Variables
         private Object obj;
-        private List<int> cCustKey = new List<int>();
+        private List<Int64> cCustKey = new List<Int64>();
         private List<string> cName = new List<string>();
         private List<string> cAddress = new List<string>();
         private List<string> cCity = new List<string>();
@@ -39,7 +39,7 @@ namespace ParallelHashJoins
         private List<string> cPhone = new List<string>();
         private List<string> cMktSegment = new List<string>();
 
-        private List<int> sSuppKey = new List<int>();
+        private List<Int64> sSuppKey = new List<Int64>();
         private List<string> sName = new List<string>();
         private List<string> sAddress = new List<string>();
         private List<string> sCity = new List<string>();
@@ -47,8 +47,8 @@ namespace ParallelHashJoins
         private List<string> sRegion = new List<string>();
         private List<string> sPhone = new List<string>();
 
-        private List<int> pSize = new List<int>();
-        private List<int> pPartKey = new List<int>();
+        private List<Int64> pSize = new List<Int64>();
+        private List<Int64> pPartKey = new List<Int64>();
         private List<string> pName = new List<string>();
         private List<string> pMFGR = new List<string>();
         private List<string> pCategory = new List<string>();
@@ -57,39 +57,39 @@ namespace ParallelHashJoins
         private List<string> pType = new List<string>();
         private List<string> pContainer = new List<string>();
 
-        private List<int> loOrderKey = new List<int>();
-        private List<int> loLineNumber = new List<int>();
-        private List<int> loCustKey = new List<int>();
-        private List<int> loPartKey = new List<int>();
-        private List<int> loSuppKey = new List<int>();
-        private List<int> loOrderDate = new List<int>();
+        private List<Int64> loOrderKey = new List<Int64>();
+        private List<Int64> loLineNumber = new List<Int64>();
+        private List<Int64> loCustKey = new List<Int64>();
+        private List<Int64> loPartKey = new List<Int64>();
+        private List<Int64> loSuppKey = new List<Int64>();
+        private List<Int64> loOrderDate = new List<Int64>();
         private List<char> loShipPriority = new List<char>();
-        private List<int> loQuantity = new List<int>();
-        private List<Tuple<int, int>> loQuantityWithId = new List<Tuple<int, int>>();
+        private List<Int64> loQuantity = new List<Int64>();
+        private List<Tuple<Int64, Int64>> loQuantityWithId = new List<Tuple<Int64, Int64>>();
 
-        private List<int> loExtendedPrice = new List<int>();
-        private List<int> loOrdTotalPrice = new List<int>();
-        private List<int> loDiscount = new List<int>();
-        private List<Tuple<int, int>> loDiscountWithId = new List<Tuple<int, int>>();
-        private List<int> loRevenue = new List<int>();
-        private List<int> loSupplyCost = new List<int>();
-        private List<int> loTax = new List<int>();
-        private List<int> loCommitDate = new List<int>();
+        private List<Int64> loExtendedPrice = new List<Int64>();
+        private List<Int64> loOrdTotalPrice = new List<Int64>();
+        private List<Int64> loDiscount = new List<Int64>();
+        private List<Tuple<Int64, Int64>> loDiscountWithId = new List<Tuple<Int64, Int64>>();
+        private List<Int64> loRevenue = new List<Int64>();
+        private List<Int64> loSupplyCost = new List<Int64>();
+        private List<Int64> loTax = new List<Int64>();
+        private List<Int64> loCommitDate = new List<Int64>();
         private List<string> loShipMode = new List<string>();
         private List<string> loOrderPriority = new List<string>();
 
-        private List<int> dDateKey = new List<int>();
-        private List<int> dYear = new List<int>();
-        private List<int> dYearMonthNum = new List<int>();
-        private List<int> dDayNumInWeek = new List<int>();
-        private List<int> dDayNumInMonth = new List<int>();
-        private List<int> dDayNumInYear = new List<int>();
-        private List<int> dMonthNumInYear = new List<int>();
-        private List<int> dWeekNumInYear = new List<int>();
-        private List<int> dLastDayInWeekFL = new List<int>();
-        private List<int> dLastDayInMonthFL = new List<int>();
-        private List<int> dHolidayFL = new List<int>();
-        private List<int> dWeekDayFL = new List<int>();
+        private List<Int64> dDateKey = new List<Int64>();
+        private List<Int64> dYear = new List<Int64>();
+        private List<Int64> dYearMonthNum = new List<Int64>();
+        private List<Int64> dDayNumInWeek = new List<Int64>();
+        private List<Int64> dDayNumInMonth = new List<Int64>();
+        private List<Int64> dDayNumInYear = new List<Int64>();
+        private List<Int64> dMonthNumInYear = new List<Int64>();
+        private List<Int64> dWeekNumInYear = new List<Int64>();
+        private List<Int64> dLastDayInWeekFL = new List<Int64>();
+        private List<Int64> dLastDayInMonthFL = new List<Int64>();
+        private List<Int64> dHolidayFL = new List<Int64>();
+        private List<Int64> dWeekDayFL = new List<Int64>();
         private List<string> dDate = new List<string>();
         private List<string> dDayOfWeek = new List<string>();
         private List<string> dMonth = new List<string>();
@@ -172,8 +172,8 @@ namespace ParallelHashJoins
         private string pContainerFile = binaryFilesDirectory + @"\pContainer\";
 
         private bool isFirst = true;
-        private const int NUMBER_OF_RECORDS_OUTPUT = 10000;
-        private int outputRecordsCounter = 0;
+        private const Int64 NUMBER_OF_RECORDS_OUTPUT = 10000;
+        private Int64 outputRecordsCounter = 0;
         #endregion Private Variables
 
 
@@ -185,7 +185,7 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -226,13 +226,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -248,13 +248,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listLineOrderDiscountPositions = new List<int>();
+                var listLineOrderDiscountPositions = new List<Int64>();
                 var j = 0;
                 foreach (var _loDiscount in loDiscount)
                 {
@@ -269,13 +269,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listLineOrderQuantityPositions = new List<int>();
+                var listLineOrderQuantityPositions = new List<Int64>();
                 var k = 0;
                 foreach (var _loQuantity in loQuantity)
                 {
@@ -307,15 +307,15 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loExtendedPrice = Utils.ReadFromBinaryFiles<Int64>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                int totalRevenue = 0;
-                foreach (int index in common)
+                Int64 totalRevenue = 0;
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -364,7 +364,7 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -405,13 +405,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -427,13 +427,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listLineOrderDiscountPositions = new List<int>();
+                var listLineOrderDiscountPositions = new List<Int64>();
                 var j = 0;
                 foreach (var _loDiscount in loDiscount)
                 {
@@ -448,13 +448,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listLineOrderQuantityPositions = new List<int>();
+                var listLineOrderQuantityPositions = new List<Int64>();
                 var k = 0;
                 foreach (var _loQuantity in loQuantity)
                 {
@@ -486,15 +486,15 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loExtendedPrice = Utils.ReadFromBinaryFiles<Int64>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                int totalRevenue = 0;
-                foreach (int index in common)
+                Int64 totalRevenue = 0;
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -543,7 +543,7 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -584,13 +584,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -606,13 +606,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listLineOrderDiscountPositions = new List<int>();
+                var listLineOrderDiscountPositions = new List<Int64>();
                 var j = 0;
                 foreach (var _loDiscount in loDiscount)
                 {
@@ -627,13 +627,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listLineOrderQuantityPositions = new List<int>();
+                var listLineOrderQuantityPositions = new List<Int64>();
                 var k = 0;
                 foreach (var _loQuantity in loQuantity)
                 {
@@ -665,15 +665,15 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loExtendedPrice = Utils.ReadFromBinaryFiles<int>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
+                loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loExtendedPrice = Utils.ReadFromBinaryFiles<Int64>(loExtendedPriceFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                int totalRevenue = 0;
-                foreach (int index in common)
+                Int64 totalRevenue = 0;
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -724,9 +724,9 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -798,13 +798,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -820,13 +820,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listPartKeyPositions = new List<int>();
+                var listPartKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var partKey in loPartKey)
                 {
@@ -842,13 +842,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -881,9 +881,9 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-                // loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                // loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -892,14 +892,14 @@ namespace ParallelHashJoins
                 dateDimension.Clear();
 
                 List<string> pBrand = Utils.ReadFromBinaryFiles<string>(pBrandFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputFinal = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputFinal = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -935,7 +935,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 }
-                //var joinOutputFinal = new Dictionary<int, string>();
+                //var joinOutputFinal = new Dictionary<Int64, string>();
                 //foreach (var item in joinOutputIntermediate)
                 //{
                 //    joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -961,9 +961,9 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -1035,13 +1035,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -1057,13 +1057,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listPartKeyPositions = new List<int>();
+                var listPartKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var partKey in loPartKey)
                 {
@@ -1079,13 +1079,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -1118,9 +1118,9 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-                // loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                // loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -1129,14 +1129,14 @@ namespace ParallelHashJoins
                 dateDimension.Clear();
 
                 List<string> pBrand = Utils.ReadFromBinaryFiles<string>(pBrandFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputFinal = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputFinal = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -1172,7 +1172,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 }
-                //var joinOutputFinal = new Dictionary<int, string>();
+                //var joinOutputFinal = new Dictionary<Int64, string>();
                 //foreach (var item in joinOutputIntermediate)
                 //{
                 //    joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -1198,9 +1198,9 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -1272,13 +1272,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -1294,13 +1294,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listPartKeyPositions = new List<int>();
+                var listPartKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var partKey in loPartKey)
                 {
@@ -1316,13 +1316,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -1355,9 +1355,9 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-                // loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                // loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -1366,14 +1366,14 @@ namespace ParallelHashJoins
                 dateDimension.Clear();
 
                 List<string> pBrand = Utils.ReadFromBinaryFiles<string>(pBrandFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputFinal = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputFinal = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -1409,7 +1409,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 }
-                //var joinOutputFinal = new Dictionary<int, string>();
+                //var joinOutputFinal = new Dictionary<Int64, string>();
                 //foreach (var item in joinOutputIntermediate)
                 //{
                 //    joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -1437,10 +1437,10 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -1531,13 +1531,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -1553,13 +1553,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listCustomerKeyPositions = new List<int>();
+                var listCustomerKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
@@ -1575,13 +1575,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -1597,13 +1597,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase24IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listPartKeyPositions = new List<int>();
+                var listPartKeyPositions = new List<Int64>();
                 var l = 0;
                 foreach (var partKey in loPartKey)
                 {
@@ -1639,10 +1639,10 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                //loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                //loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                //loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                //loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -1653,15 +1653,15 @@ namespace ParallelHashJoins
 
                 List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
                 // List<string> sNation = Utils.ReadFromBinaryFiles<string>(sNationFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputFinal = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputFinal = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -1721,10 +1721,10 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -1816,13 +1816,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -1838,13 +1838,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listCustomerKeyPositions = new List<int>();
+                var listCustomerKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
@@ -1860,13 +1860,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -1882,13 +1882,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase24IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listPartKeyPositions = new List<int>();
+                var listPartKeyPositions = new List<Int64>();
                 var l = 0;
                 foreach (var partKey in loPartKey)
                 {
@@ -1924,10 +1924,10 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                //loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                //loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
 
                 foreach (var row in dateDimension)
@@ -1947,15 +1947,15 @@ namespace ParallelHashJoins
 
                 //List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sNation = Utils.ReadFromBinaryFiles<string>(sNationFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputFinal = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputFinal = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -2019,10 +2019,10 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -2114,13 +2114,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -2136,13 +2136,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listCustomerKeyPositions = new List<int>();
+                var listCustomerKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
@@ -2158,13 +2158,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -2180,13 +2180,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase24IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listPartKeyPositions = new List<int>();
+                var listPartKeyPositions = new List<Int64>();
                 var l = 0;
                 foreach (var partKey in loPartKey)
                 {
@@ -2222,10 +2222,10 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                //loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                //loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
 
                 foreach (var row in dateDimension)
@@ -2245,15 +2245,15 @@ namespace ParallelHashJoins
 
                 //List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sCity = Utils.ReadFromBinaryFiles<string>(sCityFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputFinal = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputFinal = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -2317,9 +2317,9 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -2392,13 +2392,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -2414,13 +2414,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listCustomerKeyPositions = new List<int>();
+                var listCustomerKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
@@ -2436,13 +2436,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -2475,9 +2475,9 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -2488,14 +2488,14 @@ namespace ParallelHashJoins
 
                 List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sNation = Utils.ReadFromBinaryFiles<string>(sNationFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputIntermediate = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputIntermediate = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -2532,7 +2532,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 }
-                var joinOutputFinal = new Dictionary<int, string>();
+                var joinOutputFinal = new Dictionary<Int64, string>();
                 foreach (var item in joinOutputIntermediate)
                 {
                     joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -2560,9 +2560,9 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -2635,13 +2635,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -2657,13 +2657,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listCustomerKeyPositions = new List<int>();
+                var listCustomerKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
@@ -2679,13 +2679,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -2718,9 +2718,9 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -2731,14 +2731,14 @@ namespace ParallelHashJoins
 
                 List<string> cCity = Utils.ReadFromBinaryFiles<string>(cCityFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sCity = Utils.ReadFromBinaryFiles<string>(sCityFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputIntermediate = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputIntermediate = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -2774,7 +2774,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 }
-                var joinOutputFinal = new Dictionary<int, string>();
+                var joinOutputFinal = new Dictionary<Int64, string>();
                 foreach (var item in joinOutputIntermediate)
                 {
                     joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -2800,9 +2800,9 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -2875,13 +2875,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -2897,13 +2897,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listCustomerKeyPositions = new List<int>();
+                var listCustomerKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
@@ -2919,13 +2919,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -2958,9 +2958,9 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -2971,14 +2971,14 @@ namespace ParallelHashJoins
 
                 List<string> cCity = Utils.ReadFromBinaryFiles<string>(cCityFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sCity = Utils.ReadFromBinaryFiles<string>(sCityFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputIntermediate = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputIntermediate = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -3014,7 +3014,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 }
-                var joinOutputFinal = new Dictionary<int, string>();
+                var joinOutputFinal = new Dictionary<Int64, string>();
                 foreach (var item in joinOutputIntermediate)
                 {
                     joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -3041,9 +3041,9 @@ namespace ParallelHashJoins
             {
                 long memoryStartPhase1 = GC.GetTotalMemory(true);
                 outputRecordsCounter = 0;
-                var dateHashTable = new Dictionary<int, string>();
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
                 Stopwatch sw = new Stopwatch();
                 Stopwatch swInitialRecorder = new Stopwatch();
                 Stopwatch swOutputRecorder = new Stopwatch();
@@ -3116,13 +3116,13 @@ namespace ParallelHashJoins
                 #region Probing Phase
                 long memoryStartPhase2 = GC.GetTotalMemory(true);
                 sw.Start();
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase21IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listOrderDatePositions = new List<int>();
+                var listOrderDatePositions = new List<Int64>();
                 var i = 0;
                 foreach (var orderDate in loOrderDate)
                 {
@@ -3138,13 +3138,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase22IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listCustomerKeyPositions = new List<int>();
+                var listCustomerKeyPositions = new List<Int64>();
                 var j = 0;
                 foreach (var custKey in loCustomerKey)
                 {
@@ -3160,13 +3160,13 @@ namespace ParallelHashJoins
                 sw.Reset();
 
                 sw.Start();
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase23IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var listSupplierKeyPositions = new List<int>();
+                var listSupplierKeyPositions = new List<Int64>();
                 var k = 0;
                 foreach (var suppKey in loSupplierKey)
                 {
@@ -3199,9 +3199,9 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                 foreach (var row in dateDimension)
                 {
@@ -3212,14 +3212,14 @@ namespace ParallelHashJoins
 
                 List<string> cCity = Utils.ReadFromBinaryFiles<string>(cCityFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sCity = Utils.ReadFromBinaryFiles<string>(sCityFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 sw.Stop();
                 testResults.phase3IOTime = sw.ElapsedMilliseconds;
                 sw.Reset();
 
                 sw.Start();
-                var joinOutputIntermediate = new Dictionary<int, string>();
-                foreach (int index in common)
+                var joinOutputIntermediate = new Dictionary<Int64, string>();
+                foreach (Int64 index in common)
                 {
                     try
                     {
@@ -3255,7 +3255,7 @@ namespace ParallelHashJoins
                         throw;
                     }
                 }
-                var joinOutputFinal = new Dictionary<int, string>();
+                var joinOutputFinal = new Dictionary<Int64, string>();
                 foreach (var item in joinOutputIntermediate)
                 {
                     joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -3281,9 +3281,9 @@ namespace ParallelHashJoins
         //    try
         //    {
         //        outputRecordsCounter = 0;
-        //        var dateHashTable = new Dictionary<int, string>();
-        //        var customerHashTable = new Dictionary<int, string>();
-        //        var supplierHashTable = new Dictionary<int, string>();
+        //        var dateHashTable = new Dictionary<Int64, string>();
+        //        var customerHashTable = new Dictionary<Int64, string>();
+        //        var supplierHashTable = new Dictionary<Int64, string>();
         //        Stopwatch sw = new Stopwatch();
         //        Stopwatch swInitialRecorder = new Stopwatch();
         //        Stopwatch swOutputRecorder = new Stopwatch();
@@ -3454,13 +3454,13 @@ namespace ParallelHashJoins
         //        #region Probing Phase
 
         //        sw.Start();
-        //        List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+        //        List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
         //        sw.Stop();
         //        testResults.phase21IOTime = sw.ElapsedMilliseconds;
         //        sw.Reset();
 
         //        sw.Start();
-        //        var listOrderDatePositions = new List<int>();
+        //        var listOrderDatePositions = new List<Int64>();
         //        var i = 0;
         //        foreach (var orderDate in loOrderDate)
         //        {
@@ -3476,13 +3476,13 @@ namespace ParallelHashJoins
         //        sw.Reset();
 
         //        sw.Start();
-        //        List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+        //        List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
         //        sw.Stop();
         //        testResults.phase22IOTime = sw.ElapsedMilliseconds;
         //        sw.Reset();
 
         //        sw.Start();
-        //        var listCustomerKeyPositions = new List<int>();
+        //        var listCustomerKeyPositions = new List<Int64>();
         //        var j = 0;
         //        foreach (var custKey in loCustomerKey)
         //        {
@@ -3498,13 +3498,13 @@ namespace ParallelHashJoins
         //        sw.Reset();
 
         //        sw.Start();
-        //        List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+        //        List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
         //        sw.Stop();
         //        testResults.phase23IOTime = sw.ElapsedMilliseconds;
         //        sw.Reset();
 
         //        sw.Start();
-        //        var listSupplierKeyPositions = new List<int>();
+        //        var listSupplierKeyPositions = new List<Int64>();
         //        var k = 0;
         //        foreach (var suppKey in loSupplierKey)
         //        {
@@ -3535,9 +3535,9 @@ namespace ParallelHashJoins
         //        #region Value Extraction Phase
 
         //        sw.Start();
-        //        loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-        //        loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-        //        loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+        //        loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+        //        loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+        //        loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
         //        List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
         //        List<string> sNation = Utils.ReadFromBinaryFiles<string>(sNationFile.Replace("BF", "BF" + scaleFactor));
         //        switch (selectivityRatio)
@@ -3568,14 +3568,14 @@ namespace ParallelHashJoins
         //                break;
         //        }
         //        dateDimension.Clear();
-        //        List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+        //        List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
         //        sw.Stop();
         //        testResults.phase3IOTime = sw.ElapsedMilliseconds;
         //        sw.Reset();
 
         //        sw.Start();
-        //        var joinOutputIntermediate = new Dictionary<int, string>();
-        //        foreach (int index in common)
+        //        var joinOutputIntermediate = new Dictionary<Int64, string>();
+        //        foreach (Int64 index in common)
         //        {
 
         //            try
@@ -3611,7 +3611,7 @@ namespace ParallelHashJoins
         //                throw;
         //            }
         //        }
-        //        var joinOutputFinal = new Dictionary<int, string>();
+        //        var joinOutputFinal = new Dictionary<Int64, string>();
         //        foreach (var item in joinOutputIntermediate)
         //        {
         //            joinOutputFinal.Add(item.Key, item.Value + "," + loRevenue[item.Key]);
@@ -3630,63 +3630,63 @@ namespace ParallelHashJoins
         //    }
         //}
 
-        public void AggregationScalabilityTest1(int numberOfAggregations)
+        public void AggregationScalabilityTest1(Int64 numberOfAggregations)
         {
             try
             {
                 Stopwatch sw = new Stopwatch();
 
-                List<int> loTax = null;
-                List<int> loDiscount = null;
-                List<int> loQuantity = null;
-                List<int> loSupplyCost = null;
-                List<int> loRevenue = null;
-                List<int> loOrderTotalPrice = null;
-                List<int> loCommitDate = Utils.ReadFromBinaryFiles<int>(loCommitDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loTax = null;
+                List<Int64> loDiscount = null;
+                List<Int64> loQuantity = null;
+                List<Int64> loSupplyCost = null;
+                List<Int64> loRevenue = null;
+                List<Int64> loOrderTotalPrice = null;
+                List<Int64> loCommitDate = Utils.ReadFromBinaryFiles<Int64>(loCommitDateFile.Replace("BF", "BF" + scaleFactor));
                 switch (numberOfAggregations)
                 {
                     case 1:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 2:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 3:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 4:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 5:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-                        loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                        loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 6:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-                        loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                        loOrderTotalPrice = Utils.ReadFromBinaryFiles<int>(loOrdTotalPriceFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                        loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                        loOrderTotalPrice = Utils.ReadFromBinaryFiles<Int64>(loOrdTotalPriceFile.Replace("BF", "BF" + scaleFactor));
                         break;
                 }
 
                 #region Value Extraction Phase
                 sw.Start();
-                var joinOutputFinal = new Dictionary<int, Int64[]>();
+                var joinOutputFinal = new Dictionary<Int64, Int64[]>();
 
-                for (int i = 0; i < loCommitDate.Count; i++)
+                for (Int64 i = 0; i < loCommitDate.Count; i++)
                 {
-                    int commitDate = loCommitDate[i];
+                    Int64 commitDate = loCommitDate[i];
                     Int64[] values = null;
                     if (joinOutputFinal.TryGetValue(commitDate, out values))
                     {
@@ -3785,66 +3785,66 @@ namespace ParallelHashJoins
             }
         }
 
-        public void AggregationScalabilityTest2(int numberOfAggregations)
+        public void AggregationScalabilityTest2(Int64 numberOfAggregations)
         {
             try
             {
                 Stopwatch sw = new Stopwatch();
 
-                List<int> loTax = null;
-                List<int> loDiscount = null;
-                List<int> loQuantity = null;
-                List<int> loSupplyCost = null;
-                List<int> loRevenue = null;
-                List<int> loOrderTotalPrice = null;
-                List<int> loCommitDate = Utils.ReadFromBinaryFiles<int>(loCommitDateFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loTax = null;
+                List<Int64> loDiscount = null;
+                List<Int64> loQuantity = null;
+                List<Int64> loSupplyCost = null;
+                List<Int64> loRevenue = null;
+                List<Int64> loOrderTotalPrice = null;
+                List<Int64> loCommitDate = Utils.ReadFromBinaryFiles<Int64>(loCommitDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
                 List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
                 List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
 
                 switch (numberOfAggregations)
                 {
                     case 1:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 2:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 3:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 4:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 5:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-                        loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                        loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 6:
-                        loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
-                        loDiscount = Utils.ReadFromBinaryFiles<int>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
-                        loQuantity = Utils.ReadFromBinaryFiles<int>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-                        loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                        loOrderTotalPrice = Utils.ReadFromBinaryFiles<int>(loOrdTotalPriceFile.Replace("BF", "BF" + scaleFactor));
+                        loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                        loDiscount = Utils.ReadFromBinaryFiles<Int64>(loDiscountFile.Replace("BF", "BF" + scaleFactor));
+                        loQuantity = Utils.ReadFromBinaryFiles<Int64>(loQuantityFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+                        loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                        loOrderTotalPrice = Utils.ReadFromBinaryFiles<Int64>(loOrdTotalPriceFile.Replace("BF", "BF" + scaleFactor));
                         break;
                 }
 
                 sw.Start();
                 #region Key Hashing Phase 
 
-                var customerHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
 
 
                 foreach (var row in customerDimension)
@@ -3903,7 +3903,7 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 sw.Start();
                 var joinOutputFinal = new Dictionary<string, long[]>();
-                int i = 0;
+                Int64 i = 0;
                 foreach (bool bit in common)
                 {
 
@@ -4026,7 +4026,7 @@ namespace ParallelHashJoins
             }
         }
 
-        public void JoinScalabilityTest(int numberOfJoins)
+        public void JoinScalabilityTest(Int64 numberOfJoins)
         {
             try
             {
@@ -4035,32 +4035,32 @@ namespace ParallelHashJoins
                 List<Supplier> supplierDimension = null;
                 List<Date> dateDimension = null;
                 List<Part> partDimension = null;
-                List<int> loCustomerKey = null;
-                List<int> loSupplierKey = null;
-                List<int> loOrderDate = null;
-                List<int> loPartKey = null;
+                List<Int64> loCustomerKey = null;
+                List<Int64> loSupplierKey = null;
+                List<Int64> loOrderDate = null;
+                List<Int64> loPartKey = null;
                 switch (numberOfJoins)
                 {
                     case 1:
                         customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
 
-                        loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 2:
                         customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
                         supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
 
-                        loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 3:
                         customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
                         supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
                         dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
 
-                        loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                        loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                        loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
                         break;
                     case 4:
                         customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
@@ -4068,24 +4068,24 @@ namespace ParallelHashJoins
                         dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
                         partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
 
-                        loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                        loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                        loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                        loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                        loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                        loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
 
                         break;
 
                 }
 
-                List<int> loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
 
                 sw.Start();
                 #region Key Hashing Phase 
 
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
-                var dateHashTable = new Dictionary<int, string>();
-                var partHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
+                var partHashTable = new Dictionary<Int64, string>();
                 switch (numberOfJoins)
                 {
 
@@ -4300,8 +4300,8 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 sw.Start();
                 var joinOutputFinal = new Dictionary<string, long>();
-                int index = 0;
-                int setBitCount = 0;
+                Int64 index = 0;
+                Int64 setBitCount = 0;
                 foreach (bool bit in common)
                 {
                     try
@@ -4394,7 +4394,7 @@ namespace ParallelHashJoins
             }
         }
 
-        public void GroupingAttributeScalabilityTest(int numberOfGroupingAttributes)
+        public void GroupingAttributeScalabilityTest(Int64 numberOfGroupingAttributes)
         {
             try
             {
@@ -4402,27 +4402,27 @@ namespace ParallelHashJoins
                 List<Customer> customerDimension = null;
                 List<Supplier> supplierDimension = null;
                 List<Date> dateDimension = null;
-                List<int> loCustomerKey = null;
-                List<int> loSupplierKey = null;
-                List<int> loOrderDate = null;
+                List<Int64> loCustomerKey = null;
+                List<Int64> loSupplierKey = null;
+                List<Int64> loOrderDate = null;
 
                 customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
                 supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
                 dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
 
-                loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
 
-                List<int> loTax = Utils.ReadFromBinaryFiles<int>(loTaxFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loTax = Utils.ReadFromBinaryFiles<Int64>(loTaxFile.Replace("BF", "BF" + scaleFactor));
 
                 sw.Start();
                 #region Key Hashing Phase 
 
-                var customerHashTable = new Dictionary<int, Tuple<string, string>>();
-                var supplierHashTable = new Dictionary<int, Tuple<string, string>>();
-                var dateHashTable = new Dictionary<int, Tuple<string, string>>();
-                var partHashTable = new Dictionary<int, Tuple<string, string>>();
+                var customerHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                var supplierHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                var dateHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                var partHashTable = new Dictionary<Int64, Tuple<string, string>>();
 
                 foreach (var row in dateDimension)
                 {
@@ -4507,8 +4507,8 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 sw.Start();
                 var joinOutputFinal = new Dictionary<string, long>();
-                int index = 0;
-                int setBitCount = 0;
+                Int64 index = 0;
+                Int64 setBitCount = 0;
                 foreach (bool bit in common)
                 {
                     try
@@ -4603,19 +4603,19 @@ namespace ParallelHashJoins
                 List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
                 List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
                 List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sNation = Utils.ReadFromBinaryFiles<string>(sNationFile.Replace("BF", "BF" + scaleFactor));
 
                 sw.Start();
                 #region Key Hashing Phase 
 
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
-                var dateHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
 
                 foreach (var row in dateDimension)
                 {
@@ -4692,7 +4692,7 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 sw.Start();
                 var joinOutputFinal = new Dictionary<string, long>();
-                int index = 0;
+                Int64 index = 0;
                 foreach (bool bit in common)
                 {
 
@@ -4754,19 +4754,19 @@ namespace ParallelHashJoins
                 List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
                 List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
                 List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
                 List<string> cNation = Utils.ReadFromBinaryFiles<string>(cNationFile.Replace("BF", "BF" + scaleFactor));
                 List<string> sNation = Utils.ReadFromBinaryFiles<string>(sNationFile.Replace("BF", "BF" + scaleFactor));
 
                 sw.Start();
                 #region Key Hashing Phase 
 
-                var customerHashTable = new Dictionary<int, string>();
-                var supplierHashTable = new Dictionary<int, string>();
-                var dateHashTable = new Dictionary<int, string>();
+                var customerHashTable = new Dictionary<Int64, string>();
+                var supplierHashTable = new Dictionary<Int64, string>();
+                var dateHashTable = new Dictionary<Int64, string>();
 
                 foreach (var row in dateDimension)
                 {
@@ -4843,7 +4843,7 @@ namespace ParallelHashJoins
                 #region Value Extraction Phase
                 sw.Start();
                 var joinOutputFinal = new Dictionary<string, long>();
-                int index = 0;
+                Int64 index = 0;
                 foreach (bool bit in common)
                 {
                     try
@@ -4894,7 +4894,7 @@ namespace ParallelHashJoins
                 throw ex;
             }
         }
-        private void saveAndPrintResults()
+        private void saveAndPrInt64Results()
         {
             TestResultsDatabase.invisibleJoinOutput.Add(testResults.toString());
             Console.WriteLine("Invisible: " + testResults.toString());

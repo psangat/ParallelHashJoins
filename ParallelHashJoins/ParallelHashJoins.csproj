@@ -60,20 +60,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms.cs" />
+    <Compile Include="BinaryFileCreator.cs" />
     <Compile Include="Atire.cs" />
     <Compile Include="Customer.cs" />
     <Compile Include="Date.cs" />
-    <Compile Include="AtireJoin.cs" />
-    <Compile Include="InMemoryAggregation.cs" />
-    <Compile Include="InvisibleJoin.cs" />
     <Compile Include="Invoker.cs" />
     <Compile Include="MAATB.cs" />
     <Compile Include="MAAT.cs" />
     <Compile Include="MAATIM.cs" />
     <Compile Include="main.cs" />
     <Compile Include="MemoryManagement.cs" />
-    <Compile Include="NimbleJoin.cs" />
     <Compile Include="ParallelAtireJoin.cs" />
     <Compile Include="ParallelInMemoryAggregation.cs" />
     <Compile Include="ParallelInvisibleJoin.cs" />

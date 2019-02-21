@@ -11,23 +11,23 @@ namespace ParallelHashJoins
     [Serializable]
     class Date
     {
-        public int dDateKey { get; set; }
+        public Int64 dDateKey { get; set; }
         public string dDate { get; set; }
         public string dDayOfWeek { get; set; }
         public string dMonth { get; set; }
         public string dYear { get; set; }
-        public int dYearMonthNum { get; set; }
+        public Int64 dYearMonthNum { get; set; }
         public string dYearMonth { get; set; }
-        public int dDayNumInWeek { get; set; }
-        public int dDayNumInMonth { get; set; }
-        public int dDayNumInYear { get; set; }
-        public int dMonthNumInYear { get; set; }
-        public int dWeekNumInYear { get; set; }
+        public Int64 dDayNumInWeek { get; set; }
+        public Int64 dDayNumInMonth { get; set; }
+        public Int64 dDayNumInYear { get; set; }
+        public Int64 dMonthNumInYear { get; set; }
+        public Int64 dWeekNumInYear { get; set; }
         public string dSellingSeason { get; set; }
-        public int dLastDayInWeekFL { get; set; }
-        public int dLastDayInMonthFL { get; set; }
-        public int dHolidayFL { get; set; }
-        public int dWeekDayFL { get; set; }
+        public Int64 dLastDayInWeekFL { get; set; }
+        public Int64 dLastDayInMonthFL { get; set; }
+        public Int64 dHolidayFL { get; set; }
+        public Int64 dWeekDayFL { get; set; }
 
         private string dbPath;
 
@@ -36,23 +36,23 @@ namespace ParallelHashJoins
 
         }
 
-        public Date(int dDateKey, 
+        public Date(Int64 dDateKey, 
             string dDate, 
             string dDayOfWeek, 
             string dMonth,
             string dYear, 
-            int dYearMonthNum, 
+            Int64 dYearMonthNum, 
             string dYearMonth, 
-            int dDayNumInWeek, 
-            int dDayNumInMonth,
-            int dDateNumInYear, 
-            int dMonthNumInYear, 
-            int dWeekNumInYear, 
+            Int64 dDayNumInWeek, 
+            Int64 dDayNumInMonth,
+            Int64 dDateNumInYear, 
+            Int64 dMonthNumInYear, 
+            Int64 dWeekNumInYear, 
             string dSellingSeason,
-            int dLastDayInWeekFL, 
-            int dLastDayInMonthFL, 
-            int dHolidayFL, 
-            int dWeekDayFL)
+            Int64 dLastDayInWeekFL, 
+            Int64 dLastDayInMonthFL, 
+            Int64 dHolidayFL, 
+            Int64 dWeekDayFL)
         {
             this.dDateKey = dDateKey;
             this.dDate = dDate;

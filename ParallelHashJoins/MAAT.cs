@@ -12,8 +12,8 @@ namespace ParallelHashJoins
         public string s1;
         public string s2;
         public string s3;
-        public int i1;
-        public int i2;
+        public Int64 i1;
+        public Int64 i2;
     }
 
 
@@ -23,25 +23,25 @@ namespace ParallelHashJoins
         private Record[] recordList;
         public BitArray bitMap;
 
-        public List<int> positions;
-        public MAAT(int arraySize)
+        public List<Int64> positions;
+        public MAAT(Int32 arraySize)
         {
             recordList = new Record[arraySize];
-            positions = new List<int>();
+            positions = new List<Int64>();
             bitMap = new BitArray(arraySize);
         }
 
-        public void AddOrUpdate(int key, Record value)
+        public void AddOrUpdate(Int64 key, Record value)
         {
             recordList[key] = value;
         }
 
-        public Record GetValue(int key)
+        public Record GetValue(Int64 key)
         {
             return recordList[key];
         }
 
-        public void Remove(int key)
+        public void Remove(Int64 key)
         {
             recordList[key] = null;
         }
@@ -51,7 +51,7 @@ namespace ParallelHashJoins
             return recordList;
         }
 
-        public int Count()
+        public Int64 Count()
         {
             return recordList.Length;
         }

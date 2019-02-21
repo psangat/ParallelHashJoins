@@ -37,6 +37,25 @@ namespace ParallelHashJoins
                 .ToList();
         }
 
+        public static Dictionary<int, string> getSmallestDictionary(List<Dictionary<int, string>> listOfDictionaries)
+        {
+            int smallest = -1;
+            int i = 0;
+            foreach (var dict in listOfDictionaries)
+            {
+                if (smallest == -1)
+                {
+                    smallest = dict.Count;
+                }
+                else if (dict.Count < smallest)
+                {
+                    smallest = dict.Count;
+                    i++;
+                }
+            }
+            return listOfDictionaries[i];
+        }
+
 
         /// <summary>
         /// Writes the given object instance to a binary file.
@@ -47,12 +66,26 @@ namespace ParallelHashJoins
         /// <param name="filePath">The file path to write the object instance to.</param>
         /// <param name="objectToWrite">The object instance to write to the XML file.</param>
         /// <param name="append">If false the file will be overwritten if it already exists. If true the contents will be appended to the file.</param>
-        public static void WriteToBinaryFile<T>(string filePath, T objectToWrite, bool append = false)
+        public static void WriteToBinaryFile<T>(string directoryPath, string filePath, T objectToWrite, bool append = false)
         {
+            if (!Directory.Exists(directoryPath)) {
+                Directory.CreateDirectory(directoryPath);
+            }
             using (Stream stream = File.Open(filePath, append ? FileMode.Append : FileMode.Create))
             {
                 var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                 binaryFormatter.Serialize(stream, objectToWrite);
+            }
+        }
+
+        public static void writeToBinaryFilesInChunks<T>(List<List<T>> chunkedList, string directoryName)
+        {
+            int i = 0;
+            foreach (var chunk in chunkedList)
+            {
+                string filePath = Path.Combine(directoryName, String.Format("{0}.bin", i));
+                WriteToBinaryFile<List<T>>(directoryName, filePath, chunk);
+                i++;
             }
         }
 
@@ -87,11 +120,11 @@ namespace ParallelHashJoins
         /// <param name="total"></param>
         /// <param name="processorCount"></param>
         /// <returns></returns>
-        public static List<Tuple<int, int>> getPartitionIndexes(int total, int processorCount)
+        public static List<Tuple<Int32, Int32>> getPartitionIndexes(Int32 total, int processorCount)
         {
-            List<Tuple<int, int>> boundaries = new List<Tuple<int, int>>();
-            int min = 0;
-            int max = total / processorCount;
+            List<Tuple<Int32, Int32>> boundaries = new List<Tuple<Int32, Int32>>();
+            Int32 min = 0;
+            Int32 max = total / processorCount;
 
             for (int i = 0; i < processorCount; i++)
             {
@@ -100,7 +133,7 @@ namespace ParallelHashJoins
                     max = total - 1;
                 }
 
-                boundaries.Add(new Tuple<int, int>(min, max));
+                boundaries.Add(new Tuple<Int32, Int32>(min, max));
                 min = max + 1;
                 max = max + total/processorCount;
 

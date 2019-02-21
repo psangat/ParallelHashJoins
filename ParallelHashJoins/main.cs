@@ -12,118 +12,129 @@ using System.Threading.Tasks;
 
 namespace ParallelHashJoins
 {
-    class main
+    internal class main
     {
         private const int TIMETOSLEEP = 1000;
+        private static readonly ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 10 };
 
-        static void Main()
+        private static void Main()
         {
-            string scaleFactor = "SF3";
-            int numberOfProcessor = 1;
-            for (int i = 0; i < 3; i++)
-            {
-                Console.WriteLine("Iteration " + (i + 1));
-                Console.WriteLine();
-
-                //InvisibleJoin InJ = new InvisibleJoin(scaleFactor);
-                //InJ.Query_3_1_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-
-                //ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, i + 1);
-                //PInJ.Query_3_4_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_2_2_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_2_3_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_3_1_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_3_2_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_3_3_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_3_4_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_4_1_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_4_2_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //PInJ.Query_4_3_IM();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-
-                ////InJ.AggregationScalabilityTest2(i + 1);
-                ////GC.Collect(2, GCCollectionMode.Forced, true);
-                ////Thread.Sleep(100);
-
-                //NimbleJoin NJ = new NimbleJoin(scaleFactor);
-                //NJ.GroupingAttributeScalabilityTest(i + 1);
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-
-                //InMemoryAggregation IMA = new InMemoryAggregation(scaleFactor);
-                //IMA.GroupingAttributeScalabilityTest(i + 1);
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-
-                //AtireJoin AJ = new AtireJoin(scaleFactor);
-                //AJ.Query_3_1();
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-
-                //AtireJoin ATireJoin = new AtireJoin(scaleFactor);
-                //ATireJoin.GroupingAttributeScalabilityTest(i + 1);
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-
-
-
-                ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, i + 1);
-                PNJ.Query_2_3_IM();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-
-                ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, i + 1);
-                PIMA.Query_2_3_IM();
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                Thread.Sleep(100);
-
-                ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, i + 1);
-                PATireJoin.Query_2_3_IM(true);
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //Console.WriteLine("Was using lock");
-                //Console.WriteLine();
-
-                //PATireJoin.Query_3_1(true);
-                //GC.Collect(2, GCCollectionMode.Forced, true);
-                //Thread.Sleep(100);
-                //Console.WriteLine("Wasnt using lock");
-                //Console.WriteLine();
-
-            }
-            Console.ReadKey();
+            BinaryFileCreator algo = new BinaryFileCreator("SF 1");
+            algo.CreateBinaryFiles();
         }
+
+        //static void Main()
+        //{
+        //    string scaleFactor = "SF 3";
+        //    int numberOfProcessor = 1;
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        Console.WriteLine("Iteration " + (i + 1));
+        //        Console.WriteLine();
+
+        //        //InvisibleJoin InJ = new InvisibleJoin(scaleFactor);
+        //        //InJ.Query_3_1_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+
+        //        //ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, i + 1);
+        //        //PInJ.Query_3_4_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_2_2_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_2_3_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_3_1_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_3_2_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_3_3_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_3_4_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_4_1_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_4_2_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //PInJ.Query_4_3_IM();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+
+        //        ////InJ.AggregationScalabilityTest2(i + 1);
+        //        ////GC.Collect(2, GCCollectionMode.Forced, true);
+        //        ////Thread.Sleep(100);
+
+        //        //NimbleJoin NJ = new NimbleJoin(scaleFactor);
+        //        //NJ.GroupingAttributeScalabilityTest(i + 1);
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+
+        //        //InMemoryAggregation IMA = new InMemoryAggregation(scaleFactor);
+        //        //IMA.GroupingAttributeScalabilityTest(i + 1);
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+
+        //        //AtireJoin AJ = new AtireJoin(scaleFactor);
+        //        //AJ.Query_3_1();
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+
+        //        //AtireJoin ATireJoin = new AtireJoin(scaleFactor);
+        //        //ATireJoin.GroupingAttributeScalabilityTest(i + 1);
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+
+
+
+        //        ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, i + 1);
+        //        PNJ.Query_2_3_IM();
+        //        GC.Collect(2, GCCollectionMode.Forced, true);
+        //        Thread.Sleep(100);
+
+        //        ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, i + 1);
+        //        PIMA.Query_2_3_IM();
+        //        GC.Collect(2, GCCollectionMode.Forced, true);
+        //        Thread.Sleep(100);
+
+        //        ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, i + 1);
+        //        PATireJoin.Query_2_3_IM(true);
+        //        GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //Console.WriteLine("Was using lock");
+        //        //Console.WriteLine();
+
+        //        //PATireJoin.Query_3_1(true);
+        //        //GC.Collect(2, GCCollectionMode.Forced, true);
+        //        //Thread.Sleep(100);
+        //        //Console.WriteLine("Wasnt using lock");
+        //        //Console.WriteLine();
+
+        //    }
+        //    Console.ReadKey();
+        //}
+
+        //private static void Main()
+        //{
+        //    RunAllTests("SF 25", 12);
+        //}
 
         public static void RunAllTests(string scaleFactor, int processorCount)
         {
 
-            for (int i = 1; i <= 4; i++)
+            for (int i = 2; i <= 4; i++)
             {
                 for (int j = 1; j <= 4; j++)
                 {
-
-                    for (int k = 1; k <= 20; k++)
+                    for (int k = 1; k <= 1; k++)
                     {
                         if (i == 3 && j == 4)
                         {
@@ -138,7 +149,7 @@ namespace ParallelHashJoins
                             runQueries(scaleFactor, processorCount, i, j, k);
                         }
                     }
-                    printResultsToFile(String.Format("{0}_Q{1}{2}_PC{3}.txt", scaleFactor, i, j, processorCount));
+                    // printResultsToFile(String.Format("{0}_Q{1}{2}_PC{3}.txt", scaleFactor, i, j, processorCount));
                     Thread.Sleep(10000);
                 }
             }
@@ -146,27 +157,26 @@ namespace ParallelHashJoins
 
         private static void runQueries(string scaleFactor, int processorCount, int i, int j, int k)
         {
-            Console.WriteLine(String.Format("Run #{0} for Query {1}.{2}", k, i, j));
+            Console.WriteLine(string.Format("Run #{0} for Query {1}.{2}", k, i, j));
             Console.WriteLine();
 
-            Invoker.CreateAndInvoke("ParallelHashJoins.InvisibleJoin", new object[] { scaleFactor }, String.Format("Query_{0}_{1}", i, j), null);
-            GC.Collect(2, GCCollectionMode.Forced, true);
-            Thread.Sleep(TIMETOSLEEP);
-
-            Invoker.CreateAndInvoke("ParallelHashJoins.NimbleJoin", new object[] { scaleFactor }, String.Format("Query_{0}_{1}", i, j), null);
-            GC.Collect(2, GCCollectionMode.Forced, true);
-            Thread.Sleep(TIMETOSLEEP);
-
-
-            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInvisibleJoin", new object[] { scaleFactor, processorCount }, String.Format("Query_{0}_{1}", i, j), null);
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInvisibleJoin", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), null);
             GC.Collect(2, GCCollectionMode.Forced, true);
             Thread.Sleep(TIMETOSLEEP);
             Console.WriteLine();
 
-            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelNimbleJoin", new object[] { scaleFactor, processorCount }, String.Format("Query_{0}_{1}", i, j), null);
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelNimbleJoin", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), null);
             GC.Collect(2, GCCollectionMode.Forced, true);
             Thread.Sleep(TIMETOSLEEP);
             Console.WriteLine();
+
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInMemoryAggregation", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), null);
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
+
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelAtireJoin", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), new object[] { true });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
 
             Console.WriteLine("============================================================================");
             Console.WriteLine();
@@ -174,29 +184,29 @@ namespace ParallelHashJoins
 
         public static void printResultsToFile(string fileName)
         {
-            //string fileName = scaleFactor + "_Q31.txt";
-            string today = DateTime.Now.ToString("dd MMMM yyyy");
-            string nimbleJoinOutputFilePath = @"Results\" + today + "\\Nimble Join\\";
-            if (!Directory.Exists(nimbleJoinOutputFilePath))
-                Directory.CreateDirectory(nimbleJoinOutputFilePath);
-            System.IO.File.WriteAllLines(nimbleJoinOutputFilePath + fileName, TestResultsDatabase.nimbleJoinOutput);
+            ////string fileName = scaleFactor + "_Q31.txt";
+            //string today = DateTime.Now.ToString("dd MMMM yyyy");
+            //string nimbleJoinOutputFilePath = @"Results\" + today + "\\Nimble Join\\";
+            //if (!Directory.Exists(nimbleJoinOutputFilePath))
+            //    Directory.CreateDirectory(nimbleJoinOutputFilePath);
+            //System.IO.File.WriteAllLines(nimbleJoinOutputFilePath + fileName, TestResultsDatabase.nimbleJoinOutput);
 
-            string invisibleJoinOutputFilePath = @"Results\" + today + "\\Invisible Join\\";
-            if (!Directory.Exists(invisibleJoinOutputFilePath))
-                Directory.CreateDirectory(invisibleJoinOutputFilePath);
-            System.IO.File.WriteAllLines(invisibleJoinOutputFilePath + fileName, TestResultsDatabase.invisibleJoinOutput);
+            //string invisibleJoinOutputFilePath = @"Results\" + today + "\\Invisible Join\\";
+            //if (!Directory.Exists(invisibleJoinOutputFilePath))
+            //    Directory.CreateDirectory(invisibleJoinOutputFilePath);
+            //System.IO.File.WriteAllLines(invisibleJoinOutputFilePath + fileName, TestResultsDatabase.invisibleJoinOutput);
 
-            string pNimbleJoinOutputFilePath = @"Results\" + today + "\\Parallel Nimble Join\\";
-            if (!Directory.Exists(pNimbleJoinOutputFilePath))
-                Directory.CreateDirectory(pNimbleJoinOutputFilePath);
-            System.IO.File.WriteAllLines(pNimbleJoinOutputFilePath + fileName, TestResultsDatabase.pNimbleJoinOutput);
+            //string pNimbleJoinOutputFilePath = @"Results\" + today + "\\Parallel Nimble Join\\";
+            //if (!Directory.Exists(pNimbleJoinOutputFilePath))
+            //    Directory.CreateDirectory(pNimbleJoinOutputFilePath);
+            //System.IO.File.WriteAllLines(pNimbleJoinOutputFilePath + fileName, TestResultsDatabase.pNimbleJoinOutput);
 
-            string pInvisibleJoinOutputFilePath = @"Results\" + today + "\\Parallel Invisible Join\\";
-            if (!Directory.Exists(pInvisibleJoinOutputFilePath))
-                Directory.CreateDirectory(pInvisibleJoinOutputFilePath);
-            System.IO.File.WriteAllLines(pInvisibleJoinOutputFilePath + fileName, TestResultsDatabase.pInvisibleJoinOutput);
+            //string pInvisibleJoinOutputFilePath = @"Results\" + today + "\\Parallel Invisible Join\\";
+            //if (!Directory.Exists(pInvisibleJoinOutputFilePath))
+            //    Directory.CreateDirectory(pInvisibleJoinOutputFilePath);
+            //System.IO.File.WriteAllLines(pInvisibleJoinOutputFilePath + fileName, TestResultsDatabase.pInvisibleJoinOutput);
 
-            TestResultsDatabase.clearAllDatabase();
+            //TestResultsDatabase.clearAllDatabase();
         }
 
         public static void MultiAttributeAssociativeArrayTest()
@@ -210,8 +220,10 @@ namespace ParallelHashJoins
             {
                 if (i % 2 == 0)
                 {
-                    var values = new Record();
-                    values.s1 = "X";
+                    Record values = new Record
+                    {
+                        s1 = "X"
+                    };
                     _maaa.AddOrUpdate(i, values);
                 }
 
@@ -227,8 +239,10 @@ namespace ParallelHashJoins
             {
                 if (i % 2 == 0)
                 {
-                    var values = new Record();
-                    values.s1 = "X";
+                    Record values = new Record
+                    {
+                        s1 = "X"
+                    };
                     _ht.Add(i, values);
                 }
             }
@@ -336,21 +350,22 @@ namespace ParallelHashJoins
             //Console.ReadKey();
             //Console.ReadKey();
         }
-        public static void selectivityTest(string scaleFactor)
-        {
-            //"SF1", "SF2", "SF3", "SF4"
-            // "0.007", "0.07", "0.7"
-            List<string> selectivityRatios = new List<string>() { "0.07" };
-            foreach (var selectivityRatio in selectivityRatios)
-            {
-                for (int i = 0; i < 20; i++)
-                {
-                    ParallelNimbleJoin pnimbleJoin = new ParallelNimbleJoin(scaleFactor, 4);
-                    pnimbleJoin.Query_3_1(selectivityRatio);
-                    GC.Collect(2, GCCollectionMode.Forced, true);
-                    Thread.Sleep(100);
-                }
-            }
-        }
+
+        //public static void selectivityTest(string scaleFactor)
+        //{
+        //    //"SF1", "SF2", "SF3", "SF4"
+        // "0.007", "0.07", "0.7"
+        //    List<string> selectivityRatios = new List<string>() { "0.07" };
+        //    foreach (var selectivityRatio in selectivityRatios)
+        //    {
+        //        for (int i = 0; i < 20; i++)
+        //        {
+        //            ParallelNimbleJoin pnimbleJoin = new ParallelNimbleJoin(scaleFactor, 4);
+        //            pnimbleJoin.Query_3_1(selectivityRatio);
+        //            GC.Collect(2, GCCollectionMode.Forced, true);
+        //            Thread.Sleep(100);
+        //        }
+        //    }
+        //}
     }
 }

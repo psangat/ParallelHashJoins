@@ -9,13 +9,13 @@ namespace ParallelHashJoins
 {
     class Atire
     {
-        private int value { get; set; }
+        private Int64 value { get; set; }
 
         private long[] values { get; set; }
 
-        private int height { get; set; }
+        private Int64 height { get; set; }
 
-        private Dictionary<int, string> attributes = new Dictionary<int, string>();
+        private Dictionary<Int64, string> attributes = new Dictionary<Int64, string>();
 
         private List<string> mergingAttributes = new List<string>();
         private Dictionary<string, Atire> children { get; set; }
@@ -36,7 +36,7 @@ namespace ParallelHashJoins
         /// Insert the items or attributes in the Atire
         /// </summary>
         /// <param name="root">First node of the Atire</param>
-        /// <param name="attributes">List of attiributes to insert into the Atire</param>
+        /// <param name="attributes">List of attiributes to insert Int64o the Atire</param>
         /// <param name="value">Value associated with the grouping of the attributes</param>
 
         public void Insert(Atire root, List<string> attributes, bool isLockFree = true , params long[] values)
@@ -44,7 +44,7 @@ namespace ParallelHashJoins
             try
             {
                 Atire node = root;
-                int height = -1;
+                Int64 height = -1;
                 if (isLockFree)
                 {
                     foreach (var attribute in attributes)
@@ -62,7 +62,7 @@ namespace ParallelHashJoins
                     node.values = new long[values.Count()];
                     // Store value in the terminal node
                     // Aggregation on the fly
-                    for (int i = 0; i < values.Count(); i++)
+                    for (Int64 i = 0; i < values.Count(); i++)
                     {
                         node.values[i] += values[i];
                     } 
@@ -85,7 +85,7 @@ namespace ParallelHashJoins
                         node.height = ++height;
                         // Store value in the terminal node
                         // Aggregation on the fly
-                        for (int i = 0; i < values.Count(); i++)
+                        for (Int64 i = 0; i < values.Count(); i++)
                         {
                             node.values[i] += values[i];
                         }
@@ -143,7 +143,7 @@ namespace ParallelHashJoins
         /// Merge LEFT Atires to get a single Atire
         /// </summary>
         /// <param name="atire1">LEFT Atire</param>
-        /// <param name="atire2">RIGHT Atire to be merged into LEFT Atire</param>
+        /// <param name="atire2">RIGHT Atire to be merged Int64o LEFT Atire</param>
         /// <returns>LEFT Aitre</returns>
         public Atire MergeAtires(Atire atire1, Atire atire2)
         {

@@ -11,27 +11,27 @@ namespace ParallelHashJoins
         private List<object>[] recordList;
         public List<Int32> positions { get; set; }
 
-        public MAATIM(int arraySize)
+        public MAATIM(Int64 arraySize)
         {
             recordList = new List<object>[arraySize];
             positions = new List<Int32>();
-            //for (int i = 0; i < recordList.Length; i++)
+            //for (Int64 i = 0; i < recordList.Length; i++)
             //{
             //    recordList[i] = new List<object>(10);
             //}
         }
 
-        public void AddOrUpdate(int key, List<object> value)
+        public void AddOrUpdate(Int64 key, List<object> value)
         {
             recordList[key] = value;
         }
 
-        public List<object> GetValue(int key)
+        public List<object> GetValue(Int64 key)
         {
             return recordList[key];
         }
 
-        public void Remove(int key)
+        public void Remove(Int64 key)
         {
             recordList[key] = null;
         }
@@ -41,7 +41,7 @@ namespace ParallelHashJoins
             return recordList;
         }
 
-        public int Count()
+        public Int64 Count()
         {
             return recordList.Length;
         }

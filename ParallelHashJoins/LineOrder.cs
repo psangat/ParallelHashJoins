@@ -10,40 +10,40 @@ namespace ParallelHashJoins
     [Serializable]
     public class LineOrder
     {
-        public int loOrderKey { get; set; }
-        public int loLineNumber { get; set; }
-        public int loCustKey { get; set; }
-        public int loPartKey { get; set; }
-        public int loSuppKey { get; set; }
-        public int loOrderDate { get; set; }
+        public Int64 loOrderKey { get; set; }
+        public Int64 loLineNumber { get; set; }
+        public Int64 loCustKey { get; set; }
+        public Int64 loPartKey { get; set; }
+        public Int64 loSuppKey { get; set; }
+        public Int64 loOrderDate { get; set; }
         public string loOrderPriority { get; set; }
         public char loShipPriority { get; set; }
-        public int loQuantity { get; set; }
-        public int loExtendedPrice { get; set; }
-        public int loOrderTotalPrice { get; set; }
-        public int loDiscount { get; set; }
-        public int loRevenue { get; set; }
-        public int loSupplyCost { get; set; }
-        public int loTax { get; set; }
-        public int loCommitDateKey { get; set; }
+        public Int64 loQuantity { get; set; }
+        public Int64 loExtendedPrice { get; set; }
+        public Int64 loOrderTotalPrice { get; set; }
+        public Int64 loDiscount { get; set; }
+        public Int64 loRevenue { get; set; }
+        public Int64 loSupplyCost { get; set; }
+        public Int64 loTax { get; set; }
+        public Int64 loCommitDateKey { get; set; }
         public string loShipMode { get; set; }
 
-        public LineOrder(int loOrderKey,
-            int loLineNumber,
-            int loCustKey,
-            int loPartKey,
-            int loSuppKey,
-            int loOrderDate,
+        public LineOrder(Int64 loOrderKey,
+            Int64 loLineNumber,
+            Int64 loCustKey,
+            Int64 loPartKey,
+            Int64 loSuppKey,
+            Int64 loOrderDate,
             string loOrderPriority,
             char loShipPriority,
-            int loQuantity,
-            int loExtendedPrice,
-            int loOrderTotalPrice,
-            int loDiscount,
-            int loRevenue,
-            int loSupplyCost,
-            int loTax,
-            int loCommitDateKey,
+            Int64 loQuantity,
+            Int64 loExtendedPrice,
+            Int64 loOrderTotalPrice,
+            Int64 loDiscount,
+            Int64 loRevenue,
+            Int64 loSupplyCost,
+            Int64 loTax,
+            Int64 loCommitDateKey,
             string loShipMode)
         {
 

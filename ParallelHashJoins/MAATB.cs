@@ -13,23 +13,23 @@ namespace ParallelHashJoins
         private Record[] recordList;
         public BitArray bitMap;
 
-        public MAATB(int arraySize)
+        public MAATB(Int32 arraySize)
         {
             recordList = new Record[arraySize];
             bitMap = new BitArray(arraySize);
         }
 
-        public void AddOrUpdate(int key, Record value)
+        public void AddOrUpdate(Int64 key, Record value)
         {
             recordList[key] = value;
         }
 
-        public Record GetValue(int key)
+        public Record GetValue(Int64 key)
         {
             return recordList[key];
         }
 
-        public void Remove(int key)
+        public void Remove(Int64 key)
         {
             recordList[key] = null;
         }
@@ -39,7 +39,7 @@ namespace ParallelHashJoins
             return recordList;
         }
 
-        public int Count()
+        public Int64 Count()
         {
             return recordList.Length;
         }

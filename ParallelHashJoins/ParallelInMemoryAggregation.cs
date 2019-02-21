@@ -10,26 +10,12 @@ namespace ParallelHashJoins
 {
     class ParallelInMemoryAggregation
     {
-        private List<int> storeId = new List<int>();
-        private List<string> storeName = new List<string>();
-        private List<char> storeType = new List<char>();
-
-        private List<int> productId = new List<int>();
-        private List<string> productName = new List<string>();
-        private List<char> supplierDimension = new List<char>();
-        private List<int> sID = new List<int>();
-        private List<int> pID = new List<int>();
-        private List<int> revenue = new List<int>();
-        Random rand = new Random();
         private ParallelOptions parallelOptions = null;
-        int numberOfDimensionRecords = 6000;
-        int numberOfFactRecords = 1000000;
-
         private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BF";
         private string scaleFactor { get; set; }
 
         public TestResults testResults = new TestResults();
-        public ParallelInMemoryAggregation(string scaleFactor, int degreeOfParallelism = 1)
+        public ParallelInMemoryAggregation(string scaleFactor, Int32 degreeOfParallelism = 1)
         {
             this.scaleFactor = scaleFactor;
             testResults.totalRAMAvailable = Utils.getAvailableRAM();
@@ -38,11 +24,11 @@ namespace ParallelHashJoins
 
         ~ParallelInMemoryAggregation()
         {
-            saveAndPrintResults();
+            saveAndPrInt64Results();
         }
 
         #region Private Variables
-        private List<int> cCustKey = new List<int>();
+        private List<Int64> cCustKey = new List<Int64>();
         private List<string> cName = new List<string>();
         private List<string> cAddress = new List<string>();
         private List<string> cCity = new List<string>();
@@ -51,7 +37,7 @@ namespace ParallelHashJoins
         private List<string> cPhone = new List<string>();
         private List<string> cMktSegment = new List<string>();
 
-        private List<int> sSuppKey = new List<int>();
+        private List<Int64> sSuppKey = new List<Int64>();
         private List<string> sName = new List<string>();
         private List<string> sAddress = new List<string>();
         private List<string> sCity = new List<string>();
@@ -59,8 +45,8 @@ namespace ParallelHashJoins
         private List<string> sRegion = new List<string>();
         private List<string> sPhone = new List<string>();
 
-        private List<int> pSize = new List<int>();
-        private List<int> pPartKey = new List<int>();
+        private List<Int64> pSize = new List<Int64>();
+        private List<Int64> pPartKey = new List<Int64>();
         private List<string> pName = new List<string>();
         private List<string> pMFGR = new List<string>();
         private List<string> pCategory = new List<string>();
@@ -69,39 +55,39 @@ namespace ParallelHashJoins
         private List<string> pType = new List<string>();
         private List<string> pContainer = new List<string>();
 
-        private List<int> loOrderKey = new List<int>();
-        private List<int> loLineNumber = new List<int>();
-        private List<int> loCustKey = new List<int>();
-        private List<int> loPartKey = new List<int>();
-        private List<int> loSuppKey = new List<int>();
-        private List<int> loOrderDate = new List<int>();
+        private List<Int64> loOrderKey = new List<Int64>();
+        private List<Int64> loLineNumber = new List<Int64>();
+        private List<Int64> loCustKey = new List<Int64>();
+        private List<Int64> loPartKey = new List<Int64>();
+        private List<Int64> loSuppKey = new List<Int64>();
+        private List<Int64> loOrderDate = new List<Int64>();
         private List<char> loShipPriority = new List<char>();
-        private List<int> loQuantity = new List<int>();
-        private List<Tuple<int, int>> loQuantityWithId = new List<Tuple<int, int>>();
+        private List<Int64> loQuantity = new List<Int64>();
+        private List<Tuple<Int64, Int64>> loQuantityWithId = new List<Tuple<Int64, Int64>>();
 
-        private List<int> loExtendedPrice = new List<int>();
-        private List<int> loOrdTotalPrice = new List<int>();
-        private List<int> loDiscount = new List<int>();
-        private List<Tuple<int, int>> loDiscountWithId = new List<Tuple<int, int>>();
-        private List<int> loRevenue = new List<int>();
-        private List<int> loSupplyCost = new List<int>();
-        private List<int> loTax = new List<int>();
-        private List<int> loCommitDate = new List<int>();
+        private List<Int64> loExtendedPrice = new List<Int64>();
+        private List<Int64> loOrdTotalPrice = new List<Int64>();
+        private List<Int64> loDiscount = new List<Int64>();
+        private List<Tuple<Int64, Int64>> loDiscountWithId = new List<Tuple<Int64, Int64>>();
+        private List<Int64> loRevenue = new List<Int64>();
+        private List<Int64> loSupplyCost = new List<Int64>();
+        private List<Int64> loTax = new List<Int64>();
+        private List<Int64> loCommitDate = new List<Int64>();
         private List<string> loShipMode = new List<string>();
         private List<string> loOrderPriority = new List<string>();
 
-        private List<int> dDateKey = new List<int>();
-        private List<int> dYear = new List<int>();
-        private List<int> dYearMonthNum = new List<int>();
-        private List<int> dDayNumInWeek = new List<int>();
-        private List<int> dDayNumInMonth = new List<int>();
-        private List<int> dDayNumInYear = new List<int>();
-        private List<int> dMonthNumInYear = new List<int>();
-        private List<int> dWeekNumInYear = new List<int>();
-        private List<int> dLastDayInWeekFL = new List<int>();
-        private List<int> dLastDayInMonthFL = new List<int>();
-        private List<int> dHolidayFL = new List<int>();
-        private List<int> dWeekDayFL = new List<int>();
+        private List<Int64> dDateKey = new List<Int64>();
+        private List<Int64> dYear = new List<Int64>();
+        private List<Int64> dYearMonthNum = new List<Int64>();
+        private List<Int64> dDayNumInWeek = new List<Int64>();
+        private List<Int64> dDayNumInMonth = new List<Int64>();
+        private List<Int64> dDayNumInYear = new List<Int64>();
+        private List<Int64> dMonthNumInYear = new List<Int64>();
+        private List<Int64> dWeekNumInYear = new List<Int64>();
+        private List<Int64> dLastDayInWeekFL = new List<Int64>();
+        private List<Int64> dLastDayInMonthFL = new List<Int64>();
+        private List<Int64> dHolidayFL = new List<Int64>();
+        private List<Int64> dWeekDayFL = new List<Int64>();
         private List<string> dDate = new List<string>();
         private List<string> dDayOfWeek = new List<string>();
         private List<string> dMonth = new List<string>();
@@ -185,258 +171,6 @@ namespace ParallelHashJoins
 
         #endregion Private Variables
 
-
-        public void Query_2_1_IM_Old()
-        {
-
-            Stopwatch sw = new Stopwatch();
-
-            List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
-
-            #region Step 1 & 2
-            sw.Start();
-            Dictionary<int, int> kvPartDim = new Dictionary<int, int>();
-            DataTable tempTablePartDim = new DataTable();
-            tempTablePartDim.Columns.Add("partBrand", typeof(string));
-            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(int));
-
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
-            DataTable tempTableSupplierDim = new DataTable();
-            tempTableSupplierDim.Columns.Add("supplierNation", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
-
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
-            DataTable tempTableDateDim = new DataTable();
-            tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
-
-            Parallel.Invoke(parallelOptions,
-                () =>
-                {
-                    int partIndex = 0;
-                    int dgKeyPart = 0;
-                    foreach (var part in partDimension)
-                    {
-                        if (part.pCategory.Equals("MFGR#12"))
-                        {
-                            string pBrand = part.pBrand;
-                            if (tempTablePartDim.Rows.Count > 0)
-                            {
-                                var tempTable = tempTablePartDim.Copy();
-                                var found = false;
-                                foreach (DataRow row in tempTablePartDim.Rows)
-                                {
-                                    var partBrand = row.Field<string>("partBrand");
-                                    if (partBrand.Equals(pBrand))
-                                    {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
-                                        kvPartDim.Add(partIndex + 1, dgKey);
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (!found)
-                                {
-                                    dgKeyPart++;
-                                    tempTable.Rows.Add(pBrand, dgKeyPart);
-                                    kvPartDim.Add(partIndex + 1, dgKeyPart);
-                                }
-                                tempTablePartDim = tempTable;
-                            }
-                            else
-                            {
-                                dgKeyPart++;
-                                tempTablePartDim.Rows.Add(pBrand, dgKeyPart);
-                                kvPartDim.Add(partIndex + 1, dgKeyPart);
-                            }
-                        }
-                        else
-                        {
-                            kvPartDim.Add(partIndex + 1, 0);
-                        }
-
-                        partIndex++;
-                    }
-                },
-                () =>
-                {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
-                    {
-                        if (supplier.sRegion.Equals("AMERICA"))
-                        {
-                            string sNation = supplier.sNation;
-                            if (tempTableSupplierDim.Rows.Count > 0)
-                            {
-                                var tempTable = tempTableSupplierDim.Copy();
-                                var found = false;
-                                foreach (DataRow row in tempTableSupplierDim.Rows)
-                                {
-                                    var supplierNation = row.Field<string>("supplierNation");
-                                    if (supplierNation.Equals(sNation))
-                                    {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
-                                        kvSupplierDim.Add(supplierIndex + 1, dgKey);
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (!found)
-                                {
-                                    dgKeySupplier++;
-                                    tempTable.Rows.Add(sNation, dgKeySupplier);
-                                    kvSupplierDim.Add(supplierIndex + 1, dgKeySupplier);
-                                }
-                                tempTableSupplierDim = tempTable;
-                            }
-                            else
-                            {
-                                dgKeySupplier++;
-                                tempTableSupplierDim.Rows.Add(sNation, dgKeySupplier);
-                                kvSupplierDim.Add(supplierIndex + 1, dgKeySupplier);
-                            }
-                        }
-                        else
-                        {
-                            kvSupplierDim.Add(supplierIndex + 1, 0);
-                        }
-                        supplierIndex++;
-                    }
-                },
-                () =>
-                {
-                    int dgKeyDate = 0;
-                    foreach (var date in dateDimension)
-                    {
-
-                        string dYear = date.dYear;
-                        if (tempTableDateDim.Rows.Count > 0)
-                        {
-                            var tempTable = tempTableDateDim.Copy();
-                            var found = false;
-                            foreach (DataRow row in tempTableDateDim.Rows)
-                            {
-                                var year = row.Field<string>("year");
-                                if (year.Equals(dYear))
-                                {
-                                    int dgKey = row.Field<int>("denseGroupingKey");
-                                    kvDateDim.Add(date.dDateKey, dgKey);
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found)
-                            {
-                                dgKeyDate++;
-                                tempTable.Rows.Add(dYear, dgKeyDate);
-                                kvDateDim.Add(date.dDateKey, dgKeyDate);
-                            }
-                            tempTableDateDim = tempTable;
-                        }
-                        else
-                        {
-                            dgKeyDate++;
-                            tempTableDateDim.Rows.Add(dYear, dgKeyDate);
-                            kvDateDim.Add(date.dDateKey, dgKeyDate);
-                        }
-                    }
-                });
-
-            sw.Stop();
-            long t1 = sw.ElapsedMilliseconds;
-            Console.WriteLine("[PIMA] Phase1 Time: " + t1);
-            #endregion Step 1 & 2
-
-            List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
-            #region Step 3, 4 & 5
-
-            sw.Reset();
-            sw.Start();
-            int dgkLengthPart = tempTablePartDim.Rows.Count + 1;
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
-
-            int[,,] inMemoryAccumulator = new int[dgkLengthDate, dgkLengthSupplier, dgkLengthPart];
-
-            var partitionIndexes = Utils.getPartitionIndexes(loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
-
-            var tasks = new List<Task>();
-            foreach (var indexes in partitionIndexes)
-            {
-                var t = Task.Factory.StartNew(() =>
-                {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
-                    {
-                        int partKey = loPartKey[i];
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int dgkPartDim = 0;
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
-                        if (kvPartDim.TryGetValue(partKey, out dgkPartDim)
-                            && kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
-                            && kvDateDim.TryGetValue(dateKey, out dgkDateDim))
-                        {
-                            if (dgkPartDim == 0 || dgkSupplierDim == 0 || dgkDateDim == 0)
-                            {
-                                // skip
-                            }
-                            else
-                            {
-                                inMemoryAccumulator[dgkDateDim, dgkSupplierDim, dgkPartDim] += loRevenue[i];
-                            }
-                        }
-                    }
-                });
-                tasks.Add(t);
-            }
-
-            Task.WaitAll(tasks.ToArray());
-
-            List<string> finalTable = new List<string>();
-            foreach (DataRow pdRow in tempTablePartDim.Rows)
-            {
-                foreach (DataRow sdRow in tempTableSupplierDim.Rows)
-                {
-                    foreach (DataRow ddRow in tempTableDateDim.Rows)
-                    {
-                        int sumRevenue = inMemoryAccumulator[ddRow.Field<int>("denseGroupingKey"), sdRow.Field<int>("denseGroupingKey"), pdRow.Field<int>("denseGroupingKey")];
-                        if (sumRevenue != 0)
-                        {
-                            finalTable.Add(ddRow.Field<string>("year") + ", " + sdRow.Field<string>("supplierNation") + ", " + pdRow.Field<string>("partBrand") + ", " + sumRevenue);
-                        }
-                    }
-
-                }
-            }
-
-            sw.Stop();
-            long t2 = sw.ElapsedMilliseconds;
-            Console.WriteLine("[PIMA] Phase2 Time: " + t2);
-            Console.WriteLine(String.Format("[PIMA] Total Time: {0}", t1 + t2));
-            Console.WriteLine(String.Format("[PIMA] Total Items: {0}", finalTable.Count));
-            Console.WriteLine();
-            #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
-        }
         public void Query_2_1_IM()
         {
 
@@ -449,26 +183,26 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvPartDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvPartDim = new Dictionary<Int64, Int64>();
             DataTable tempTablePartDim = new DataTable();
             tempTablePartDim.Columns.Add("partBrand", typeof(string));
-            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierNation", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int partIndex = 0;
-                    int dgKeyPart = 0;
+                    Int64 partIndex = 0;
+                    Int64 dgKeyPart = 0;
                     foreach (var part in partDimension)
                     {
                         if (part.pCategory.Equals("MFGR#12"))
@@ -483,7 +217,7 @@ namespace ParallelHashJoins
                                     var partBrand = row.Field<string>("partBrand");
                                     if (partBrand.Equals(pBrand))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvPartDim.Add(partIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -514,8 +248,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sRegion.Equals("AMERICA"))
@@ -530,7 +264,7 @@ namespace ParallelHashJoins
                                     var supplierNation = row.Field<string>("supplierNation");
                                     if (supplierNation.Equals(sNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -560,7 +294,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
 
@@ -574,7 +308,7 @@ namespace ParallelHashJoins
                                 var year = row.Field<string>("year");
                                 if (year.Equals(dYear))
                                 {
-                                    int dgKey = row.Field<int>("denseGroupingKey");
+                                    Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                     kvDateDim.Add(date.dDateKey, dgKey);
                                     found = true;
                                     break;
@@ -602,19 +336,19 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthPart = tempTablePartDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthPart = tempTablePartDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
 
-            int[,] inMemoryAccumulator = new int[dgkLengthDate, dgkLengthPart];
+            Int64[,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthPart];
 
             var partitionIndexes = Utils.getPartitionIndexes(loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -623,14 +357,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int partKey = loPartKey[i];
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int dgkPartDim = 0;
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
+                        Int64 partKey = loPartKey[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 dgkPartDim = 0;
+                        Int64 dgkSupplierDim = 0;
+                        Int64 dgkDateDim = 0;
                         if (kvPartDim.TryGetValue(partKey, out dgkPartDim)
                             && kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim))
@@ -656,7 +390,7 @@ namespace ParallelHashJoins
             {
                 foreach (DataRow ddRow in tempTableDateDim.Rows)
                 {
-                    int sumRevenue = inMemoryAccumulator[ddRow.Field<int>("denseGroupingKey"), pdRow.Field<int>("denseGroupingKey")];
+                    Int64 sumRevenue = inMemoryAccumulator[ddRow.Field<Int64>("denseGroupingKey"), pdRow.Field<Int64>("denseGroupingKey")];
                     if (sumRevenue != 0)
                     {
                         finalTable.Add(ddRow.Field<string>("year") + ", " + pdRow.Field<string>("partBrand") + ", " + sumRevenue);
@@ -697,26 +431,26 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvPartDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvPartDim = new Dictionary<Int64, Int64>();
             DataTable tempTablePartDim = new DataTable();
             tempTablePartDim.Columns.Add("partBrand", typeof(string));
-            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierNation", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int partIndex = 0;
-                    int dgKeyPart = 0;
+                    Int64 partIndex = 0;
+                    Int64 dgKeyPart = 0;
                     foreach (var part in partDimension)
                     {
                         if (String.CompareOrdinal(part.pBrand, "MFGR#2221") >= 0 && String.CompareOrdinal(part.pBrand, "MFGR#2228") <= 0)
@@ -731,7 +465,7 @@ namespace ParallelHashJoins
                                     var partBrand = row.Field<string>("partBrand");
                                     if (partBrand.Equals(pBrand))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvPartDim.Add(partIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -762,8 +496,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sRegion.Equals("ASIA"))
@@ -778,7 +512,7 @@ namespace ParallelHashJoins
                                     var supplierNation = row.Field<string>("supplierNation");
                                     if (supplierNation.Equals(sNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -808,7 +542,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         string dYear = date.dYear;
@@ -821,7 +555,7 @@ namespace ParallelHashJoins
                                 var year = row.Field<string>("year");
                                 if (year.Equals(dYear))
                                 {
-                                    int dgKey = row.Field<int>("denseGroupingKey");
+                                    Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                     kvDateDim.Add(date.dDateKey, dgKey);
                                     found = true;
                                     break;
@@ -849,19 +583,19 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthPart = tempTablePartDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthPart = tempTablePartDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
 
-            int[,] inMemoryAccumulator = new int[dgkLengthDate, dgkLengthPart];
+            Int64[,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthPart];
 
             var partitionIndexes = Utils.getPartitionIndexes(loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -870,14 +604,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int partKey = loPartKey[i];
-                        int dateKey = loOrderDate[i];
-                        int suppKey = loSupplierKey[i];
-                        int dgkPartDim = 0;
-                        int dgkDateDim = 0;
-                        int dgkSuppDim = 0;
+                        Int64 partKey = loPartKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dgkPartDim = 0;
+                        Int64 dgkDateDim = 0;
+                        Int64 dgkSuppDim = 0;
                         if (kvPartDim.TryGetValue(partKey, out dgkPartDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
                             && kvSupplierDim.TryGetValue(suppKey, out dgkSuppDim))
@@ -903,7 +637,7 @@ namespace ParallelHashJoins
             {
                 foreach (DataRow ddRow in tempTableDateDim.Rows)
                 {
-                    int sumRevenue = inMemoryAccumulator[ddRow.Field<int>("denseGroupingKey"), pdRow.Field<int>("denseGroupingKey")];
+                    Int64 sumRevenue = inMemoryAccumulator[ddRow.Field<Int64>("denseGroupingKey"), pdRow.Field<Int64>("denseGroupingKey")];
                     if (sumRevenue != 0)
                     {
                         finalTable.Add(ddRow.Field<string>("year") + ", " + pdRow.Field<string>("partBrand") + ", " + sumRevenue);
@@ -943,26 +677,26 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvPartDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvPartDim = new Dictionary<Int64, Int64>();
             DataTable tempTablePartDim = new DataTable();
             tempTablePartDim.Columns.Add("partBrand", typeof(string));
-            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierNation", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int partIndex = 0;
-                    int dgKeyPart = 0;
+                    Int64 partIndex = 0;
+                    Int64 dgKeyPart = 0;
                     foreach (var part in partDimension)
                     {
                         if (part.pBrand.Equals("MFGR#2221"))
@@ -977,7 +711,7 @@ namespace ParallelHashJoins
                                     var partBrand = row.Field<string>("partBrand");
                                     if (partBrand.Equals(pBrand))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvPartDim.Add(partIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1008,8 +742,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sRegion.Equals("EUROPE"))
@@ -1024,7 +758,7 @@ namespace ParallelHashJoins
                                     var supplierNation = row.Field<string>("supplierNation");
                                     if (supplierNation.Equals(sNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1054,7 +788,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         string dYear = date.dYear;
@@ -1067,7 +801,7 @@ namespace ParallelHashJoins
                                 var year = row.Field<string>("year");
                                 if (year.Equals(dYear))
                                 {
-                                    int dgKey = row.Field<int>("denseGroupingKey");
+                                    Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                     kvDateDim.Add(date.dDateKey, dgKey);
                                     found = true;
                                     break;
@@ -1095,19 +829,19 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthPart = tempTablePartDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthPart = tempTablePartDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
 
-            int[,] inMemoryAccumulator = new int[dgkLengthDate, dgkLengthPart];
+            Int64[,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthPart];
 
             var partitionIndexes = Utils.getPartitionIndexes(loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -1116,14 +850,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int partKey = loPartKey[i];
-                        int dateKey = loOrderDate[i];
-                        int suppKey = loSupplierKey[i];
-                        int dgkPartDim = 0;
-                        int dgkDateDim = 0;
-                        int dgkSupplierDim = 0;
+                        Int64 partKey = loPartKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dgkPartDim = 0;
+                        Int64 dgkDateDim = 0;
+                        Int64 dgkSupplierDim = 0;
                         if (kvPartDim.TryGetValue(partKey, out dgkPartDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
                             && kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim))
@@ -1149,7 +883,7 @@ namespace ParallelHashJoins
             {
                 foreach (DataRow ddRow in tempTableDateDim.Rows)
                 {
-                    int sumRevenue = inMemoryAccumulator[ddRow.Field<int>("denseGroupingKey"), pdRow.Field<int>("denseGroupingKey")];
+                    Int64 sumRevenue = inMemoryAccumulator[ddRow.Field<Int64>("denseGroupingKey"), pdRow.Field<Int64>("denseGroupingKey")];
                     if (sumRevenue != 0)
                     {
                         finalTable.Add(ddRow.Field<string>("year") + ", " + pdRow.Field<string>("partBrand") + ", " + sumRevenue);
@@ -1178,7 +912,7 @@ namespace ParallelHashJoins
         }
 
         /// <summary>
-        /// Key Vector is implemented as Dictionary <int, int>
+        /// Key Vector is implemented as Dictionary <Int64, Int64>
         /// InMemory Accumulator is a MultiDimensional Array
         /// Temporary Table is a Datatable
         /// </summary>
@@ -1194,26 +928,26 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvCustomerDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
             DataTable tempTableCustomerDim = new DataTable();
             tempTableCustomerDim.Columns.Add("customerNation", typeof(string));
-            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierNation", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int customerIndex = 0;
-                    int dgKeyCustomer = 0;
+                    Int64 customerIndex = 0;
+                    Int64 dgKeyCustomer = 0;
                     foreach (var customer in customerDimension)
                     {
                         if (customer.cRegion.Equals("ASIA"))
@@ -1228,7 +962,7 @@ namespace ParallelHashJoins
                                     var customerNation = row.Field<string>("customerNation");
                                     if (customerNation.Equals(cNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvCustomerDim.Add(customerIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1258,8 +992,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sRegion.Equals("ASIA"))
@@ -1274,7 +1008,7 @@ namespace ParallelHashJoins
                                     var supplierNation = row.Field<string>("supplierNation");
                                     if (supplierNation.Equals(sNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1304,7 +1038,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
@@ -1319,7 +1053,7 @@ namespace ParallelHashJoins
                                     var year = row.Field<string>("year");
                                     if (year.Equals(dYear))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvDateDim.Add(date.dDateKey, dgKey);
                                         found = true;
                                         break;
@@ -1352,20 +1086,20 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
+            Int64 dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
 
-            int[,,] inMemoryAccumulator = new int[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
+            Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
             var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -1374,14 +1108,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int custKey = loCustomerKey[i];
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int dgkCustomerDim = 0;
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
+                        Int64 custKey = loCustomerKey[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 dgkCustomerDim = 0;
+                        Int64 dgkSupplierDim = 0;
+                        Int64 dgkDateDim = 0;
                         if (kvCustomerDim.TryGetValue(custKey, out dgkCustomerDim)
                             && kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim))
@@ -1409,9 +1143,9 @@ namespace ParallelHashJoins
                 {
                     foreach (DataRow ddRow in tempTableDateDim.Rows)
                     {
-                        int sumRevenue = inMemoryAccumulator[cdRow.Field<int>("denseGroupingKey")
-                            , sdRow.Field<int>("denseGroupingKey")
-                            , ddRow.Field<int>("denseGroupingKey")];
+                        Int64 sumRevenue = inMemoryAccumulator[cdRow.Field<Int64>("denseGroupingKey")
+                            , sdRow.Field<Int64>("denseGroupingKey")
+                            , ddRow.Field<Int64>("denseGroupingKey")];
                         if (sumRevenue != 0)
                         {
                             finalTable.Add(cdRow.Field<string>("customerNation") + ", " + sdRow.Field<string>("supplierNation") + ", " + ddRow.Field<string>("year") + ", " + sumRevenue);
@@ -1453,26 +1187,26 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvCustomerDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
             DataTable tempTableCustomerDim = new DataTable();
             tempTableCustomerDim.Columns.Add("customerCity", typeof(string));
-            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierCity", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int customerIndex = 0;
-                    int dgKeyCustomer = 0;
+                    Int64 customerIndex = 0;
+                    Int64 dgKeyCustomer = 0;
                     foreach (var customer in customerDimension)
                     {
                         if (customer.cNation.Equals("UNITED STATES"))
@@ -1487,7 +1221,7 @@ namespace ParallelHashJoins
                                     var customerCity = row.Field<string>("customerCity");
                                     if (customerCity.Equals(cCity))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvCustomerDim.Add(customerIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1517,8 +1251,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sNation.Equals("UNITED STATES"))
@@ -1533,7 +1267,7 @@ namespace ParallelHashJoins
                                     var supplierCity = row.Field<string>("supplierCity");
                                     if (supplierCity.Equals(sCity))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1563,7 +1297,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
@@ -1578,7 +1312,7 @@ namespace ParallelHashJoins
                                     var year = row.Field<string>("year");
                                     if (year.Equals(dYear))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvDateDim.Add(date.dDateKey, dgKey);
                                         found = true;
                                         break;
@@ -1611,20 +1345,20 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
+            Int64 dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
 
-            int[,,] inMemoryAccumulator = new int[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
+            Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
             var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -1633,14 +1367,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int custKey = loCustomerKey[i];
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int dgkCustomerDim = 0;
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
+                        Int64 custKey = loCustomerKey[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 dgkCustomerDim = 0;
+                        Int64 dgkSupplierDim = 0;
+                        Int64 dgkDateDim = 0;
                         if (kvCustomerDim.TryGetValue(custKey, out dgkCustomerDim)
                             && kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim))
@@ -1668,9 +1402,9 @@ namespace ParallelHashJoins
                 {
                     foreach (DataRow ddRow in tempTableDateDim.Rows)
                     {
-                        int sumRevenue = inMemoryAccumulator[cdRow.Field<int>("denseGroupingKey")
-                            , sdRow.Field<int>("denseGroupingKey")
-                            , ddRow.Field<int>("denseGroupingKey")];
+                        Int64 sumRevenue = inMemoryAccumulator[cdRow.Field<Int64>("denseGroupingKey")
+                            , sdRow.Field<Int64>("denseGroupingKey")
+                            , ddRow.Field<Int64>("denseGroupingKey")];
                         if (sumRevenue != 0)
                         {
                             finalTable.Add(cdRow.Field<string>("customerCity") + ", " + sdRow.Field<string>("supplierCity") + ", " + ddRow.Field<string>("year") + ", " + sumRevenue);
@@ -1712,26 +1446,26 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvCustomerDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
             DataTable tempTableCustomerDim = new DataTable();
             tempTableCustomerDim.Columns.Add("customerCity", typeof(string));
-            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierCity", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int customerIndex = 0;
-                    int dgKeyCustomer = 0;
+                    Int64 customerIndex = 0;
+                    Int64 dgKeyCustomer = 0;
                     foreach (var customer in customerDimension)
                     {
                         if (customer.cCity.Equals("UNITED KI1") || customer.cCity.Equals("UNITED KI5"))
@@ -1746,7 +1480,7 @@ namespace ParallelHashJoins
                                     var customerCity = row.Field<string>("customerCity");
                                     if (customerCity.Equals(cCity))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvCustomerDim.Add(customerIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1776,8 +1510,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sCity.Equals("UNITED KI1") || supplier.sCity.Equals("UNITED KI5"))
@@ -1792,7 +1526,7 @@ namespace ParallelHashJoins
                                     var supplierCity = row.Field<string>("supplierCity");
                                     if (supplierCity.Equals(sCity))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -1822,7 +1556,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
@@ -1837,7 +1571,7 @@ namespace ParallelHashJoins
                                     var year = row.Field<string>("year");
                                     if (year.Equals(dYear))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvDateDim.Add(date.dDateKey, dgKey);
                                         found = true;
                                         break;
@@ -1870,20 +1604,20 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
+            Int64 dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
 
-            int[,,] inMemoryAccumulator = new int[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
+            Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
             var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count, parallelOptions.MaxDegreeOfParallelism);
 
@@ -1892,14 +1626,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int custKey = loCustomerKey[i];
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int dgkCustomerDim = 0;
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
+                        Int64 custKey = loCustomerKey[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 dgkCustomerDim = 0;
+                        Int64 dgkSupplierDim = 0;
+                        Int64 dgkDateDim = 0;
                         if (kvCustomerDim.TryGetValue(custKey, out dgkCustomerDim)
                             && kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim))
@@ -1927,9 +1661,9 @@ namespace ParallelHashJoins
                 {
                     foreach (DataRow ddRow in tempTableDateDim.Rows)
                     {
-                        int sumRevenue = inMemoryAccumulator[cdRow.Field<int>("denseGroupingKey")
-                            , sdRow.Field<int>("denseGroupingKey")
-                            , ddRow.Field<int>("denseGroupingKey")];
+                        Int64 sumRevenue = inMemoryAccumulator[cdRow.Field<Int64>("denseGroupingKey")
+                            , sdRow.Field<Int64>("denseGroupingKey")
+                            , ddRow.Field<Int64>("denseGroupingKey")];
                         if (sumRevenue != 0)
                         {
                             finalTable.Add(cdRow.Field<string>("customerCity") + ", " + sdRow.Field<string>("supplierCity") + ", " + ddRow.Field<string>("year") + ", " + sumRevenue);
@@ -1971,26 +1705,26 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvCustomerDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
             DataTable tempTableCustomerDim = new DataTable();
             tempTableCustomerDim.Columns.Add("customerCity", typeof(string));
-            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierCity", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int customerIndex = 0;
-                    int dgKeyCustomer = 0;
+                    Int64 customerIndex = 0;
+                    Int64 dgKeyCustomer = 0;
                     foreach (var customer in customerDimension)
                     {
                         if (customer.cCity.Equals("UNITED KI1") || customer.cCity.Equals("UNITED KI5"))
@@ -2005,7 +1739,7 @@ namespace ParallelHashJoins
                                     var customerCity = row.Field<string>("customerCity");
                                     if (customerCity.Equals(cCity))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvCustomerDim.Add(customerIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2035,8 +1769,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sCity.Equals("UNITED KI1") || supplier.sCity.Equals("UNITED KI5"))
@@ -2051,7 +1785,7 @@ namespace ParallelHashJoins
                                     var supplierCity = row.Field<string>("supplierCity");
                                     if (supplierCity.Equals(sCity))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2081,7 +1815,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         if (date.dYearMonth.Equals("Dec1997"))
@@ -2096,7 +1830,7 @@ namespace ParallelHashJoins
                                     var year = row.Field<string>("year");
                                     if (year.Equals(dYear))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvDateDim.Add(date.dDateKey, dgKey);
                                         found = true;
                                         break;
@@ -2129,20 +1863,20 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
+            Int64 dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
 
-            int[,,] inMemoryAccumulator = new int[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
+            Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
             var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count, parallelOptions.MaxDegreeOfParallelism);
 
@@ -2151,14 +1885,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int custKey = loCustomerKey[i];
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int dgkCustomerDim = 0;
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
+                        Int64 custKey = loCustomerKey[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 dgkCustomerDim = 0;
+                        Int64 dgkSupplierDim = 0;
+                        Int64 dgkDateDim = 0;
                         if (kvCustomerDim.TryGetValue(custKey, out dgkCustomerDim)
                             && kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim))
@@ -2186,9 +1920,9 @@ namespace ParallelHashJoins
                 {
                     foreach (DataRow ddRow in tempTableDateDim.Rows)
                     {
-                        int sumRevenue = inMemoryAccumulator[cdRow.Field<int>("denseGroupingKey")
-                            , sdRow.Field<int>("denseGroupingKey")
-                            , ddRow.Field<int>("denseGroupingKey")];
+                        Int64 sumRevenue = inMemoryAccumulator[cdRow.Field<Int64>("denseGroupingKey")
+                            , sdRow.Field<Int64>("denseGroupingKey")
+                            , ddRow.Field<Int64>("denseGroupingKey")];
                         if (sumRevenue != 0)
                         {
                             finalTable.Add(cdRow.Field<string>("customerCity") + ", " + sdRow.Field<string>("supplierCity") + ", " + ddRow.Field<string>("year") + ", " + sumRevenue);
@@ -2231,31 +1965,31 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvCustomerDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
             DataTable tempTableCustomerDim = new DataTable();
             tempTableCustomerDim.Columns.Add("customerNation", typeof(string));
-            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierNation", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvPartDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvPartDim = new Dictionary<Int64, Int64>();
             DataTable tempTablePartDim = new DataTable();
             tempTablePartDim.Columns.Add("partMFGR", typeof(string));
-            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int customerIndex = 0;
-                    int dgKeyCustomer = 0;
+                    Int64 customerIndex = 0;
+                    Int64 dgKeyCustomer = 0;
                     foreach (var customer in customerDimension)
                     {
                         if (customer.cRegion.Equals("AMERICA"))
@@ -2270,7 +2004,7 @@ namespace ParallelHashJoins
                                     var customerNation = row.Field<string>("customerNation");
                                     if (customerNation.Equals(cNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvCustomerDim.Add(customerIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2300,8 +2034,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sRegion.Equals("AMERICA"))
@@ -2316,7 +2050,7 @@ namespace ParallelHashJoins
                                     var supplierNation = row.Field<string>("supplierNation");
                                     if (supplierNation.Equals(sNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2346,7 +2080,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         string dYear = date.dYear;
@@ -2359,7 +2093,7 @@ namespace ParallelHashJoins
                                 var year = row.Field<string>("year");
                                 if (year.Equals(dYear))
                                 {
-                                    int dgKey = row.Field<int>("denseGroupingKey");
+                                    Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                     kvDateDim.Add(date.dDateKey, dgKey);
                                     found = true;
                                     break;
@@ -2383,8 +2117,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int partIndex = 0;
-                    int dgKeyPart = 0;
+                    Int64 partIndex = 0;
+                    Int64 dgKeyPart = 0;
                     foreach (var part in partDimension)
                     {
                         if (part.pMFGR.Equals("MFGR#1") || part.pMFGR.Equals("MFGR#2"))
@@ -2399,7 +2133,7 @@ namespace ParallelHashJoins
                                     var partMFGR = row.Field<string>("partMFGR");
                                     if (partMFGR.Equals(pMFGR))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvPartDim.Add(partIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2434,24 +2168,24 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
 
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
-            int dgkLengthPart = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthCustomer = tempTableCustomerDim.Rows.Count + 1;
+            Int64 dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthPart = tempTableDateDim.Rows.Count + 1;
 
-            int[,] inMemoryAccumulator = new int[dgkLengthCustomer, dgkLengthDate];
+            Int64[,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthDate];
 
             var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -2460,14 +2194,14 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int custKey = loCustomerKey[i];
-                        int dateKey = loOrderDate[i];
-                        int suppKey = loSupplierKey[i];
-                        int partKey = loPartKey[i];
-                        int dgkCustomerDim = 0;
-                        int dgkDateDim = 0;
+                        Int64 custKey = loCustomerKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 partKey = loPartKey[i];
+                        Int64 dgkCustomerDim = 0;
+                        Int64 dgkDateDim = 0;
                         if (kvCustomerDim.TryGetValue(custKey, out dgkCustomerDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
                             && kvSupplierDim.ContainsKey(suppKey)
@@ -2494,8 +2228,8 @@ namespace ParallelHashJoins
             {
                 foreach (DataRow ddRow in tempTableDateDim.Rows)
                 {
-                    int sumProfit = inMemoryAccumulator[cdRow.Field<int>("denseGroupingKey")
-                        , ddRow.Field<int>("denseGroupingKey")];
+                    Int64 sumProfit = inMemoryAccumulator[cdRow.Field<Int64>("denseGroupingKey")
+                        , ddRow.Field<Int64>("denseGroupingKey")];
                     if (sumProfit != 0)
                     {
                         finalTable.Add(ddRow.Field<string>("year") + ", " + cdRow.Field<string>("customerNation") + ", " + sumProfit);
@@ -2537,31 +2271,31 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvCustomerDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
             DataTable tempTableCustomerDim = new DataTable();
             tempTableCustomerDim.Columns.Add("customerNation", typeof(string));
-            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierNation", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvPartDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvPartDim = new Dictionary<Int64, Int64>();
             DataTable tempTablePartDim = new DataTable();
             tempTablePartDim.Columns.Add("partCategory", typeof(string));
-            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int customerIndex = 0;
-                    int dgKeyCustomer = 0;
+                    Int64 customerIndex = 0;
+                    Int64 dgKeyCustomer = 0;
                     foreach (var customer in customerDimension)
                     {
                         if (customer.cRegion.Equals("AMERICA"))
@@ -2576,7 +2310,7 @@ namespace ParallelHashJoins
                                     var customerNation = row.Field<string>("customerNation");
                                     if (customerNation.Equals(cNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvCustomerDim.Add(customerIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2606,8 +2340,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sRegion.Equals("AMERICA"))
@@ -2622,7 +2356,7 @@ namespace ParallelHashJoins
                                     var supplierNation = row.Field<string>("supplierNation");
                                     if (supplierNation.Equals(sNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2652,7 +2386,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         if (date.dYear.Equals("1997") || date.dYear.Equals("1998"))
@@ -2667,7 +2401,7 @@ namespace ParallelHashJoins
                                     var year = row.Field<string>("year");
                                     if (year.Equals(dYear))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvDateDim.Add(date.dDateKey, dgKey);
                                         found = true;
                                         break;
@@ -2697,8 +2431,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int partIndex = 0;
-                    int dgKeyPart = 0;
+                    Int64 partIndex = 0;
+                    Int64 dgKeyPart = 0;
                     foreach (var part in partDimension)
                     {
                         if (part.pMFGR.Equals("MFGR#1") || part.pMFGR.Equals("MFGR#2"))
@@ -2713,7 +2447,7 @@ namespace ParallelHashJoins
                                     var partCategory = row.Field<string>("partCategory");
                                     if (partCategory.Equals(pCategory))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvPartDim.Add(partIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2748,23 +2482,23 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
 
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
-            int dgkLengthPart = tempTablePartDim.Rows.Count + 1;
+            Int64 dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthPart = tempTablePartDim.Rows.Count + 1;
 
-            int[,,] inMemoryAccumulator = new int[dgkLengthDate, dgkLengthSupplier, dgkLengthPart];
+            Int64[,,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthSupplier, dgkLengthPart];
 
             var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -2773,15 +2507,15 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int partKey = loPartKey[i];
-                        int custKey = loCustomerKey[i];
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
-                        int dgkPartDim = 0;
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 partKey = loPartKey[i];
+                        Int64 custKey = loCustomerKey[i];
+                        Int64 dgkSupplierDim = 0;
+                        Int64 dgkDateDim = 0;
+                        Int64 dgkPartDim = 0;
                         if (kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
                             && kvPartDim.TryGetValue(partKey, out dgkPartDim)
@@ -2810,8 +2544,8 @@ namespace ParallelHashJoins
                 {
                     foreach (DataRow pdRow in tempTablePartDim.Rows)
                     {
-                        int sumProfit = inMemoryAccumulator[ddRow.Field<int>("denseGroupingKey"), sdRow.Field<int>("denseGroupingKey")
-                                                , pdRow.Field<int>("denseGroupingKey")];
+                        Int64 sumProfit = inMemoryAccumulator[ddRow.Field<Int64>("denseGroupingKey"), sdRow.Field<Int64>("denseGroupingKey")
+                                                , pdRow.Field<Int64>("denseGroupingKey")];
                         if (sumProfit != 0)
                         {
                             finalTable.Add(ddRow.Field<string>("year") + ", " + sdRow.Field<string>("supplierNation") + ", " + pdRow.Field<string>("partCategory") + ", " + sumProfit);
@@ -2855,31 +2589,31 @@ namespace ParallelHashJoins
 
             #region Step 1 & 2
             sw.Start();
-            Dictionary<int, int> kvCustomerDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
             DataTable tempTableCustomerDim = new DataTable();
             tempTableCustomerDim.Columns.Add("customerNation", typeof(string));
-            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableCustomerDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvSupplierDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvSupplierDim = new Dictionary<Int64, Int64>();
             DataTable tempTableSupplierDim = new DataTable();
             tempTableSupplierDim.Columns.Add("supplierCity", typeof(string));
-            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableSupplierDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvDateDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvDateDim = new Dictionary<Int64, Int64>();
             DataTable tempTableDateDim = new DataTable();
             tempTableDateDim.Columns.Add("year", typeof(string));
-            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTableDateDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
-            Dictionary<int, int> kvPartDim = new Dictionary<int, int>();
+            Dictionary<Int64, Int64> kvPartDim = new Dictionary<Int64, Int64>();
             DataTable tempTablePartDim = new DataTable();
             tempTablePartDim.Columns.Add("partBrand", typeof(string));
-            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(int));
+            tempTablePartDim.Columns.Add("denseGroupingKey", typeof(Int64));
 
             Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    int customerIndex = 0;
-                    int dgKeyCustomer = 0;
+                    Int64 customerIndex = 0;
+                    Int64 dgKeyCustomer = 0;
                     foreach (var customer in customerDimension)
                     {
                         if (customer.cRegion.Equals("AMERICA"))
@@ -2894,7 +2628,7 @@ namespace ParallelHashJoins
                                     var customerNation = row.Field<string>("customerNation");
                                     if (customerNation.Equals(cNation))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvCustomerDim.Add(customerIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2924,8 +2658,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int supplierIndex = 0;
-                    int dgKeySupplier = 0;
+                    Int64 supplierIndex = 0;
+                    Int64 dgKeySupplier = 0;
                     foreach (var supplier in supplierDimension)
                     {
                         if (supplier.sNation.Equals("UNITED STATES"))
@@ -2940,7 +2674,7 @@ namespace ParallelHashJoins
                                     var supplierCity = row.Field<string>("supplierCity");
                                     if (supplierCity.Equals(sCity))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvSupplierDim.Add(supplierIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -2970,7 +2704,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int dgKeyDate = 0;
+                    Int64 dgKeyDate = 0;
                     foreach (var date in dateDimension)
                     {
                         if (date.dYear.Equals("1997") || date.dYear.Equals("1998"))
@@ -2985,7 +2719,7 @@ namespace ParallelHashJoins
                                     var year = row.Field<string>("year");
                                     if (year.Equals(dYear))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvDateDim.Add(date.dDateKey, dgKey);
                                         found = true;
                                         break;
@@ -3015,8 +2749,8 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    int partIndex = 0;
-                    int dgKeyPart = 0;
+                    Int64 partIndex = 0;
+                    Int64 dgKeyPart = 0;
                     foreach (var part in partDimension)
                     {
                         if (part.pCategory.Equals("MFGR#14"))
@@ -3031,7 +2765,7 @@ namespace ParallelHashJoins
                                     var partBrand = row.Field<string>("partBrand");
                                     if (partBrand.Equals(pBrand))
                                     {
-                                        int dgKey = row.Field<int>("denseGroupingKey");
+                                        Int64 dgKey = row.Field<Int64>("denseGroupingKey");
                                         kvPartDim.Add(partIndex + 1, dgKey);
                                         found = true;
                                         break;
@@ -3066,23 +2800,23 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<int> loCustomerKey = Utils.ReadFromBinaryFiles<int>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplierKey = Utils.ReadFromBinaryFiles<int>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loOrderDate = Utils.ReadFromBinaryFiles<int>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loPartKey = Utils.ReadFromBinaryFiles<int>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
 
-            List<int> loRevenue = Utils.ReadFromBinaryFiles<int>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-            List<int> loSupplyCost = Utils.ReadFromBinaryFiles<int>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
+            List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
 
             #region Step 3, 4 & 5
 
             sw.Reset();
             sw.Start();
-            int dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
-            int dgkLengthDate = tempTableDateDim.Rows.Count + 1;
-            int dgkLengthPart = tempTablePartDim.Rows.Count + 1;
+            Int64 dgkLengthSupplier = tempTableSupplierDim.Rows.Count + 1;
+            Int64 dgkLengthDate = tempTableDateDim.Rows.Count + 1;
+            Int64 dgkLengthPart = tempTablePartDim.Rows.Count + 1;
 
-            int[,,] inMemoryAccumulator = new int[dgkLengthDate, dgkLengthSupplier, dgkLengthPart];
+            Int64[,,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthSupplier, dgkLengthPart];
 
             var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
@@ -3091,15 +2825,15 @@ namespace ParallelHashJoins
             {
                 var t = Task.Factory.StartNew(() =>
                 {
-                    for (int i = indexes.Item1; i <= indexes.Item2; i++)
+                    for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        int suppKey = loSupplierKey[i];
-                        int dateKey = loOrderDate[i];
-                        int partKey = loPartKey[i];
-                        int custKey = loCustomerKey[i];
-                        int dgkSupplierDim = 0;
-                        int dgkDateDim = 0;
-                        int dgkPartDim = 0;
+                        Int64 suppKey = loSupplierKey[i];
+                        Int64 dateKey = loOrderDate[i];
+                        Int64 partKey = loPartKey[i];
+                        Int64 custKey = loCustomerKey[i];
+                        Int64 dgkSupplierDim = 0;
+                        Int64 dgkDateDim = 0;
+                        Int64 dgkPartDim = 0;
                         if (kvSupplierDim.TryGetValue(suppKey, out dgkSupplierDim)
                             && kvDateDim.TryGetValue(dateKey, out dgkDateDim)
                             && kvPartDim.TryGetValue(partKey, out dgkPartDim)
@@ -3128,8 +2862,8 @@ namespace ParallelHashJoins
                 {
                     foreach (DataRow pdRow in tempTablePartDim.Rows)
                     {
-                        int sumProfit = inMemoryAccumulator[ddRow.Field<int>("denseGroupingKey"), sdRow.Field<int>("denseGroupingKey")
-                                                , pdRow.Field<int>("denseGroupingKey")];
+                        Int64 sumProfit = inMemoryAccumulator[ddRow.Field<Int64>("denseGroupingKey"), sdRow.Field<Int64>("denseGroupingKey")
+                                                , pdRow.Field<Int64>("denseGroupingKey")];
                         if (sumProfit != 0)
                         {
                             finalTable.Add(ddRow.Field<string>("year") + ", " + sdRow.Field<string>("supplierCity") + ", " + pdRow.Field<string>("partBrand") + ", " + sumProfit);
@@ -3160,7 +2894,7 @@ namespace ParallelHashJoins
             //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
         }
 
-        public void saveAndPrintResults()
+        public void saveAndPrInt64Results()
         {
             //TestResultsDatabase.nimbleJoinOutput.Add(testResults.toString());
             //Console.WriteLine("IMA: " + testResults.toString());
