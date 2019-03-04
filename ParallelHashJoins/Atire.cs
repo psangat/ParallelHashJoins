@@ -18,6 +18,7 @@ namespace ParallelHashJoins
         private Dictionary<Int64, string> attributes = new Dictionary<Int64, string>();
 
         private List<string> mergingAttributes = new List<string>();
+
         private Dictionary<string, Atire> children { get; set; }
 
         public List<string> results = new List<string>();
@@ -36,7 +37,7 @@ namespace ParallelHashJoins
         /// Insert the items or attributes in the Atire
         /// </summary>
         /// <param name="root">First node of the Atire</param>
-        /// <param name="attributes">List of attiributes to insert Int64o the Atire</param>
+        /// <param name="attributes">List of attiributes to insert Into the Atire</param>
         /// <param name="value">Value associated with the grouping of the attributes</param>
 
         public void Insert(Atire root, List<string> attributes, bool isLockFree = true , params long[] values)

@@ -10,176 +10,26 @@ namespace ParallelHashJoins
 {
     class ParallelInMemoryAggregation
     {
-        private ParallelOptions parallelOptions = null;
         private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BF";
         private string scaleFactor { get; set; }
+        private ParallelOptions parallelOptions = null;
+        private TestResults testResults = new TestResults();
 
-        public TestResults testResults = new TestResults();
-        public ParallelInMemoryAggregation(string scaleFactor, Int32 degreeOfParallelism = 1)
+        public ParallelInMemoryAggregation(string _scaleFactor, ParallelOptions _parallelOptions)
         {
-            this.scaleFactor = scaleFactor;
-            testResults.totalRAMAvailable = Utils.getAvailableRAM();
-            parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
+            scaleFactor = _scaleFactor;
+            parallelOptions = _parallelOptions;
         }
 
         ~ParallelInMemoryAggregation()
         {
-            saveAndPrInt64Results();
+            saveAndPrintResults();
         }
-
-        #region Private Variables
-        private List<Int64> cCustKey = new List<Int64>();
-        private List<string> cName = new List<string>();
-        private List<string> cAddress = new List<string>();
-        private List<string> cCity = new List<string>();
-        private List<string> cNation = new List<string>();
-        private List<string> cRegion = new List<string>();
-        private List<string> cPhone = new List<string>();
-        private List<string> cMktSegment = new List<string>();
-
-        private List<Int64> sSuppKey = new List<Int64>();
-        private List<string> sName = new List<string>();
-        private List<string> sAddress = new List<string>();
-        private List<string> sCity = new List<string>();
-        private List<string> sNation = new List<string>();
-        private List<string> sRegion = new List<string>();
-        private List<string> sPhone = new List<string>();
-
-        private List<Int64> pSize = new List<Int64>();
-        private List<Int64> pPartKey = new List<Int64>();
-        private List<string> pName = new List<string>();
-        private List<string> pMFGR = new List<string>();
-        private List<string> pCategory = new List<string>();
-        private List<string> pBrand = new List<string>();
-        private List<string> pColor = new List<string>();
-        private List<string> pType = new List<string>();
-        private List<string> pContainer = new List<string>();
-
-        private List<Int64> loOrderKey = new List<Int64>();
-        private List<Int64> loLineNumber = new List<Int64>();
-        private List<Int64> loCustKey = new List<Int64>();
-        private List<Int64> loPartKey = new List<Int64>();
-        private List<Int64> loSuppKey = new List<Int64>();
-        private List<Int64> loOrderDate = new List<Int64>();
-        private List<char> loShipPriority = new List<char>();
-        private List<Int64> loQuantity = new List<Int64>();
-        private List<Tuple<Int64, Int64>> loQuantityWithId = new List<Tuple<Int64, Int64>>();
-
-        private List<Int64> loExtendedPrice = new List<Int64>();
-        private List<Int64> loOrdTotalPrice = new List<Int64>();
-        private List<Int64> loDiscount = new List<Int64>();
-        private List<Tuple<Int64, Int64>> loDiscountWithId = new List<Tuple<Int64, Int64>>();
-        private List<Int64> loRevenue = new List<Int64>();
-        private List<Int64> loSupplyCost = new List<Int64>();
-        private List<Int64> loTax = new List<Int64>();
-        private List<Int64> loCommitDate = new List<Int64>();
-        private List<string> loShipMode = new List<string>();
-        private List<string> loOrderPriority = new List<string>();
-
-        private List<Int64> dDateKey = new List<Int64>();
-        private List<Int64> dYear = new List<Int64>();
-        private List<Int64> dYearMonthNum = new List<Int64>();
-        private List<Int64> dDayNumInWeek = new List<Int64>();
-        private List<Int64> dDayNumInMonth = new List<Int64>();
-        private List<Int64> dDayNumInYear = new List<Int64>();
-        private List<Int64> dMonthNumInYear = new List<Int64>();
-        private List<Int64> dWeekNumInYear = new List<Int64>();
-        private List<Int64> dLastDayInWeekFL = new List<Int64>();
-        private List<Int64> dLastDayInMonthFL = new List<Int64>();
-        private List<Int64> dHolidayFL = new List<Int64>();
-        private List<Int64> dWeekDayFL = new List<Int64>();
-        private List<string> dDate = new List<string>();
-        private List<string> dDayOfWeek = new List<string>();
-        private List<string> dMonth = new List<string>();
-        private List<string> dYearMonth = new List<string>();
-        private List<string> dSellingSeason = new List<string>();
-
-        private List<Customer> customer = new List<Customer>();
-        private List<Supplier> supplier = new List<Supplier>();
-        private List<Part> part = new List<Part>();
-        private List<LineOrder> lineOrder = new List<LineOrder>();
-        private List<Date> date = new List<Date>();
-
-
-        private string dateFile = binaryFilesDirectory + @"\date\";
-        private string customerFile = binaryFilesDirectory + @"\customer\";
-        private string supplierFile = binaryFilesDirectory + @"\supplier\";
-        private string partFile = binaryFilesDirectory + @"\part\";
-
-        private string dDateKeyFile = binaryFilesDirectory + @"\dDateKey\";
-        private string dYearFile = binaryFilesDirectory + @"\dYear\";
-        private string dYearMonthNumFile = binaryFilesDirectory + @"\dYearMonthNum\";
-        private string dDayNumInWeekFile = binaryFilesDirectory + @"\dDayNumInWeek\";
-        private string dDayNumInMonthFile = binaryFilesDirectory + @"\dDayNumInMont\";
-        private string dDayNumInYearFile = binaryFilesDirectory + @"\dDayNumInYear\";
-        private string dMonthNumInYearFile = binaryFilesDirectory + @"\dMonthNumInYear\";
-        private string dWeekNumInYearFile = binaryFilesDirectory + @"\dWeekNumInYear\";
-        private string dLastDayInWeekFLFile = binaryFilesDirectory + @"\dLastDayInWeekFL\";
-        private string dLastDayInMonthFLFile = binaryFilesDirectory + @"\dLastDayInMonthFL\";
-        private string dHolidayFLFile = binaryFilesDirectory + @"\dHolidayFL\";
-        private string dWeekDayFLFile = binaryFilesDirectory + @"\dWeekDayFL\";
-        private string dDateFile = binaryFilesDirectory + @"\dDate\";
-        private string dDayOfWeekFile = binaryFilesDirectory + @"\dDayOfWeek\";
-        private string dMonthFile = binaryFilesDirectory + @"\dMonth\";
-        private string dYearMonthFile = binaryFilesDirectory + @"\dYearMonth\";
-        private string dSellingSeasonFile = binaryFilesDirectory + @"\dSellingSeason\";
-
-        private string loOrderKeyFile = binaryFilesDirectory + @"\loOrderKey\";
-        private string loLineNumberFile = binaryFilesDirectory + @"\loLineNumber\";
-        private string loCustKeyFile = binaryFilesDirectory + @"\loCustKey\";
-        private string loPartKeyFile = binaryFilesDirectory + @"\loPartKey\";
-        private string loSuppKeyFile = binaryFilesDirectory + @"\loSuppKey\";
-        private string loOrderDateFile = binaryFilesDirectory + @"\loOrderDate\";
-        private string loShipPriorityFile = binaryFilesDirectory + @"\loShipPriority\";
-        private string loQuantityFile = binaryFilesDirectory + @"\loQuantity\";
-        private string loExtendedPriceFile = binaryFilesDirectory + @"\loExtendedPrice\";
-        private string loOrdTotalPriceFile = binaryFilesDirectory + @"\loOrdTotalPrice\";
-        private string loDiscountFile = binaryFilesDirectory + @"\loDiscount\";
-        private string loRevenueFile = binaryFilesDirectory + @"\loRevenue\";
-        private string loSupplyCostFile = binaryFilesDirectory + @"\loSupplyCost\";
-        private string loTaxFile = binaryFilesDirectory + @"\loTax\";
-        private string loCommitDateFile = binaryFilesDirectory + @"\loCommitDate\";
-        private string loShipModeFile = binaryFilesDirectory + @"\loShipMode\";
-        private string loOrderPriorityFile = binaryFilesDirectory + @"\loOrderPriority\";
-
-        private string cCustKeyFile = binaryFilesDirectory + @"\cCustKey\";
-        private string cNameFile = binaryFilesDirectory + @"\cName\";
-        private string cAddressFile = binaryFilesDirectory + @"\cAddress\";
-        private string cCityFile = binaryFilesDirectory + @"\cCity\";
-        private string cNationFile = binaryFilesDirectory + @"\cNation\";
-        private string cRegionFile = binaryFilesDirectory + @"\cRegion\";
-        private string cPhoneFile = binaryFilesDirectory + @"\cPhone\";
-        private string cMktSegmentFile = binaryFilesDirectory + @"\cMktSegment\";
-
-        private string sSuppKeyFile = binaryFilesDirectory + @"\sSuppKey\";
-        private string sNameFile = binaryFilesDirectory + @"\sName\";
-        private string sAddressFile = binaryFilesDirectory + @"\sAddress\";
-        private string sCityFile = binaryFilesDirectory + @"\sCity\";
-        private string sNationFile = binaryFilesDirectory + @"\sNation\";
-        private string sRegionFile = binaryFilesDirectory + @"\sRegion\";
-        private string sPhoneFile = binaryFilesDirectory + @"\sPhone\";
-
-        private string pSizeFile = binaryFilesDirectory + @"\pSize\";
-        private string pPartKeyFile = binaryFilesDirectory + @"\pPartKey\";
-        private string pNameFile = binaryFilesDirectory + @"\pName\";
-        private string pMFGRFile = binaryFilesDirectory + @"\pMFGR\";
-        private string pCategoryFile = binaryFilesDirectory + @"\pCategory\";
-        private string pBrandFile = binaryFilesDirectory + @"\pBrand\";
-        private string pColorFile = binaryFilesDirectory + @"\pColor\";
-        private string pTypeFile = binaryFilesDirectory + @"\pType\";
-        private string pContainerFile = binaryFilesDirectory + @"\pContainer\";
-
-        #endregion Private Variables
 
         public void Query_2_1_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
 
             #region Step 1 & 2
             sw.Start();
@@ -203,7 +53,7 @@ namespace ParallelHashJoins
                 {
                     Int64 partIndex = 0;
                     Int64 dgKeyPart = 0;
-                    foreach (var part in partDimension)
+                    foreach (var part in InMemoryData.partDimension)
                     {
                         if (part.pCategory.Equals("MFGR#12"))
                         {
@@ -250,7 +100,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sRegion.Equals("AMERICA"))
                         {
@@ -295,7 +145,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
 
                         string dYear = date.dYear;
@@ -336,11 +186,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -350,7 +195,7 @@ namespace ParallelHashJoins
 
             Int64[,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthPart];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -359,9 +204,9 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 partKey = loPartKey[i];
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 dateKey = loOrderDate[i];
+                        Int64 partKey = InMemoryData.loPartKey[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
                         Int64 dgkPartDim = 0;
                         Int64 dgkSupplierDim = 0;
                         Int64 dgkDateDim = 0;
@@ -375,7 +220,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkDateDim, dgkPartDim] += loRevenue[i];
+                                inMemoryAccumulator[dgkDateDim, dgkPartDim] += InMemoryData.loRevenue[i];
                             }
                         }
                     }
@@ -406,28 +251,15 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Items: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_2_2_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
 
             #region Step 1 & 2
             sw.Start();
@@ -451,7 +283,7 @@ namespace ParallelHashJoins
                 {
                     Int64 partIndex = 0;
                     Int64 dgKeyPart = 0;
-                    foreach (var part in partDimension)
+                    foreach (var part in InMemoryData.partDimension)
                     {
                         if (String.CompareOrdinal(part.pBrand, "MFGR#2221") >= 0 && String.CompareOrdinal(part.pBrand, "MFGR#2228") <= 0)
                         {
@@ -498,7 +330,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sRegion.Equals("ASIA"))
                         {
@@ -543,7 +375,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         string dYear = date.dYear;
                         if (tempTableDateDim.Rows.Count > 0)
@@ -583,11 +415,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -597,7 +424,7 @@ namespace ParallelHashJoins
 
             Int64[,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthPart];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -606,9 +433,9 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 partKey = loPartKey[i];
-                        Int64 dateKey = loOrderDate[i];
-                        Int64 suppKey = loSupplierKey[i];
+                        Int64 partKey = InMemoryData.loPartKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
                         Int64 dgkPartDim = 0;
                         Int64 dgkDateDim = 0;
                         Int64 dgkSuppDim = 0;
@@ -622,7 +449,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkDateDim, dgkPartDim] += loRevenue[i];
+                                inMemoryAccumulator[dgkDateDim, dgkPartDim] += InMemoryData.loRevenue[i];
                             }
                         }
                     }
@@ -652,28 +479,15 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Items: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_2_3_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
 
             #region Step 1 & 2
             sw.Start();
@@ -697,7 +511,7 @@ namespace ParallelHashJoins
                 {
                     Int64 partIndex = 0;
                     Int64 dgKeyPart = 0;
-                    foreach (var part in partDimension)
+                    foreach (var part in InMemoryData.partDimension)
                     {
                         if (part.pBrand.Equals("MFGR#2221"))
                         {
@@ -744,7 +558,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sRegion.Equals("EUROPE"))
                         {
@@ -789,7 +603,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         string dYear = date.dYear;
                         if (tempTableDateDim.Rows.Count > 0)
@@ -829,11 +643,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -843,7 +652,7 @@ namespace ParallelHashJoins
 
             Int64[,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthPart];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loPartKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -852,9 +661,9 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 partKey = loPartKey[i];
-                        Int64 dateKey = loOrderDate[i];
-                        Int64 suppKey = loSupplierKey[i];
+                        Int64 partKey = InMemoryData.loPartKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
                         Int64 dgkPartDim = 0;
                         Int64 dgkDateDim = 0;
                         Int64 dgkSupplierDim = 0;
@@ -868,7 +677,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkDateDim, dgkPartDim] += loRevenue[i];
+                                inMemoryAccumulator[dgkDateDim, dgkPartDim] += InMemoryData.loRevenue[i];
                             }
                         }
                     }
@@ -898,17 +707,9 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Items: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         /// <summary>
@@ -920,12 +721,7 @@ namespace ParallelHashJoins
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
-
+            
             #region Step 1 & 2
             sw.Start();
             Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
@@ -948,7 +744,7 @@ namespace ParallelHashJoins
                 {
                     Int64 customerIndex = 0;
                     Int64 dgKeyCustomer = 0;
-                    foreach (var customer in customerDimension)
+                    foreach (var customer in InMemoryData.customerDimension)
                     {
                         if (customer.cRegion.Equals("ASIA"))
                         {
@@ -994,7 +790,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sRegion.Equals("ASIA"))
                         {
@@ -1039,7 +835,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
                         {
@@ -1086,11 +882,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -1101,7 +892,7 @@ namespace ParallelHashJoins
 
             Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -1110,9 +901,9 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 custKey = loCustomerKey[i];
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 dateKey = loOrderDate[i];
+                        Int64 custKey = InMemoryData.loCustomerKey[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
                         Int64 dgkCustomerDim = 0;
                         Int64 dgkSupplierDim = 0;
                         Int64 dgkDateDim = 0;
@@ -1126,7 +917,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += loRevenue[i];
+                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += InMemoryData.loRevenue[i];
                             }
                         }
                     }
@@ -1162,28 +953,15 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Count: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_3_2_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
 
             #region Step 1 & 2
             sw.Start();
@@ -1207,7 +985,7 @@ namespace ParallelHashJoins
                 {
                     Int64 customerIndex = 0;
                     Int64 dgKeyCustomer = 0;
-                    foreach (var customer in customerDimension)
+                    foreach (var customer in InMemoryData.customerDimension)
                     {
                         if (customer.cNation.Equals("UNITED STATES"))
                         {
@@ -1253,7 +1031,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sNation.Equals("UNITED STATES"))
                         {
@@ -1298,7 +1076,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
                         {
@@ -1345,11 +1123,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -1360,7 +1133,7 @@ namespace ParallelHashJoins
 
             Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -1369,9 +1142,9 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 custKey = loCustomerKey[i];
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 dateKey = loOrderDate[i];
+                        Int64 custKey = InMemoryData.loCustomerKey[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
                         Int64 dgkCustomerDim = 0;
                         Int64 dgkSupplierDim = 0;
                         Int64 dgkDateDim = 0;
@@ -1385,7 +1158,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += loRevenue[i];
+                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += InMemoryData.loRevenue[i];
                             }
                         }
                     }
@@ -1421,17 +1194,9 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Count: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_3_3_IM()
@@ -1439,11 +1204,6 @@ namespace ParallelHashJoins
 
             Stopwatch sw = new Stopwatch();
 
-            List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
-
             #region Step 1 & 2
             sw.Start();
             Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
@@ -1466,7 +1226,7 @@ namespace ParallelHashJoins
                 {
                     Int64 customerIndex = 0;
                     Int64 dgKeyCustomer = 0;
-                    foreach (var customer in customerDimension)
+                    foreach (var customer in InMemoryData.customerDimension)
                     {
                         if (customer.cCity.Equals("UNITED KI1") || customer.cCity.Equals("UNITED KI5"))
                         {
@@ -1512,7 +1272,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sCity.Equals("UNITED KI1") || supplier.sCity.Equals("UNITED KI5"))
                         {
@@ -1557,7 +1317,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
                         {
@@ -1604,11 +1364,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -1619,7 +1374,7 @@ namespace ParallelHashJoins
 
             Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count, parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count, parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -1628,9 +1383,9 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 custKey = loCustomerKey[i];
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 dateKey = loOrderDate[i];
+                        Int64 custKey = InMemoryData.loCustomerKey[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
                         Int64 dgkCustomerDim = 0;
                         Int64 dgkSupplierDim = 0;
                         Int64 dgkDateDim = 0;
@@ -1644,7 +1399,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += loRevenue[i];
+                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += InMemoryData.loRevenue[i];
                             }
                         }
                     }
@@ -1680,28 +1435,15 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Count: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_3_4_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-
 
             #region Step 1 & 2
             sw.Start();
@@ -1725,7 +1467,7 @@ namespace ParallelHashJoins
                 {
                     Int64 customerIndex = 0;
                     Int64 dgKeyCustomer = 0;
-                    foreach (var customer in customerDimension)
+                    foreach (var customer in InMemoryData.customerDimension)
                     {
                         if (customer.cCity.Equals("UNITED KI1") || customer.cCity.Equals("UNITED KI5"))
                         {
@@ -1771,7 +1513,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sCity.Equals("UNITED KI1") || supplier.sCity.Equals("UNITED KI5"))
                         {
@@ -1816,7 +1558,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         if (date.dYearMonth.Equals("Dec1997"))
                         {
@@ -1863,11 +1605,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -1878,7 +1615,7 @@ namespace ParallelHashJoins
 
             Int64[,,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthSupplier, dgkLengthDate];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count, parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count, parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -1887,9 +1624,9 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 custKey = loCustomerKey[i];
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 dateKey = loOrderDate[i];
+                        Int64 custKey = InMemoryData.loCustomerKey[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
                         Int64 dgkCustomerDim = 0;
                         Int64 dgkSupplierDim = 0;
                         Int64 dgkDateDim = 0;
@@ -1903,7 +1640,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += loRevenue[i];
+                                inMemoryAccumulator[dgkCustomerDim, dgkSupplierDim, dgkDateDim] += InMemoryData.loRevenue[i];
                             }
                         }
                     }
@@ -1939,30 +1676,16 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Count: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_4_1_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-            List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-
-
+            
             #region Step 1 & 2
             sw.Start();
             Dictionary<Int64, Int64> kvCustomerDim = new Dictionary<Int64, Int64>();
@@ -1990,7 +1713,7 @@ namespace ParallelHashJoins
                 {
                     Int64 customerIndex = 0;
                     Int64 dgKeyCustomer = 0;
-                    foreach (var customer in customerDimension)
+                    foreach (var customer in InMemoryData.customerDimension)
                     {
                         if (customer.cRegion.Equals("AMERICA"))
                         {
@@ -2036,7 +1759,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sRegion.Equals("AMERICA"))
                         {
@@ -2081,7 +1804,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         string dYear = date.dYear;
                         if (tempTableDateDim.Rows.Count > 0)
@@ -2119,7 +1842,7 @@ namespace ParallelHashJoins
                 {
                     Int64 partIndex = 0;
                     Int64 dgKeyPart = 0;
-                    foreach (var part in partDimension)
+                    foreach (var part in InMemoryData.partDimension)
                     {
                         if (part.pMFGR.Equals("MFGR#1") || part.pMFGR.Equals("MFGR#2"))
                         {
@@ -2168,14 +1891,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -2187,7 +1902,7 @@ namespace ParallelHashJoins
 
             Int64[,] inMemoryAccumulator = new Int64[dgkLengthCustomer, dgkLengthDate];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -2196,10 +1911,10 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 custKey = loCustomerKey[i];
-                        Int64 dateKey = loOrderDate[i];
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 partKey = loPartKey[i];
+                        Int64 custKey = InMemoryData.loCustomerKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 partKey = InMemoryData.loPartKey[i];
                         Int64 dgkCustomerDim = 0;
                         Int64 dgkDateDim = 0;
                         if (kvCustomerDim.TryGetValue(custKey, out dgkCustomerDim)
@@ -2213,7 +1928,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkCustomerDim, dgkDateDim] += (loRevenue[i] - loSupplyCost[i]);
+                                inMemoryAccumulator[dgkCustomerDim, dgkDateDim] += (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]);
                             }
                         }
                     }
@@ -2245,29 +1960,15 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Count: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_4_2_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-            List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-
 
             #region Step 1 & 2
             sw.Start();
@@ -2296,7 +1997,7 @@ namespace ParallelHashJoins
                 {
                     Int64 customerIndex = 0;
                     Int64 dgKeyCustomer = 0;
-                    foreach (var customer in customerDimension)
+                    foreach (var customer in InMemoryData.customerDimension)
                     {
                         if (customer.cRegion.Equals("AMERICA"))
                         {
@@ -2342,7 +2043,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sRegion.Equals("AMERICA"))
                         {
@@ -2387,7 +2088,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         if (date.dYear.Equals("1997") || date.dYear.Equals("1998"))
                         {
@@ -2433,7 +2134,7 @@ namespace ParallelHashJoins
                 {
                     Int64 partIndex = 0;
                     Int64 dgKeyPart = 0;
-                    foreach (var part in partDimension)
+                    foreach (var part in InMemoryData.partDimension)
                     {
                         if (part.pMFGR.Equals("MFGR#1") || part.pMFGR.Equals("MFGR#2"))
                         {
@@ -2482,14 +2183,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -2500,7 +2193,7 @@ namespace ParallelHashJoins
 
             Int64[,,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthSupplier, dgkLengthPart];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -2509,10 +2202,10 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 dateKey = loOrderDate[i];
-                        Int64 partKey = loPartKey[i];
-                        Int64 custKey = loCustomerKey[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
+                        Int64 partKey = InMemoryData.loPartKey[i];
+                        Int64 custKey = InMemoryData.loCustomerKey[i];
                         Int64 dgkSupplierDim = 0;
                         Int64 dgkDateDim = 0;
                         Int64 dgkPartDim = 0;
@@ -2527,7 +2220,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkDateDim, dgkSupplierDim, dgkPartDim] += (loRevenue[i] - loSupplyCost[i]);
+                                inMemoryAccumulator[dgkDateDim, dgkSupplierDim, dgkPartDim] += (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]);
                             }
                         }
                     }
@@ -2563,29 +2256,15 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Count: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
         public void Query_4_3_IM()
         {
 
             Stopwatch sw = new Stopwatch();
-
-            List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-            List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-            List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-            List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-
 
             #region Step 1 & 2
             sw.Start();
@@ -2614,7 +2293,7 @@ namespace ParallelHashJoins
                 {
                     Int64 customerIndex = 0;
                     Int64 dgKeyCustomer = 0;
-                    foreach (var customer in customerDimension)
+                    foreach (var customer in InMemoryData.customerDimension)
                     {
                         if (customer.cRegion.Equals("AMERICA"))
                         {
@@ -2660,7 +2339,7 @@ namespace ParallelHashJoins
                 {
                     Int64 supplierIndex = 0;
                     Int64 dgKeySupplier = 0;
-                    foreach (var supplier in supplierDimension)
+                    foreach (var supplier in InMemoryData.supplierDimension)
                     {
                         if (supplier.sNation.Equals("UNITED STATES"))
                         {
@@ -2705,7 +2384,7 @@ namespace ParallelHashJoins
                 () =>
                 {
                     Int64 dgKeyDate = 0;
-                    foreach (var date in dateDimension)
+                    foreach (var date in InMemoryData.dateDimension)
                     {
                         if (date.dYear.Equals("1997") || date.dYear.Equals("1998"))
                         {
@@ -2751,7 +2430,7 @@ namespace ParallelHashJoins
                 {
                     Int64 partIndex = 0;
                     Int64 dgKeyPart = 0;
-                    foreach (var part in partDimension)
+                    foreach (var part in InMemoryData.partDimension)
                     {
                         if (part.pCategory.Equals("MFGR#14"))
                         {
@@ -2800,14 +2479,6 @@ namespace ParallelHashJoins
             Console.WriteLine("[PIMA] Phase1 Time: " + t1);
             #endregion Step 1 & 2
 
-            List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-
-            List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-            List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-
             #region Step 3, 4 & 5
 
             sw.Reset();
@@ -2818,7 +2489,7 @@ namespace ParallelHashJoins
 
             Int64[,,] inMemoryAccumulator = new Int64[dgkLengthDate, dgkLengthSupplier, dgkLengthPart];
 
-            var partitionIndexes = Utils.getPartitionIndexes(loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+            var partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count, parallelOptions.MaxDegreeOfParallelism);
 
             var tasks = new List<Task>();
             foreach (var indexes in partitionIndexes)
@@ -2827,10 +2498,10 @@ namespace ParallelHashJoins
                 {
                     for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
                     {
-                        Int64 suppKey = loSupplierKey[i];
-                        Int64 dateKey = loOrderDate[i];
-                        Int64 partKey = loPartKey[i];
-                        Int64 custKey = loCustomerKey[i];
+                        Int64 suppKey = InMemoryData.loSupplierKey[i];
+                        Int64 dateKey = InMemoryData.loOrderDate[i];
+                        Int64 partKey = InMemoryData.loPartKey[i];
+                        Int64 custKey = InMemoryData.loCustomerKey[i];
                         Int64 dgkSupplierDim = 0;
                         Int64 dgkDateDim = 0;
                         Int64 dgkPartDim = 0;
@@ -2845,7 +2516,7 @@ namespace ParallelHashJoins
                             }
                             else
                             {
-                                inMemoryAccumulator[dgkDateDim, dgkSupplierDim, dgkPartDim] += (loRevenue[i] - loSupplyCost[i]);
+                                inMemoryAccumulator[dgkDateDim, dgkSupplierDim, dgkPartDim] += (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]);
                             }
                         }
                     }
@@ -2881,24 +2552,1215 @@ namespace ParallelHashJoins
             Console.WriteLine(String.Format("[PIMA] Total Count: {0}", finalTable.Count));
             Console.WriteLine();
             #endregion Step 3, 4 & 5
-
-            //Console.WriteLine("==============================================");
-            //Console.WriteLine("[IMA_V3] Memory Used: " + memoryUsed + ", Total:" + finalTable.Count);
-            //Console.WriteLine("[IMA_V3] Time Elaspsed: " + sw.ElapsedMilliseconds + " ms");
-            // Console.WriteLine("[IMA] Total: " + finalTable.Count);
-
-            //foreach (var item in finalTable)
-            //{
-            //    Console.WriteLine(item);
-            //}
-            //System.IO.File.WriteAllLines(@"C:\Results\PIMA.txt", finalTable);
+            testResults.phase1Time = t1;
+            testResults.phase2Time = t2;
+            testResults.phase3Time = 0; ;
         }
 
-        public void saveAndPrInt64Results()
+        public void GroupingAttributeScalabilityTest(Int64 numberOfGroupingAttributes)
+        {
+            try
+            {
+                Stopwatch sw = new Stopwatch();
+               
+                #region Key Hashing Phase 
+                sw.Start();
+                Dictionary<Int64, Int64> kvCustomerRegionDim = new Dictionary<Int64, Int64>();
+                DataTable tempTableCustomerRegionDim = new DataTable();
+                Dictionary<Int64, Int64> kvSupplierRegionDim = new Dictionary<Int64, Int64>();
+                DataTable tempTableSupplierRegionDim = new DataTable();
+                Dictionary<Int64, Int64> kvDateYearDim = new Dictionary<Int64, Int64>();
+                DataTable tempTableDateYearDim = new DataTable();
+
+                Dictionary<Int64, Int64> kvCustomerNationDim = new Dictionary<Int64, Int64>();
+                DataTable tempTableCustomerNationDim = new DataTable();
+                Dictionary<Int64, Int64> kvSupplierNationDim = new Dictionary<Int64, Int64>();
+                DataTable tempTableSupplierNationDim = new DataTable();
+                Dictionary<Int64, Int64> kvDateMonthDim = new Dictionary<Int64, Int64>();
+                DataTable tempTableDateMonthDim = new DataTable();
+
+                Int64 customerRegionIndex = 0;
+                Int64 dgKeyCustomerRegion = 0;
+
+                Int64 supplierRegionIndex = 0;
+                Int64 dgKeySupplierRegion = 0;
+
+                Int64 dateYearIndex = 0;
+                Int64 dgKeyDateYear = 0;
+
+                Int64 customerNationIndex = 0;
+                Int64 dgKeyCustomerNation = 0;
+
+                Int64 supplierNationIndex = 0;
+                Int64 dgKeySupplierNation = 0;
+
+                Int64 dateMonthIndex = 0;
+                Int64 dgKeyDateMonth = 0;
+
+                tempTableCustomerRegionDim.Columns.Add("customerRegion", typeof(string));
+                tempTableCustomerRegionDim.Columns.Add("denseGroupingKey", typeof(Int64));
+
+                tempTableCustomerNationDim.Columns.Add("customerNation", typeof(string));
+                tempTableCustomerNationDim.Columns.Add("denseGroupingKey", typeof(Int64));
+
+                tempTableSupplierRegionDim.Columns.Add("supplierRegion", typeof(string));
+                tempTableSupplierRegionDim.Columns.Add("denseGroupingKey", typeof(Int64));
+
+                tempTableSupplierNationDim.Columns.Add("supplierNation", typeof(string));
+                tempTableSupplierNationDim.Columns.Add("denseGroupingKey", typeof(Int64));
+
+                tempTableDateYearDim.Columns.Add("dateYear", typeof(string));
+                tempTableDateYearDim.Columns.Add("denseGroupingKey", typeof(Int64));
+
+                tempTableDateMonthDim.Columns.Add("dateMonth", typeof(string));
+                tempTableDateMonthDim.Columns.Add("denseGroupingKey", typeof(Int64));
+
+
+
+                switch (numberOfGroupingAttributes)
+                {
+                    case 1:
+                        foreach (var customer in InMemoryData.customerDimension)
+                        {
+                            if (customer.cRegion.Equals("ASIA"))
+                            {
+                                string cNation = customer.cNation;
+                                if (tempTableCustomerNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerNationDim.Rows)
+                                    {
+                                        var customerNation = row.Field<string>("customerNation");
+                                        if (customerNation.Equals(cNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerNationDim.Add(customerNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerNation++;
+                                        tempTable.Rows.Add(cNation, dgKeyCustomerNation);
+                                        kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                    }
+                                    tempTableCustomerNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerNation++;
+                                    tempTableCustomerNationDim.Rows.Add(cNation, dgKeyCustomerNation);
+                                    kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                }
+                            }
+                            else
+                            {
+                                kvCustomerNationDim.Add(customerNationIndex + 1, 0);
+                            }
+                            customerNationIndex++;
+                        }
+                        break;
+                    case 2:
+                        foreach (var customer in InMemoryData.customerDimension)
+                        {
+                            if (customer.cRegion.Equals("ASIA"))
+                            {
+                                string cRegion = customer.cRegion;
+                                if (tempTableCustomerRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerRegionDim.Rows)
+                                    {
+                                        var customerRegion = row.Field<string>("customerRegion");
+                                        if (customerRegion.Equals(cRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerRegion++;
+                                        tempTable.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                        kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                    }
+                                    tempTableCustomerRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerRegion++;
+                                    tempTableCustomerRegionDim.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                    kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                }
+
+                                string cNation = customer.cNation;
+                                if (tempTableCustomerNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerNationDim.Rows)
+                                    {
+                                        var customerNation = row.Field<string>("customerNation");
+                                        if (customerNation.Equals(cNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerNationDim.Add(customerNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerNation++;
+                                        tempTable.Rows.Add(cNation, dgKeyCustomerNation);
+                                        kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                    }
+                                    tempTableCustomerNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerNation++;
+                                    tempTableCustomerNationDim.Rows.Add(cNation, dgKeyCustomerNation);
+                                    kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                }
+                            }
+                            else
+                            {
+                                kvCustomerNationDim.Add(customerNationIndex + 1, 0);
+                                kvCustomerRegionDim.Add(customerRegionIndex + 1, 0);
+                            }
+                            customerRegionIndex++;
+                            customerNationIndex++;
+
+
+                        }
+                        break;
+                    case 3:
+                        foreach (var customer in InMemoryData.customerDimension)
+                        {
+                            if (customer.cRegion.Equals("ASIA"))
+                            {
+                                string cRegion = customer.cRegion;
+                                if (tempTableCustomerRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerRegionDim.Rows)
+                                    {
+                                        var customerRegion = row.Field<string>("customerRegion");
+                                        if (customerRegion.Equals(cRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerRegion++;
+                                        tempTable.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                        kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                    }
+                                    tempTableCustomerRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerRegion++;
+                                    tempTableCustomerRegionDim.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                    kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                }
+
+                                string cNation = customer.cNation;
+                                if (tempTableCustomerNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerNationDim.Rows)
+                                    {
+                                        var customerNation = row.Field<string>("customerNation");
+                                        if (customerNation.Equals(cNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerNationDim.Add(customerNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerNation++;
+                                        tempTable.Rows.Add(cNation, dgKeyCustomerNation);
+                                        kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                    }
+                                    tempTableCustomerNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerNation++;
+                                    tempTableCustomerNationDim.Rows.Add(cNation, dgKeyCustomerNation);
+                                    kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                }
+                            }
+                            else
+                            {
+                                kvCustomerNationDim.Add(customerNationIndex + 1, 0);
+                                kvCustomerRegionDim.Add(customerRegionIndex + 1, 0);
+                            }
+                            customerRegionIndex++;
+                            customerNationIndex++;
+                        }
+
+                        foreach (var supplier in InMemoryData.supplierDimension)
+                        {
+                            if (supplier.sRegion.Equals("ASIA"))
+                            {
+                                string sNation = supplier.sNation;
+                                if (tempTableSupplierNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableSupplierNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableSupplierNationDim.Rows)
+                                    {
+                                        var supplierNation = row.Field<string>("supplierNation");
+                                        if (supplierNation.Equals(sNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvSupplierNationDim.Add(supplierNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeySupplierNation++;
+                                        tempTable.Rows.Add(sNation, dgKeySupplierNation);
+                                        kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                    }
+                                    tempTableSupplierNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeySupplierNation++;
+                                    tempTableSupplierNationDim.Rows.Add(sNation, dgKeySupplierNation);
+                                    kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                }
+                            }
+                            else
+                            {
+                                kvSupplierNationDim.Add(supplierNationIndex + 1, 0);
+                            }
+                            supplierNationIndex++;
+                        }
+                        break;
+                    case 4:
+                        foreach (var customer in InMemoryData.customerDimension)
+                        {
+                            if (customer.cRegion.Equals("ASIA"))
+                            {
+                                string cRegion = customer.cRegion;
+                                if (tempTableCustomerRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerRegionDim.Rows)
+                                    {
+                                        var customerRegion = row.Field<string>("customerRegion");
+                                        if (customerRegion.Equals(cRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerRegion++;
+                                        tempTable.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                        kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                    }
+                                    tempTableCustomerRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerRegion++;
+                                    tempTableCustomerRegionDim.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                    kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                }
+
+                                string cNation = customer.cNation;
+                                if (tempTableCustomerNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerNationDim.Rows)
+                                    {
+                                        var customerNation = row.Field<string>("customerNation");
+                                        if (customerNation.Equals(cNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerNationDim.Add(customerNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerNation++;
+                                        tempTable.Rows.Add(cNation, dgKeyCustomerNation);
+                                        kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                    }
+                                    tempTableCustomerNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerNation++;
+                                    tempTableCustomerNationDim.Rows.Add(cNation, dgKeyCustomerNation);
+                                    kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                }
+                            }
+                            else
+                            {
+                                kvCustomerNationDim.Add(customerNationIndex + 1, 0);
+                                kvCustomerRegionDim.Add(customerRegionIndex + 1, 0);
+                            }
+                            customerRegionIndex++;
+                            customerNationIndex++;
+                        }
+
+                        foreach (var supplier in InMemoryData.supplierDimension)
+                        {
+                            if (supplier.sRegion.Equals("ASIA"))
+                            {
+                                string sNation = supplier.sNation;
+                                if (tempTableSupplierNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableSupplierNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableSupplierNationDim.Rows)
+                                    {
+                                        var supplierNation = row.Field<string>("supplierNation");
+                                        if (supplierNation.Equals(sNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvSupplierNationDim.Add(supplierNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeySupplierNation++;
+                                        tempTable.Rows.Add(sNation, dgKeySupplierNation);
+                                        kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                    }
+                                    tempTableSupplierNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeySupplierNation++;
+                                    tempTableSupplierNationDim.Rows.Add(sNation, dgKeySupplierNation);
+                                    kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                }
+
+                                string sRegion = supplier.sRegion;
+                                if (tempTableSupplierRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableSupplierRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableSupplierRegionDim.Rows)
+                                    {
+                                        var supplierRegion = row.Field<string>("supplierRegion");
+                                        if (supplierRegion.Equals(sRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeySupplierRegion++;
+                                        tempTable.Rows.Add(sRegion, dgKeySupplierRegion);
+                                        kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKeySupplierRegion);
+                                    }
+                                    tempTableSupplierRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeySupplierRegion++;
+                                    tempTableSupplierRegionDim.Rows.Add(sRegion, dgKeySupplierRegion);
+                                    kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKeySupplierRegion);
+                                }
+                            }
+                            else
+                            {
+                                kvSupplierNationDim.Add(supplierNationIndex + 1, 0);
+                                kvSupplierRegionDim.Add(supplierRegionIndex + 1, 0);
+                            }
+                            supplierNationIndex++;
+                            supplierRegionIndex++;
+                        }
+                        break;
+                    case 5:
+                        foreach (var customer in InMemoryData.customerDimension)
+                        {
+                            if (customer.cRegion.Equals("ASIA"))
+                            {
+                                string cRegion = customer.cRegion;
+                                if (tempTableCustomerRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerRegionDim.Rows)
+                                    {
+                                        var customerRegion = row.Field<string>("customerRegion");
+                                        if (customerRegion.Equals(cRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerRegion++;
+                                        tempTable.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                        kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                    }
+                                    tempTableCustomerRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerRegion++;
+                                    tempTableCustomerRegionDim.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                    kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                }
+
+                                string cNation = customer.cNation;
+                                if (tempTableCustomerNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerNationDim.Rows)
+                                    {
+                                        var customerNation = row.Field<string>("customerNation");
+                                        if (customerNation.Equals(cNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerNationDim.Add(customerNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerNation++;
+                                        tempTable.Rows.Add(cNation, dgKeyCustomerNation);
+                                        kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                    }
+                                    tempTableCustomerNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerNation++;
+                                    tempTableCustomerNationDim.Rows.Add(cNation, dgKeyCustomerNation);
+                                    kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                }
+                            }
+                            else
+                            {
+                                kvCustomerNationDim.Add(customerNationIndex + 1, 0);
+                                kvCustomerRegionDim.Add(customerRegionIndex + 1, 0);
+                            }
+                            customerRegionIndex++;
+                            customerNationIndex++;
+                        }
+
+                        foreach (var supplier in InMemoryData.supplierDimension)
+                        {
+                            if (supplier.sRegion.Equals("ASIA"))
+                            {
+                                string sNation = supplier.sNation;
+                                if (tempTableSupplierNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableSupplierNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableSupplierNationDim.Rows)
+                                    {
+                                        var supplierNation = row.Field<string>("supplierNation");
+                                        if (supplierNation.Equals(sNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvSupplierNationDim.Add(supplierNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeySupplierNation++;
+                                        tempTable.Rows.Add(sNation, dgKeySupplierNation);
+                                        kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                    }
+                                    tempTableSupplierNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeySupplierNation++;
+                                    tempTableSupplierNationDim.Rows.Add(sNation, dgKeySupplierNation);
+                                    kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                }
+
+                                string sRegion = supplier.sRegion;
+                                if (tempTableSupplierRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableSupplierRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableSupplierRegionDim.Rows)
+                                    {
+                                        var supplierRegion = row.Field<string>("supplierRegion");
+                                        if (supplierRegion.Equals(sRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeySupplierRegion++;
+                                        tempTable.Rows.Add(sRegion, dgKeySupplierRegion);
+                                        kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKeySupplierRegion);
+                                    }
+                                    tempTableSupplierRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeySupplierRegion++;
+                                    tempTableSupplierRegionDim.Rows.Add(sRegion, dgKeySupplierRegion);
+                                    kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKeySupplierRegion);
+                                }
+                            }
+                            else
+                            {
+                                kvSupplierNationDim.Add(supplierNationIndex + 1, 0);
+                                kvSupplierRegionDim.Add(supplierRegionIndex + 1, 0);
+                            }
+                            supplierNationIndex++;
+                            supplierRegionIndex++;
+                        }
+
+                        foreach (var date in InMemoryData.dateDimension)
+                        {
+                            if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
+                            {
+                                string dYear = date.dYear;
+                                if (tempTableDateYearDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableDateYearDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableDateYearDim.Rows)
+                                    {
+                                        var dateYear = row.Field<string>("dateYear");
+                                        if (dateYear.Equals(dYear))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvDateYearDim.Add(date.dDateKey, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyDateYear++;
+                                        tempTable.Rows.Add(dYear, dgKeyDateYear);
+                                        kvDateYearDim.Add(date.dDateKey, dgKeyDateYear);
+                                    }
+                                    tempTableDateYearDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyDateYear++;
+                                    tempTableDateYearDim.Rows.Add(dYear, dgKeyDateYear);
+                                    kvDateYearDim.Add(date.dDateKey, dgKeyDateYear);
+                                }
+                            }
+                            else
+                            {
+                                kvDateYearDim.Add(date.dDateKey, 0);
+                            }
+                        }
+                        break;
+                    case 6:
+                        foreach (var customer in InMemoryData.customerDimension)
+                        {
+                            if (customer.cRegion.Equals("ASIA"))
+                            {
+                                string cRegion = customer.cRegion;
+                                if (tempTableCustomerRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerRegionDim.Rows)
+                                    {
+                                        var customerRegion = row.Field<string>("customerRegion");
+                                        if (customerRegion.Equals(cRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerRegion++;
+                                        tempTable.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                        kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                    }
+                                    tempTableCustomerRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerRegion++;
+                                    tempTableCustomerRegionDim.Rows.Add(cRegion, dgKeyCustomerRegion);
+                                    kvCustomerRegionDim.Add(customerRegionIndex + 1, dgKeyCustomerRegion);
+                                }
+
+                                string cNation = customer.cNation;
+                                if (tempTableCustomerNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableCustomerNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableCustomerNationDim.Rows)
+                                    {
+                                        var customerNation = row.Field<string>("customerNation");
+                                        if (customerNation.Equals(cNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvCustomerNationDim.Add(customerNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyCustomerNation++;
+                                        tempTable.Rows.Add(cNation, dgKeyCustomerNation);
+                                        kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                    }
+                                    tempTableCustomerNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyCustomerNation++;
+                                    tempTableCustomerNationDim.Rows.Add(cNation, dgKeyCustomerNation);
+                                    kvCustomerNationDim.Add(customerNationIndex + 1, dgKeyCustomerNation);
+                                }
+                            }
+                            else
+                            {
+                                kvCustomerNationDim.Add(customerNationIndex + 1, 0);
+                                kvCustomerRegionDim.Add(customerRegionIndex + 1, 0);
+                            }
+                            customerRegionIndex++;
+                            customerNationIndex++;
+                        }
+
+                        foreach (var supplier in InMemoryData.supplierDimension)
+                        {
+                            if (supplier.sRegion.Equals("ASIA"))
+                            {
+                                string sNation = supplier.sNation;
+                                if (tempTableSupplierNationDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableSupplierNationDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableSupplierNationDim.Rows)
+                                    {
+                                        var supplierNation = row.Field<string>("supplierNation");
+                                        if (supplierNation.Equals(sNation))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvSupplierNationDim.Add(supplierNationIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeySupplierNation++;
+                                        tempTable.Rows.Add(sNation, dgKeySupplierNation);
+                                        kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                    }
+                                    tempTableSupplierNationDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeySupplierNation++;
+                                    tempTableSupplierNationDim.Rows.Add(sNation, dgKeySupplierNation);
+                                    kvSupplierNationDim.Add(supplierNationIndex + 1, dgKeySupplierNation);
+                                }
+
+                                string sRegion = supplier.sRegion;
+                                if (tempTableSupplierRegionDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableSupplierRegionDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableSupplierRegionDim.Rows)
+                                    {
+                                        var supplierRegion = row.Field<string>("supplierRegion");
+                                        if (supplierRegion.Equals(sRegion))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeySupplierRegion++;
+                                        tempTable.Rows.Add(sRegion, dgKeySupplierRegion);
+                                        kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKeySupplierRegion);
+                                    }
+                                    tempTableSupplierRegionDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeySupplierRegion++;
+                                    tempTableSupplierRegionDim.Rows.Add(sRegion, dgKeySupplierRegion);
+                                    kvSupplierRegionDim.Add(supplierRegionIndex + 1, dgKeySupplierRegion);
+                                }
+                            }
+                            else
+                            {
+                                kvSupplierNationDim.Add(supplierNationIndex + 1, 0);
+                                kvSupplierRegionDim.Add(supplierRegionIndex + 1, 0);
+                            }
+                            supplierNationIndex++;
+                            supplierRegionIndex++;
+                        }
+
+                        foreach (var date in InMemoryData.dateDimension)
+                        {
+                            if (date.dYear.CompareTo("1992") >= 0 && date.dYear.CompareTo("1997") <= 0)
+                            {
+                                string dYear = date.dYear;
+                                if (tempTableDateYearDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableDateYearDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableDateYearDim.Rows)
+                                    {
+                                        var dateYear = row.Field<string>("dateYear");
+                                        if (dateYear.Equals(dYear))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvDateYearDim.Add(date.dDateKey, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyDateYear++;
+                                        tempTable.Rows.Add(dYear, dgKeyDateYear);
+                                        kvDateYearDim.Add(date.dDateKey, dgKeyDateYear);
+                                    }
+                                    tempTableDateYearDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyDateYear++;
+                                    tempTableDateYearDim.Rows.Add(dYear, dgKeyDateYear);
+                                    kvDateYearDim.Add(date.dDateKey, dgKeyDateYear);
+                                }
+
+                                string dMonth = date.dMonth;
+                                if (tempTableDateMonthDim.Rows.Count > 0)
+                                {
+                                    var tempTable = tempTableDateMonthDim.Copy();
+                                    var found = false;
+                                    foreach (DataRow row in tempTableDateMonthDim.Rows)
+                                    {
+                                        var dateMonth = row.Field<string>("dateMonth");
+                                        if (dateMonth.Equals(dMonth))
+                                        {
+                                            Int64 dgKey = row.Field<Int64>("denseGroupingKey");
+                                            kvDateMonthDim.Add(date.dDateKey, dgKey);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        dgKeyDateMonth++;
+                                        tempTable.Rows.Add(dMonth, dgKeyDateMonth);
+                                        kvDateMonthDim.Add(date.dDateKey, dgKeyDateMonth);
+                                    }
+                                    tempTableDateMonthDim = tempTable;
+                                }
+                                else
+                                {
+                                    dgKeyDateMonth++;
+                                    tempTableDateMonthDim.Rows.Add(dMonth, dgKeyDateMonth);
+                                    kvDateMonthDim.Add(date.dDateKey, dgKeyDateMonth);
+                                }
+                            }
+                            else
+                            {
+                                kvDateYearDim.Add(date.dDateKey, 0);
+                                kvDateMonthDim.Add(date.dDateKey, 0);
+                            }
+                        }
+                        break;
+                }
+                sw.Stop();
+                long t0 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[IMA Join] GSTest T0 Time: {0}", t0));
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                sw.Reset();
+                sw.Start();
+                Int64 dgkLengthCustomerNation = 1;
+                Int64 dgkLengthCustomerRegion = 1;
+                Int64 dgkLengthSupplierNation = 1;
+                Int64 dgkLengthSupplierRegion = 1;
+                Int64 dgkLengthDateYear = 1;
+                Int64 dgkLengthDateMonth = 1;
+
+                Int64[,,,,,] inMemoryAccumulatorTax = new Int64[dgkLengthCustomerNation, dgkLengthCustomerRegion, dgkLengthSupplierNation, dgkLengthSupplierRegion, dgkLengthDateYear, dgkLengthDateMonth];
+                List<string> finalTable = new List<string>();
+
+
+                dgkLengthCustomerNation = tempTableCustomerNationDim.Rows.Count + 1;
+                dgkLengthCustomerRegion = tempTableCustomerRegionDim.Rows.Count + 1;
+                dgkLengthSupplierNation = tempTableSupplierNationDim.Rows.Count + 1;
+                dgkLengthSupplierRegion = tempTableSupplierRegionDim.Rows.Count + 1;
+                dgkLengthDateYear = tempTableDateYearDim.Rows.Count + 1;
+                dgkLengthDateMonth = tempTableDateMonthDim.Rows.Count + 1;
+
+                inMemoryAccumulatorTax = new Int64[dgkLengthCustomerNation, dgkLengthCustomerRegion, dgkLengthSupplierNation, dgkLengthSupplierRegion, dgkLengthDateYear, dgkLengthDateMonth];
+
+                Int64 dgkCustomerNationDim = 0;
+                Int64 dgkCustomerRegionDim = 0;
+                Int64 dgkSupplierNationDim = 0;
+                Int64 dgkSupplierRegionDim = 0;
+                Int64 dgkDateYearDim = 0;
+                Int64 dgkDateMonthDim = 0;
+                switch (numberOfGroupingAttributes)
+                {
+                    case 1:
+                        for (Int32 i = 0; i < InMemoryData.loCustomerKey.Count; i++)
+                        {
+                            Int64 custKey = InMemoryData.loCustomerKey[i];
+                            if (kvCustomerNationDim.TryGetValue(custKey, out dgkCustomerNationDim))
+                            {
+                                if (dgkCustomerNationDim == 0)
+                                {
+                                    // skip
+                                }
+                                else
+                                {
+                                    inMemoryAccumulatorTax[dgkCustomerNationDim, dgkCustomerRegionDim, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim] += InMemoryData.loRevenue[i];
+                                }
+                            }
+                        }
+
+                        foreach (DataRow cdRow in tempTableCustomerNationDim.Rows)
+                        {
+                            Int64 cdKey = cdRow.Field<Int64>("denseGroupingKey");
+                            Int64 sumTax = inMemoryAccumulatorTax[cdKey, dgkCustomerRegionDim, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim];
+                            if (sumTax != 0)
+                            {
+                                finalTable.Add(cdRow.Field<string>("customerNation")
+                                    + ", " + sumTax);
+                            }
+                        }
+                        break;
+                    case 2:
+                        for (Int32 i = 0; i < InMemoryData.loCustomerKey.Count(); i++)
+                        {
+                            Int64 custKey = InMemoryData.loCustomerKey[i];
+                            if (kvCustomerNationDim.TryGetValue(custKey, out dgkCustomerNationDim)
+                                && kvCustomerRegionDim.TryGetValue(custKey, out dgkCustomerRegionDim))
+                            {
+                                if (dgkCustomerNationDim == 0 || dgkCustomerRegionDim == 0)
+                                {
+                                    // skip
+                                }
+                                else
+                                {
+                                    inMemoryAccumulatorTax[dgkCustomerNationDim, dgkCustomerRegionDim, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim] += InMemoryData.loRevenue[i];
+                                }
+                            }
+                        }
+
+                        foreach (DataRow cdNRow in tempTableCustomerNationDim.Rows)
+                        {
+                            foreach (DataRow cdRRow in tempTableCustomerRegionDim.Rows)
+                            {
+                                Int64 cdNKey = cdNRow.Field<Int64>("denseGroupingKey");
+                                Int64 cdRKey = cdRRow.Field<Int64>("denseGroupingKey");
+
+                                Int64 sumTax = inMemoryAccumulatorTax[cdNKey, cdRKey, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim];
+                                if (sumTax != 0)
+                                {
+                                    finalTable.Add(cdNRow.Field<string>("customerNation")
+                                        + ", " + cdRRow.Field<string>("customerRegion")
+                                        + ", " + sumTax);
+                                }
+                            }
+                        }
+
+                        break;
+                    case 3:
+                        for (Int32 i = 0; i < InMemoryData.loCustomerKey.Count(); i++)
+                        {
+                            Int64 custKey = InMemoryData.loCustomerKey[i];
+                            Int64 suppKey = InMemoryData.loSupplierKey[i];
+                            if (kvCustomerNationDim.TryGetValue(custKey, out dgkCustomerNationDim)
+                                && kvCustomerRegionDim.TryGetValue(custKey, out dgkCustomerRegionDim)
+                                && kvSupplierNationDim.TryGetValue(suppKey, out dgkSupplierNationDim))
+                            {
+                                if (dgkCustomerNationDim == 0 || dgkCustomerRegionDim == 0 || dgkSupplierNationDim == 0)
+                                {
+                                    // skip
+                                }
+                                else
+                                {
+                                    inMemoryAccumulatorTax[dgkCustomerNationDim, dgkCustomerRegionDim, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim] += InMemoryData.loRevenue[i];
+                                }
+                            }
+                        }
+
+                        foreach (DataRow cdNRow in tempTableCustomerNationDim.Rows)
+                        {
+                            foreach (DataRow cdRRow in tempTableCustomerRegionDim.Rows)
+                            {
+                                foreach (DataRow sdNRow in tempTableSupplierNationDim.Rows)
+                                {
+                                    Int64 cdNKey = cdNRow.Field<Int64>("denseGroupingKey");
+                                    Int64 cdRKey = cdRRow.Field<Int64>("denseGroupingKey");
+                                    Int64 sdNKey = sdNRow.Field<Int64>("denseGroupingKey");
+
+                                    Int64 sumTax = inMemoryAccumulatorTax[cdNKey, cdRKey, sdNKey, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim];
+                                    if (sumTax != 0)
+                                    {
+                                        finalTable.Add(cdNRow.Field<string>("customerNation")
+                                            + ", " + cdRRow.Field<string>("customerRegion")
+                                            + ", " + sdNRow.Field<string>("supplierNation")
+                                            + ", " + sumTax);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case 4:
+                        for (Int32 i = 0; i < InMemoryData.loCustomerKey.Count(); i++)
+                        {
+                            Int64 custKey = InMemoryData.loCustomerKey[i];
+                            Int64 suppKey = InMemoryData.loSupplierKey[i];
+                            if (kvCustomerNationDim.TryGetValue(custKey, out dgkCustomerNationDim)
+                                && kvCustomerRegionDim.TryGetValue(custKey, out dgkCustomerRegionDim)
+                                && kvSupplierNationDim.TryGetValue(suppKey, out dgkSupplierNationDim)
+                                && kvSupplierRegionDim.TryGetValue(suppKey, out dgkSupplierRegionDim))
+                            {
+                                if (dgkCustomerNationDim == 0 || dgkCustomerRegionDim == 0 || dgkSupplierNationDim == 0 || dgkSupplierRegionDim == 0)
+                                {
+                                    // skip
+                                }
+                                else
+                                {
+                                    inMemoryAccumulatorTax[dgkCustomerNationDim, dgkCustomerRegionDim, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim] += InMemoryData.loRevenue[i];
+                                }
+                            }
+                        }
+
+                        foreach (DataRow cdNRow in tempTableCustomerNationDim.Rows)
+                        {
+                            foreach (DataRow cdRRow in tempTableCustomerRegionDim.Rows)
+                            {
+                                foreach (DataRow sdNRow in tempTableSupplierNationDim.Rows)
+                                {
+                                    foreach (DataRow sdRRow in tempTableSupplierRegionDim.Rows)
+                                    {
+                                        Int64 cdNKey = cdNRow.Field<Int64>("denseGroupingKey");
+                                        Int64 cdRKey = cdRRow.Field<Int64>("denseGroupingKey");
+                                        Int64 sdNKey = sdNRow.Field<Int64>("denseGroupingKey");
+                                        Int64 sdRKey = sdRRow.Field<Int64>("denseGroupingKey");
+
+                                        Int64 sumTax = inMemoryAccumulatorTax[cdNKey, cdRKey, sdNKey, sdRKey, dgkDateYearDim, dgkDateMonthDim];
+                                        if (sumTax != 0)
+                                        {
+                                            finalTable.Add(cdNRow.Field<string>("customerNation")
+                                                + ", " + cdRRow.Field<string>("customerRegion")
+                                                + ", " + sdNRow.Field<string>("supplierNation")
+                                                + ", " + sdRRow.Field<string>("supplierRegion")
+                                                + ", " + sumTax);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case 5:
+                        for (Int32 i = 0; i < InMemoryData.loCustomerKey.Count(); i++)
+                        {
+                            Int64 custKey = InMemoryData.loCustomerKey[i];
+                            Int64 suppKey = InMemoryData.loSupplierKey[i];
+                            Int64 dateKey = InMemoryData.loOrderDate[i];
+                            if (kvCustomerNationDim.TryGetValue(custKey, out dgkCustomerNationDim)
+                                && kvCustomerRegionDim.TryGetValue(custKey, out dgkCustomerRegionDim)
+                                && kvSupplierNationDim.TryGetValue(suppKey, out dgkSupplierNationDim)
+                                && kvSupplierRegionDim.TryGetValue(suppKey, out dgkSupplierRegionDim)
+                                && kvDateYearDim.TryGetValue(dateKey, out dgkDateYearDim))
+                            {
+                                if (dgkCustomerNationDim == 0 || dgkCustomerRegionDim == 0 || dgkSupplierNationDim == 0 || dgkSupplierRegionDim == 0 || dgkDateYearDim == 0)
+                                {
+                                    // skip
+                                }
+                                else
+                                {
+                                    inMemoryAccumulatorTax[dgkCustomerNationDim, dgkCustomerRegionDim, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim] += InMemoryData.loRevenue[i];
+                                }
+                            }
+                        }
+
+                        foreach (DataRow cdNRow in tempTableCustomerNationDim.Rows)
+                        {
+                            foreach (DataRow cdRRow in tempTableCustomerRegionDim.Rows)
+                            {
+                                foreach (DataRow sdNRow in tempTableSupplierNationDim.Rows)
+                                {
+                                    foreach (DataRow sdRRow in tempTableSupplierRegionDim.Rows)
+                                    {
+                                        foreach (DataRow ddYRow in tempTableDateYearDim.Rows)
+                                        {
+                                            Int64 cdNKey = cdNRow.Field<Int64>("denseGroupingKey");
+                                            Int64 cdRKey = cdRRow.Field<Int64>("denseGroupingKey");
+                                            Int64 sdNKey = sdNRow.Field<Int64>("denseGroupingKey");
+                                            Int64 sdRKey = sdRRow.Field<Int64>("denseGroupingKey");
+                                            Int64 ddYKey = ddYRow.Field<Int64>("denseGroupingKey");
+                                            Int64 sumTax = inMemoryAccumulatorTax[cdNKey, cdRKey, sdNKey, sdRKey, ddYKey, dgkDateMonthDim];
+                                            if (sumTax != 0)
+                                            {
+                                                finalTable.Add(cdNRow.Field<string>("customerNation")
+                                                    + ", " + cdRRow.Field<string>("customerRegion")
+                                                    + ", " + sdNRow.Field<string>("supplierNation")
+                                                    + ", " + sdRRow.Field<string>("supplierRegion")
+                                                    + ", " + ddYRow.Field<string>("dateYear")
+                                                    + ", " + sumTax);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case 6:
+                        for (Int32 i = 0; i < InMemoryData.loCustomerKey.Count(); i++)
+                        {
+                            Int64 custKey = InMemoryData.loCustomerKey[i];
+                            Int64 suppKey = InMemoryData.loSupplierKey[i];
+                            Int64 dateKey = InMemoryData.loOrderDate[i];
+                            if (kvCustomerNationDim.TryGetValue(custKey, out dgkCustomerNationDim)
+                                && kvCustomerRegionDim.TryGetValue(custKey, out dgkCustomerRegionDim)
+                                && kvSupplierNationDim.TryGetValue(suppKey, out dgkSupplierNationDim)
+                                && kvSupplierRegionDim.TryGetValue(suppKey, out dgkSupplierRegionDim)
+                                && kvDateYearDim.TryGetValue(dateKey, out dgkDateYearDim)
+                                && kvDateMonthDim.TryGetValue(dateKey, out dgkDateMonthDim))
+                            {
+                                if (dgkCustomerNationDim == 0 || dgkCustomerRegionDim == 0 || dgkSupplierNationDim == 0 || dgkSupplierRegionDim == 0 || dgkDateYearDim == 0 || dgkDateMonthDim == 0)
+                                {
+                                    // skip
+                                }
+                                else
+                                {
+                                    inMemoryAccumulatorTax[dgkCustomerNationDim, dgkCustomerRegionDim, dgkSupplierNationDim, dgkSupplierRegionDim, dgkDateYearDim, dgkDateMonthDim] += InMemoryData.loRevenue[i];
+                                }
+                            }
+                        }
+
+                        foreach (DataRow cdNRow in tempTableCustomerNationDim.Rows)
+                        {
+                            foreach (DataRow cdRRow in tempTableCustomerRegionDim.Rows)
+                            {
+                                foreach (DataRow sdNRow in tempTableSupplierNationDim.Rows)
+                                {
+                                    foreach (DataRow sdRRow in tempTableSupplierRegionDim.Rows)
+                                    {
+                                        foreach (DataRow ddYRow in tempTableDateYearDim.Rows)
+                                        {
+                                            foreach (DataRow ddMRow in tempTableDateMonthDim.Rows)
+                                            {
+                                                Int64 cdNKey = cdNRow.Field<Int64>("denseGroupingKey");
+                                                Int64 cdRKey = cdRRow.Field<Int64>("denseGroupingKey");
+                                                Int64 sdNKey = sdNRow.Field<Int64>("denseGroupingKey");
+                                                Int64 sdRKey = sdRRow.Field<Int64>("denseGroupingKey");
+                                                Int64 ddYKey = ddYRow.Field<Int64>("denseGroupingKey");
+                                                Int64 ddMKey = ddMRow.Field<Int64>("denseGroupingKey");
+                                                Int64 sumTax = inMemoryAccumulatorTax[cdNKey, cdRKey, sdNKey, sdRKey, ddYKey, ddMKey];
+                                                if (sumTax != 0)
+                                                {
+                                                    finalTable.Add(cdNRow.Field<string>("customerNation")
+                                                        + ", " + cdRRow.Field<string>("customerRegion")
+                                                        + ", " + sdNRow.Field<string>("supplierNation")
+                                                        + ", " + sdRRow.Field<string>("supplierRegion")
+                                                        + ", " + ddYRow.Field<string>("dateYear")
+                                                        + ", " + ddMRow.Field<string>("dateMonth")
+                                                        + ", " + sumTax);
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+
+                sw.Stop();
+                long t1 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[IMA Join] GSTest T1 Time: {0}", t1));
+                sw.Reset();
+                #endregion Probing Phase
+
+                Console.WriteLine(String.Format("[IMA Join] GSTest Total Time: {0}", t0 + t1));
+                Console.WriteLine(String.Format("[IMA Join] GSTest Total : {0}", finalTable.Count));
+                Console.WriteLine();
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void saveAndPrintResults()
         {
             //TestResultsDatabase.nimbleJoinOutput.Add(testResults.toString());
             //Console.WriteLine("IMA: " + testResults.toString());
             //Console.WriteLine();
+            TestResultsDatabase.pInMemoryAggregationOutput.Add(testResults.toString());
         }
     }
 }

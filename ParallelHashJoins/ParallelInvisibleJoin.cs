@@ -13,172 +13,19 @@ namespace ParallelHashJoins
     {
         private static string binaryFilesDirectory = @"C:\Raw_Data_Source_For_Test\SSBM - DBGEN\BF";
         private string scaleFactor { get; set; }
-
-
         private ParallelOptions parallelOptions = null;
-        public ParallelInvisibleJoin(string scaleFactor, Int32 degreeOfParallelism = 1)
+        private TestResults testResults = new TestResults();
+
+        public ParallelInvisibleJoin(string _scaleFactor, ParallelOptions _parallelOptions)
         {
-            this.scaleFactor = scaleFactor;
-            testResults.totalRAMAvailable = Utils.getAvailableRAM();
-            parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
+            scaleFactor = _scaleFactor;
+            parallelOptions = _parallelOptions;
         }
 
         ~ParallelInvisibleJoin()
         {
-            //saveAndPrInt64Results();
+            saveAndPrintResults();
         }
-
-        #region Private Variables
-        private Object obj = new object();
-        private List<Int64> cCustKey = new List<Int64>();
-        private List<string> cName = new List<string>();
-        private List<string> cAddress = new List<string>();
-        private List<string> cCity = new List<string>();
-        private List<string> cNation = new List<string>();
-        private List<string> cRegion = new List<string>();
-        private List<string> cPhone = new List<string>();
-        private List<string> cMktSegment = new List<string>();
-
-        private List<Int64> sSuppKey = new List<Int64>();
-        private List<string> sName = new List<string>();
-        private List<string> sAddress = new List<string>();
-        private List<string> sCity = new List<string>();
-        private List<string> sNation = new List<string>();
-        private List<string> sRegion = new List<string>();
-        private List<string> sPhone = new List<string>();
-
-        private List<Int64> pSize = new List<Int64>();
-        private List<Int64> pPartKey = new List<Int64>();
-        private List<string> pName = new List<string>();
-        private List<string> pMFGR = new List<string>();
-        private List<string> pCategory = new List<string>();
-        private List<string> pBrand = new List<string>();
-        private List<string> pColor = new List<string>();
-        private List<string> pType = new List<string>();
-        private List<string> pContainer = new List<string>();
-
-        private List<Int64> loOrderKey = new List<Int64>();
-        private List<Int64> loLineNumber = new List<Int64>();
-        private List<Int64> loCustKey = new List<Int64>();
-        private List<Int64> loPartKey = new List<Int64>();
-        private List<Int64> loSuppKey = new List<Int64>();
-        private List<Int64> loOrderDate = new List<Int64>();
-        private List<char> loShipPriority = new List<char>();
-        private List<Int64> loQuantity = new List<Int64>();
-        private List<Tuple<Int64, Int64>> loQuantityWithId = new List<Tuple<Int64, Int64>>();
-
-        private List<Int64> loExtendedPrice = new List<Int64>();
-        private List<Int64> loOrdTotalPrice = new List<Int64>();
-        private List<Int64> loDiscount = new List<Int64>();
-        private List<Tuple<Int64, Int64>> loDiscountWithId = new List<Tuple<Int64, Int64>>();
-        private List<Int64> loRevenue = new List<Int64>();
-        private List<Int64> loSupplyCost = new List<Int64>();
-        private List<Int64> loTax = new List<Int64>();
-        private List<Int64> loCommitDate = new List<Int64>();
-        private List<string> loShipMode = new List<string>();
-        private List<string> loOrderPriority = new List<string>();
-
-        private List<Int64> dDateKey = new List<Int64>();
-        private List<Int64> dYear = new List<Int64>();
-        private List<Int64> dYearMonthNum = new List<Int64>();
-        private List<Int64> dDayNumInWeek = new List<Int64>();
-        private List<Int64> dDayNumInMonth = new List<Int64>();
-        private List<Int64> dDayNumInYear = new List<Int64>();
-        private List<Int64> dMonthNumInYear = new List<Int64>();
-        private List<Int64> dWeekNumInYear = new List<Int64>();
-        private List<Int64> dLastDayInWeekFL = new List<Int64>();
-        private List<Int64> dLastDayInMonthFL = new List<Int64>();
-        private List<Int64> dHolidayFL = new List<Int64>();
-        private List<Int64> dWeekDayFL = new List<Int64>();
-        private List<string> dDate = new List<string>();
-        private List<string> dDayOfWeek = new List<string>();
-        private List<string> dMonth = new List<string>();
-        private List<string> dYearMonth = new List<string>();
-        private List<string> dSellingSeason = new List<string>();
-
-        private List<Customer> customer = new List<Customer>();
-        private List<Supplier> supplier = new List<Supplier>();
-        private List<Part> part = new List<Part>();
-        private List<LineOrder> lineOrder = new List<LineOrder>();
-        private List<Date> date = new List<Date>();
-
-
-        private string dateFile = binaryFilesDirectory + @"\date\";
-        private string customerFile = binaryFilesDirectory + @"\customer\";
-        private string supplierFile = binaryFilesDirectory + @"\supplier\";
-        private string partFile = binaryFilesDirectory + @"\part\";
-
-        private string dDateKeyFile = binaryFilesDirectory + @"\dDateKey\";
-        private string dYearFile = binaryFilesDirectory + @"\dYear\";
-        private string dYearMonthNumFile = binaryFilesDirectory + @"\dYearMonthNum\";
-        private string dDayNumInWeekFile = binaryFilesDirectory + @"\dDayNumInWeek\";
-        private string dDayNumInMonthFile = binaryFilesDirectory + @"\dDayNumInMont\";
-        private string dDayNumInYearFile = binaryFilesDirectory + @"\dDayNumInYear\";
-        private string dMonthNumInYearFile = binaryFilesDirectory + @"\dMonthNumInYear\";
-        private string dWeekNumInYearFile = binaryFilesDirectory + @"\dWeekNumInYear\";
-        private string dLastDayInWeekFLFile = binaryFilesDirectory + @"\dLastDayInWeekFL\";
-        private string dLastDayInMonthFLFile = binaryFilesDirectory + @"\dLastDayInMonthFL\";
-        private string dHolidayFLFile = binaryFilesDirectory + @"\dHolidayFL\";
-        private string dWeekDayFLFile = binaryFilesDirectory + @"\dWeekDayFL\";
-        private string dDateFile = binaryFilesDirectory + @"\dDate\";
-        private string dDayOfWeekFile = binaryFilesDirectory + @"\dDayOfWeek\";
-        private string dMonthFile = binaryFilesDirectory + @"\dMonth\";
-        private string dYearMonthFile = binaryFilesDirectory + @"\dYearMonth\";
-        private string dSellingSeasonFile = binaryFilesDirectory + @"\dSellingSeason\";
-
-        private string loOrderKeyFile = binaryFilesDirectory + @"\loOrderKey\";
-        private string loLineNumberFile = binaryFilesDirectory + @"\loLineNumber\";
-        private string loCustKeyFile = binaryFilesDirectory + @"\loCustKey\";
-        private string loPartKeyFile = binaryFilesDirectory + @"\loPartKey\";
-        private string loSuppKeyFile = binaryFilesDirectory + @"\loSuppKey\";
-        private string loOrderDateFile = binaryFilesDirectory + @"\loOrderDate\";
-        private string loShipPriorityFile = binaryFilesDirectory + @"\loShipPriority\";
-        private string loQuantityFile = binaryFilesDirectory + @"\loQuantity\";
-        private string loExtendedPriceFile = binaryFilesDirectory + @"\loExtendedPrice\";
-        private string loOrdTotalPriceFile = binaryFilesDirectory + @"\loOrdTotalPrice\";
-        private string loDiscountFile = binaryFilesDirectory + @"\loDiscount\";
-        private string loRevenueFile = binaryFilesDirectory + @"\loRevenue\";
-        private string loSupplyCostFile = binaryFilesDirectory + @"\loSupplyCost\";
-        private string loTaxFile = binaryFilesDirectory + @"\loTax\";
-        private string loCommitDateFile = binaryFilesDirectory + @"\loCommitDate\";
-        private string loShipModeFile = binaryFilesDirectory + @"\loShipMode\";
-        private string loOrderPriorityFile = binaryFilesDirectory + @"\loOrderPriority\";
-
-        private string cCustKeyFile = binaryFilesDirectory + @"\cCustKey\";
-        private string cNameFile = binaryFilesDirectory + @"\cName\";
-        private string cAddressFile = binaryFilesDirectory + @"\cAddress\";
-        private string cCityFile = binaryFilesDirectory + @"\cCity\";
-        private string cNationFile = binaryFilesDirectory + @"\cNation\";
-        private string cRegionFile = binaryFilesDirectory + @"\cRegion\";
-        private string cPhoneFile = binaryFilesDirectory + @"\cPhone\";
-        private string cMktSegmentFile = binaryFilesDirectory + @"\cMktSegment\";
-
-        private string sSuppKeyFile = binaryFilesDirectory + @"\sSuppKey\";
-        private string sNameFile = binaryFilesDirectory + @"\sName\";
-        private string sAddressFile = binaryFilesDirectory + @"\sAddress\";
-        private string sCityFile = binaryFilesDirectory + @"\sCity\";
-        private string sNationFile = binaryFilesDirectory + @"\sNation\";
-        private string sRegionFile = binaryFilesDirectory + @"\sRegion\";
-        private string sPhoneFile = binaryFilesDirectory + @"\sPhone\";
-
-        private string pSizeFile = binaryFilesDirectory + @"\pSize\";
-        private string pPartKeyFile = binaryFilesDirectory + @"\pPartKey\";
-        private string pNameFile = binaryFilesDirectory + @"\pName\";
-        private string pMFGRFile = binaryFilesDirectory + @"\pMFGR\";
-        private string pCategoryFile = binaryFilesDirectory + @"\pCategory\";
-        private string pBrandFile = binaryFilesDirectory + @"\pBrand\";
-        private string pColorFile = binaryFilesDirectory + @"\pColor\";
-        private string pTypeFile = binaryFilesDirectory + @"\pType\";
-        private string pContainerFile = binaryFilesDirectory + @"\pContainer\";
-
-        private bool isFirst = true;
-        private const Int64 NUMBER_OF_RECORDS_OUTPUT = 10000;
-        private Int64 outputRecordsCounter = 0;
-        #endregion Private Variables
-
-
-        public TestResults testResults = new TestResults();
-
 
         //#region old Queries
         //public void Query_1_1()
@@ -3184,24 +3031,12 @@ namespace ParallelHashJoins
         //}
         //#endregion
 
-
-
-
-
         public void Query_2_1_IM()
         {
             try
             {
                 Stopwatch sw = new Stopwatch();
-
-                List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
+                               
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -3212,14 +3047,14 @@ namespace ParallelHashJoins
                 Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         dateHashTable.Add(row.dDateKey, row.dYear);
                     }
                 },
                 () =>
                 {
-                    foreach (var row in partDimension)
+                    foreach (var row in InMemoryData.partDimension)
                     {
                         if (row.pCategory.Equals("MFGR#12"))
                             partHashTable.Add(row.pPartKey, row.pBrand);
@@ -3227,7 +3062,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sRegion.Equals("AMERICA"))
                             supplierHashTable.Add(row.sSuppKey, row.sNation);
@@ -3236,22 +3071,22 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listPartKeyPositions = new BitArray(loPartKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listPartKeyPositions = new BitArray(InMemoryData.loPartKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -3264,7 +3099,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var partKey in loPartKey)
+                        foreach (var partKey in InMemoryData.loPartKey)
                         {
                             string pBrandOut = string.Empty;
                             if (partHashTable.TryGetValue(partKey, out pBrandOut))
@@ -3278,7 +3113,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sNationOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sNationOut))
@@ -3292,7 +3127,7 @@ namespace ParallelHashJoins
                 var common = listPartKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -3307,8 +3142,8 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var partKey = loPartKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var partKey = InMemoryData.loPartKey[index];
 
                             // Position Look UP
                             string dYear;
@@ -3319,11 +3154,11 @@ namespace ParallelHashJoins
                             Int64 revenue = 0;
                             if (joinOutputFinal.TryGetValue(key, out revenue))
                             {
-                                joinOutputFinal[key] = revenue + loRevenue[index];
+                                joinOutputFinal[key] = revenue + InMemoryData.loRevenue[index];
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, loRevenue[index]);
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
                             }
                         }
                     }
@@ -3337,11 +3172,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count : {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -3355,14 +3193,6 @@ namespace ParallelHashJoins
             {
                 Stopwatch sw = new Stopwatch();
 
-                List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -3373,14 +3203,14 @@ namespace ParallelHashJoins
                 Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         dateHashTable.Add(row.dDateKey, row.dYear);
                     }
                 },
                 () =>
                 {
-                    foreach (var row in partDimension)
+                    foreach (var row in InMemoryData.partDimension)
                     {
                         if (String.CompareOrdinal(row.pBrand, "MFGR#2221") >= 0 && String.CompareOrdinal(row.pBrand, "MFGR#2228") <= 0)
                             partHashTable.Add(row.pPartKey, row.pBrand);
@@ -3388,7 +3218,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sRegion.Equals("ASIA"))
                             supplierHashTable.Add(row.sSuppKey, row.sNation);
@@ -3397,22 +3227,22 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listPartKeyPositions = new BitArray(loPartKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listPartKeyPositions = new BitArray(InMemoryData.loPartKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -3425,7 +3255,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var partKey in loPartKey)
+                        foreach (var partKey in InMemoryData.loPartKey)
                         {
                             string pBrandOut = string.Empty;
                             if (partHashTable.TryGetValue(partKey, out pBrandOut))
@@ -3439,7 +3269,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sNationOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sNationOut))
@@ -3453,7 +3283,7 @@ namespace ParallelHashJoins
                 var common = listPartKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -3468,8 +3298,8 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var partKey = loPartKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var partKey = InMemoryData.loPartKey[index];
 
                             // Position Look UP
                             string dYear;
@@ -3480,11 +3310,11 @@ namespace ParallelHashJoins
                             Int64 revenue = 0;
                             if (joinOutputFinal.TryGetValue(key, out revenue))
                             {
-                                joinOutputFinal[key] = revenue + loRevenue[index];
+                                joinOutputFinal[key] = revenue + InMemoryData.loRevenue[index];
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, loRevenue[index]);
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
                             }
                         }
                     }
@@ -3498,11 +3328,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -3516,14 +3349,6 @@ namespace ParallelHashJoins
             {
                 Stopwatch sw = new Stopwatch();
 
-                List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -3533,14 +3358,14 @@ namespace ParallelHashJoins
 
                 Parallel.Invoke(parallelOptions, () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         dateHashTable.Add(row.dDateKey, row.dYear);
                     }
                 },
                     () =>
                     {
-                        foreach (var row in partDimension)
+                        foreach (var row in InMemoryData.partDimension)
                         {
                             if (row.pBrand.Equals("MFGR#2221"))
                                 partHashTable.Add(row.pPartKey, row.pBrand);
@@ -3548,7 +3373,7 @@ namespace ParallelHashJoins
                     },
                     () =>
                     {
-                        foreach (var row in supplierDimension)
+                        foreach (var row in InMemoryData.supplierDimension)
                         {
                             if (row.sRegion.Equals("EUROPE"))
                                 supplierHashTable.Add(row.sSuppKey, row.sNation);
@@ -3558,22 +3383,22 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listPartKeyPositions = new BitArray(loPartKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listPartKeyPositions = new BitArray(InMemoryData.loPartKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -3586,7 +3411,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var partKey in loPartKey)
+                        foreach (var partKey in InMemoryData.loPartKey)
                         {
                             string pBrandOut = string.Empty;
                             if (partHashTable.TryGetValue(partKey, out pBrandOut))
@@ -3600,7 +3425,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sNationOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sNationOut))
@@ -3614,7 +3439,7 @@ namespace ParallelHashJoins
                 var common = listPartKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -3629,8 +3454,8 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var partKey = loPartKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var partKey = InMemoryData.loPartKey[index];
 
                             // Position Look UP
                             string dYear;
@@ -3641,11 +3466,11 @@ namespace ParallelHashJoins
                             Int64 revenue = 0;
                             if (joinOutputFinal.TryGetValue(key, out revenue))
                             {
-                                joinOutputFinal[key] = revenue + loRevenue[index];
+                                joinOutputFinal[key] = revenue + InMemoryData.loRevenue[index];
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, loRevenue[index]);
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
                             }
                         }
                     }
@@ -3659,11 +3484,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total : {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -3671,23 +3499,12 @@ namespace ParallelHashJoins
             }
         }
 
-        /// <summary>
-        /// IM refers inmemory version of the algorithm
-        /// </summary>
         public void Query_3_1_IM()
         {
             try
             {
                 Stopwatch sw = new Stopwatch();
-
-                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
+                               
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -3698,7 +3515,7 @@ namespace ParallelHashJoins
                 Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
                             dateHashTable.Add(row.dDateKey, row.dYear);
@@ -3706,7 +3523,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in customerDimension)
+                    foreach (var row in InMemoryData.customerDimension)
                     {
                         if (row.cRegion.Equals("ASIA"))
                             customerHashTable.Add(row.cCustKey, row.cNation);
@@ -3714,7 +3531,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sRegion.Equals("ASIA"))
                             supplierHashTable.Add(row.sSuppKey, row.sNation);
@@ -3723,22 +3540,22 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -3751,7 +3568,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var custKey in loCustomerKey)
+                        foreach (var custKey in InMemoryData.loCustomerKey)
                         {
                             string cNationOut = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out cNationOut))
@@ -3765,7 +3582,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sNationOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sNationOut))
@@ -3779,7 +3596,7 @@ namespace ParallelHashJoins
                 var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -3794,9 +3611,9 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var custKey = loCustomerKey[index];
-                            var suppKey = loSupplierKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var custKey = InMemoryData.loCustomerKey[index];
+                            var suppKey = InMemoryData.loSupplierKey[index];
 
                             // Position Look UP
                             string dYear;
@@ -3809,11 +3626,11 @@ namespace ParallelHashJoins
                             Int64 revenue = 0;
                             if (joinOutputFinal.TryGetValue(key, out revenue))
                             {
-                                joinOutputFinal[key] = revenue + loRevenue[index];
+                                joinOutputFinal[key] = revenue + InMemoryData.loRevenue[index];
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, loRevenue[index]);
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
                             }
                         }
                     }
@@ -3827,11 +3644,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -3844,15 +3664,7 @@ namespace ParallelHashJoins
             try
             {
                 Stopwatch sw = new Stopwatch();
-
-                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
+                                
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -3863,7 +3675,7 @@ namespace ParallelHashJoins
                 Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
                             dateHashTable.Add(row.dDateKey, row.dYear);
@@ -3871,7 +3683,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in customerDimension)
+                    foreach (var row in InMemoryData.customerDimension)
                     {
                         if (row.cNation.Equals("UNITED STATES"))
                             customerHashTable.Add(row.cCustKey, row.cCity);
@@ -3879,7 +3691,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sNation.Equals("UNITED STATES"))
                             supplierHashTable.Add(row.sSuppKey, row.sCity);
@@ -3888,22 +3700,22 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -3916,7 +3728,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var custKey in loCustomerKey)
+                        foreach (var custKey in InMemoryData.loCustomerKey)
                         {
                             string cCityOut = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out cCityOut))
@@ -3930,7 +3742,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sCityOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sCityOut))
@@ -3944,7 +3756,7 @@ namespace ParallelHashJoins
                 var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -3959,9 +3771,9 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var custKey = loCustomerKey[index];
-                            var suppKey = loSupplierKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var custKey = InMemoryData.loCustomerKey[index];
+                            var suppKey = InMemoryData.loSupplierKey[index];
 
                             string dYear;
                             dateHashTable.TryGetValue(dateKey, out dYear);
@@ -3973,11 +3785,11 @@ namespace ParallelHashJoins
                             long revenue = 0;
                             if (joinOutputFinal.TryGetValue(key, out revenue))
                             {
-                                joinOutputFinal[key] = revenue + loRevenue[index];
+                                joinOutputFinal[key] = revenue + InMemoryData.loRevenue[index];
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, loRevenue[index]);
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
                             }
                         }
                     }
@@ -3991,11 +3803,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -4008,15 +3823,7 @@ namespace ParallelHashJoins
             try
             {
                 Stopwatch sw = new Stopwatch();
-
-                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
+                                
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -4027,7 +3834,7 @@ namespace ParallelHashJoins
                 sw.Start();
                 Parallel.Invoke(parallelOptions, () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
                             dateHashTable.Add(row.dDateKey, row.dYear);
@@ -4035,7 +3842,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in customerDimension)
+                    foreach (var row in InMemoryData.customerDimension)
                     {
                         if (row.cCity.Equals("UNITED KI1") || row.cCity.Equals("UNITED KI5"))
                             customerHashTable.Add(row.cCustKey, row.cCity);
@@ -4043,7 +3850,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sCity.Equals("UNITED KI1") || row.sCity.Equals("UNITED KI5"))
                             supplierHashTable.Add(row.sSuppKey, row.sCity);
@@ -4052,22 +3859,22 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -4080,7 +3887,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var custKey in loCustomerKey)
+                        foreach (var custKey in InMemoryData.loCustomerKey)
                         {
                             string cCityOut = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out cCityOut))
@@ -4094,7 +3901,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sCityOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sCityOut))
@@ -4108,7 +3915,7 @@ namespace ParallelHashJoins
                 var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -4123,9 +3930,9 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var custKey = loCustomerKey[index];
-                            var suppKey = loSupplierKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var custKey = InMemoryData.loCustomerKey[index];
+                            var suppKey = InMemoryData.loSupplierKey[index];
 
                             string dYear;
                             dateHashTable.TryGetValue(dateKey, out dYear);
@@ -4137,11 +3944,11 @@ namespace ParallelHashJoins
                             long revenue = 0;
                             if (joinOutputFinal.TryGetValue(key, out revenue))
                             {
-                                joinOutputFinal[key] = revenue + loRevenue[index];
+                                joinOutputFinal[key] = revenue + InMemoryData.loRevenue[index];
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, loRevenue[index]);
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
                             }
                         }
                     }
@@ -4155,11 +3962,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -4173,14 +3983,6 @@ namespace ParallelHashJoins
             {
                 Stopwatch sw = new Stopwatch();
 
-                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -4191,7 +3993,7 @@ namespace ParallelHashJoins
                 sw.Start();
                 Parallel.Invoke(parallelOptions, () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         if (row.dYearMonth.Equals("Dec1997"))
                             dateHashTable.Add(row.dDateKey, row.dYear);
@@ -4199,7 +4001,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in customerDimension)
+                    foreach (var row in InMemoryData.customerDimension)
                     {
                         if (row.cCity.Equals("UNITED KI1") || row.cCity.Equals("UNITED KI5"))
                             customerHashTable.Add(row.cCustKey, row.cCity);
@@ -4207,7 +4009,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sCity.Equals("UNITED KI1") || row.sCity.Equals("UNITED KI5"))
                             supplierHashTable.Add(row.sSuppKey, row.sCity);
@@ -4216,22 +4018,22 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -4244,7 +4046,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var custKey in loCustomerKey)
+                        foreach (var custKey in InMemoryData.loCustomerKey)
                         {
                             string cCityOut = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out cCityOut))
@@ -4258,7 +4060,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sCityOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sCityOut))
@@ -4272,7 +4074,7 @@ namespace ParallelHashJoins
                 var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -4287,9 +4089,9 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var custKey = loCustomerKey[index];
-                            var suppKey = loSupplierKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var custKey = InMemoryData.loCustomerKey[index];
+                            var suppKey = InMemoryData.loSupplierKey[index];
 
                             string dYear;
                             dateHashTable.TryGetValue(dateKey, out dYear);
@@ -4301,11 +4103,11 @@ namespace ParallelHashJoins
                             long revenue = 0;
                             if (joinOutputFinal.TryGetValue(key, out revenue))
                             {
-                                joinOutputFinal[key] = revenue + loRevenue[index];
+                                joinOutputFinal[key] = revenue + InMemoryData.loRevenue[index];
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, loRevenue[index]);
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
                             }
                         }
                     }
@@ -4319,11 +4121,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -4337,19 +4142,6 @@ namespace ParallelHashJoins
             {
                 Stopwatch sw = new Stopwatch();
 
-                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-
-                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -4361,14 +4153,14 @@ namespace ParallelHashJoins
                 Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         dateHashTable.Add(row.dDateKey, row.dYear);
                     }
                 },
                 () =>
                 {
-                    foreach (var row in customerDimension)
+                    foreach (var row in InMemoryData.customerDimension)
                     {
                         if (row.cRegion.Equals("AMERICA"))
                             customerHashTable.Add(row.cCustKey, row.cNation);
@@ -4376,7 +4168,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sRegion.Equals("AMERICA"))
                             supplierHashTable.Add(row.sSuppKey, row.sNation);
@@ -4384,7 +4176,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in partDimension)
+                    foreach (var row in InMemoryData.partDimension)
                     {
                         if (row.pMFGR.Equals("MFGR#1") || row.pMFGR.Equals("MFGR#2"))
                         {
@@ -4395,23 +4187,23 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
-                var listPartKeyPositions = new BitArray(loPartKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
+                var listPartKeyPositions = new BitArray(InMemoryData.loPartKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -4424,7 +4216,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var custKey in loCustomerKey)
+                        foreach (var custKey in InMemoryData.loCustomerKey)
                         {
                             string cNationOut = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out cNationOut))
@@ -4438,7 +4230,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sNationOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sNationOut))
@@ -4452,7 +4244,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var partKey in loPartKey)
+                        foreach (var partKey in InMemoryData.loPartKey)
                         {
                             string pMFGROut = string.Empty;
                             if (supplierHashTable.TryGetValue(partKey, out pMFGROut))
@@ -4466,7 +4258,7 @@ namespace ParallelHashJoins
                 var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions).And(listPartKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -4481,8 +4273,8 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var custKey = loCustomerKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var custKey = InMemoryData.loCustomerKey[index];
 
                             // Position Look UP
                             string dYear;
@@ -4493,11 +4285,11 @@ namespace ParallelHashJoins
                             Int64 profit = 0;
                             if (joinOutputFinal.TryGetValue(key, out profit))
                             {
-                                joinOutputFinal[key] = profit + (loRevenue[index] - loSupplyCost[index]);
+                                joinOutputFinal[key] = profit + (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]);
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, (loRevenue[index] - loSupplyCost[index]));
+                                joinOutputFinal.Add(key, (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]));
                             }
                         }
                     }
@@ -4511,11 +4303,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -4529,19 +4324,6 @@ namespace ParallelHashJoins
             {
                 Stopwatch sw = new Stopwatch();
 
-                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-
-                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -4553,7 +4335,7 @@ namespace ParallelHashJoins
                 Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         if (row.dYear.Equals("1997") || row.dYear.Equals("1998"))
                         {
@@ -4563,7 +4345,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in customerDimension)
+                    foreach (var row in InMemoryData.customerDimension)
                     {
                         if (row.cRegion.Equals("AMERICA"))
                             customerHashTable.Add(row.cCustKey, row.cNation);
@@ -4571,7 +4353,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sRegion.Equals("AMERICA"))
                             supplierHashTable.Add(row.sSuppKey, row.sNation);
@@ -4579,7 +4361,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in partDimension)
+                    foreach (var row in InMemoryData.partDimension)
                     {
                         if (row.pMFGR.Equals("MFGR#1") || row.pMFGR.Equals("MFGR#2"))
                         {
@@ -4590,23 +4372,23 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
-                var listPartKeyPositions = new BitArray(loPartKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
+                var listPartKeyPositions = new BitArray(InMemoryData.loPartKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -4619,7 +4401,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var custKey in loCustomerKey)
+                        foreach (var custKey in InMemoryData.loCustomerKey)
                         {
                             string cNationOut = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out cNationOut))
@@ -4633,7 +4415,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sNationOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sNationOut))
@@ -4646,22 +4428,22 @@ namespace ParallelHashJoins
 
                     () =>
                     {
-                        var k = 0;
-                        foreach (var partKey in loPartKey)
+                        var l = 0;
+                        foreach (var partKey in InMemoryData.loPartKey)
                         {
                             string pCategoryOut = string.Empty;
-                            if (supplierHashTable.TryGetValue(partKey, out pCategoryOut))
+                            if (partHashTable.TryGetValue(partKey, out pCategoryOut))
                             {
-                                listPartKeyPositions.Set(k, true);
+                                listPartKeyPositions.Set(l, true);
                             }
-                            k++;
+                            l++;
                         }
                     });
 
                 var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions).And(listPartKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -4676,9 +4458,10 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var partKey = loPartKey[index];
-                            var suppKey = loSupplierKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var partKey = InMemoryData.loPartKey[index];
+                            var suppKey = InMemoryData.loSupplierKey[index];
+                            var custKey = InMemoryData.loCustomerKey[index];
 
                             // Position Look UP
                             string dYear;
@@ -4691,11 +4474,11 @@ namespace ParallelHashJoins
                             Int64 profit = 0;
                             if (joinOutputFinal.TryGetValue(key, out profit))
                             {
-                                joinOutputFinal[key] = profit + (loRevenue[index] - loSupplyCost[index]);
+                                joinOutputFinal[key] = profit + (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]);
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, (loRevenue[index] - loSupplyCost[index]));
+                                joinOutputFinal.Add(key, (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]));
                             }
                         }
                     }
@@ -4709,11 +4492,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -4726,20 +4512,7 @@ namespace ParallelHashJoins
             try
             {
                 Stopwatch sw = new Stopwatch();
-
-                List<Customer> customerDimension = Utils.ReadFromBinaryFiles<Customer>(customerFile.Replace("BF", "BF" + scaleFactor));
-                List<Supplier> supplierDimension = Utils.ReadFromBinaryFiles<Supplier>(supplierFile.Replace("BF", "BF" + scaleFactor));
-                List<Date> dateDimension = Utils.ReadFromBinaryFiles<Date>(dateFile.Replace("BF", "BF" + scaleFactor));
-                List<Part> partDimension = Utils.ReadFromBinaryFiles<Part>(partFile.Replace("BF", "BF" + scaleFactor));
-
-                List<Int64> loCustomerKey = Utils.ReadFromBinaryFiles<Int64>(loCustKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplierKey = Utils.ReadFromBinaryFiles<Int64>(loSuppKeyFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loOrderDate = Utils.ReadFromBinaryFiles<Int64>(loOrderDateFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loPartKey = Utils.ReadFromBinaryFiles<Int64>(loPartKeyFile.Replace("BF", "BF" + scaleFactor));
-
-                List<Int64> loRevenue = Utils.ReadFromBinaryFiles<Int64>(loRevenueFile.Replace("BF", "BF" + scaleFactor));
-                List<Int64> loSupplyCost = Utils.ReadFromBinaryFiles<Int64>(loSupplyCostFile.Replace("BF", "BF" + scaleFactor));
-
+                                
                 sw.Start();
                 #region Key Hashing Phase 
 
@@ -4751,7 +4524,7 @@ namespace ParallelHashJoins
                 Parallel.Invoke(parallelOptions,
                 () =>
                 {
-                    foreach (var row in dateDimension)
+                    foreach (var row in InMemoryData.dateDimension)
                     {
                         if (row.dYear.Equals("1997") || row.dYear.Equals("1998"))
                             dateHashTable.Add(row.dDateKey, row.dYear);
@@ -4759,7 +4532,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in customerDimension)
+                    foreach (var row in InMemoryData.customerDimension)
                     {
                         if (row.cRegion.Equals("AMERICA"))
                             customerHashTable.Add(row.cCustKey, row.cNation);
@@ -4767,7 +4540,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in supplierDimension)
+                    foreach (var row in InMemoryData.supplierDimension)
                     {
                         if (row.sNation.Equals("UNITED STATES"))
                             supplierHashTable.Add(row.sSuppKey, row.sCity);
@@ -4775,7 +4548,7 @@ namespace ParallelHashJoins
                 },
                 () =>
                 {
-                    foreach (var row in partDimension)
+                    foreach (var row in InMemoryData.partDimension)
                     {
                         if (row.pCategory.Equals("MFGR#14"))
                             partHashTable.Add(row.pPartKey, row.pBrand);
@@ -4784,23 +4557,23 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(loOrderDate.Count);
-                var listCustomerKeyPositions = new BitArray(loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(loSupplierKey.Count);
-                var listPartKeyPositions = new BitArray(loPartKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
+                var listPartKeyPositions = new BitArray(InMemoryData.loPartKey.Count);
 
                 Parallel.Invoke(parallelOptions,
                     () =>
                     {
                         var i = 0;
-                        foreach (var orderDate in loOrderDate)
+                        foreach (var orderDate in InMemoryData.loOrderDate)
                         {
                             string dYear = "";
                             if (dateHashTable.TryGetValue(orderDate, out dYear))
@@ -4813,7 +4586,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var j = 0;
-                        foreach (var custKey in loCustomerKey)
+                        foreach (var custKey in InMemoryData.loCustomerKey)
                         {
                             string cNationOut = string.Empty;
                             if (customerHashTable.TryGetValue(custKey, out cNationOut))
@@ -4827,7 +4600,7 @@ namespace ParallelHashJoins
                     () =>
                     {
                         var k = 0;
-                        foreach (var suppKey in loSupplierKey)
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
                         {
                             string sCityOut = string.Empty;
                             if (supplierHashTable.TryGetValue(suppKey, out sCityOut))
@@ -4840,22 +4613,22 @@ namespace ParallelHashJoins
 
                     () =>
                     {
-                        var k = 0;
-                        foreach (var partKey in loPartKey)
+                        var l = 0;
+                        foreach (var partKey in InMemoryData.loPartKey)
                         {
                             string pBrandOut = string.Empty;
-                            if (supplierHashTable.TryGetValue(partKey, out pBrandOut))
+                            if (partHashTable.TryGetValue(partKey, out pBrandOut))
                             {
-                                listPartKeyPositions.Set(k, true);
+                                listPartKeyPositions.Set(l, true);
                             }
-                            k++;
+                            l++;
                         }
                     });
 
                 var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions).And(listPartKeyPositions);
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
@@ -4870,9 +4643,9 @@ namespace ParallelHashJoins
                     {
                         if (bit)
                         {
-                            var dateKey = loOrderDate[index];
-                            var partKey = loPartKey[index];
-                            var suppKey = loSupplierKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var partKey = InMemoryData.loPartKey[index];
+                            var suppKey = InMemoryData.loSupplierKey[index];
 
                             // Position Look UP
                             string dYear;
@@ -4885,11 +4658,11 @@ namespace ParallelHashJoins
                             Int64 profit = 0;
                             if (joinOutputFinal.TryGetValue(key, out profit))
                             {
-                                joinOutputFinal[key] = profit + (loRevenue[index] - loSupplyCost[index]);
+                                joinOutputFinal[key] = profit + (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]);
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, (loRevenue[index] - loSupplyCost[index]));
+                                joinOutputFinal.Add(key, (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]));
                             }
                         }
                     }
@@ -4903,11 +4676,14 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[PInvisible Join] T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[PInvisible Join] Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine(String.Format("[PIJ] T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] Total Count: {0}", joinOutputFinal.Count));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
             }
             catch (Exception ex)
             {
@@ -4915,11 +4691,197 @@ namespace ParallelHashJoins
             }
         }
 
-        private void saveAndPrInt64Results()
+        public void GroupingAttributeScalabilityTest(Int64 numberOfGroupingAttributes)
         {
+            try
+            {
+                Stopwatch sw = new Stopwatch();
+               
+                sw.Start();
+                #region Key Hashing Phase 
+
+                var customerHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                var supplierHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                var dateHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                var partHashTable = new Dictionary<Int64, Tuple<string, string>>();
+
+                foreach (var row in InMemoryData.dateDimension)
+                {
+                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
+                        dateHashTable.Add(row.dDateKey, Tuple.Create(row.dYear, row.dMonth));
+                }
+
+                foreach (var row in InMemoryData.customerDimension)
+                {
+                    if (row.cRegion.Equals("ASIA"))
+                        customerHashTable.Add(row.cCustKey, Tuple.Create(row.cNation, row.cRegion));
+                }
+
+                foreach (var row in InMemoryData.supplierDimension)
+                {
+                    if (row.sRegion.Equals("ASIA"))
+                        supplierHashTable.Add(row.sSuppKey, Tuple.Create(row.sNation, row.sRegion));
+                }
+
+
+
+                sw.Stop();
+                long t0 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Invisible Join] GATest T0 Time: {0}", t0));
+                #endregion Key Hashing Phase
+
+                #region Probing Phase
+                sw.Reset();
+                sw.Start();
+
+                var listOrderDatePositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                BitArray common = new BitArray(InMemoryData.loCustomerKey.Count); 
+                var i = 0;
+                var j = 0;
+                var k = 0;
+                var l = 0;
+
+                j = 0;
+                foreach (var custKey in InMemoryData.loCustomerKey)
+                {
+                    Tuple<string, string> cOut = null;
+                    if (customerHashTable.TryGetValue(custKey, out cOut))
+                    {
+                        listCustomerKeyPositions.Set(j, true);
+                    }
+                    j++;
+                }
+
+                k = 0;
+                foreach (var suppKey in InMemoryData.loSupplierKey)
+                {
+                    Tuple<string, string> sOut = null;
+                    if (supplierHashTable.TryGetValue(suppKey, out sOut))
+                    {
+                        listSupplierKeyPositions.Set(k, true);
+                    }
+                    k++;
+                }
+
+                i = 0;
+                foreach (var orderDate in InMemoryData.loOrderDate)
+                {
+                    Tuple<string, string> dOut = null;
+                    if (dateHashTable.TryGetValue(orderDate, out dOut))
+                    {
+                        listOrderDatePositions.Set(i, true);
+                    }
+                    i++;
+                }
+
+                common = listCustomerKeyPositions.And(listSupplierKeyPositions).And(listOrderDatePositions);
+
+
+                sw.Stop();
+                long t1 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Invisible Join] GSTest T1 Time: {0}", t1));
+                sw.Reset();
+                #endregion Probing Phase
+
+                #region Value Extraction Phase
+                sw.Start();
+                var joinOutputFinal = new Dictionary<string, long>();
+                Int32 index = 0;
+                Int64 setBitCount = 0;
+                foreach (bool bit in common)
+                {
+                    try
+                    {
+                        if (bit)
+                        {
+                            setBitCount++;
+                            Int64 dateKey = 0;
+                            Int64 custKey = 0;
+                            Int64 suppKey = 0;
+                            Tuple<string, string> cOut;
+                            Tuple<string, string> sOut;
+                            Tuple<string, string> dOut;
+                            string key = string.Empty;
+
+                            dateKey = InMemoryData.loOrderDate[index];
+                            custKey = InMemoryData.loCustomerKey[index];
+                            suppKey = InMemoryData.loSupplierKey[index];
+                            // Position Look UP
+                            dateHashTable.TryGetValue(dateKey, out dOut);
+                            customerHashTable.TryGetValue(custKey, out cOut);
+                            supplierHashTable.TryGetValue(suppKey, out sOut);
+
+                            switch (numberOfGroupingAttributes)
+                            {
+                                case 1:
+                                    key = cOut.Item1;
+                                    break;
+                                case 2:
+                                    key = cOut.Item1 + ", " + cOut.Item2;
+                                    break;
+                                case 3:
+                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1;
+                                    break;
+                                case 4:
+                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1 + ", " + sOut.Item2;
+                                    break;
+                                case 5:
+                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1 + ", " + sOut.Item2 + ", " + dOut.Item1;
+                                    break;
+                                case 6:
+                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1 + ", " + sOut.Item2 + ", " + dOut.Item1 + ", " + dOut.Item2;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            long tax = 0;
+                            if (joinOutputFinal.TryGetValue(key, out tax))
+                            {
+                                joinOutputFinal[key] = tax + InMemoryData.loRevenue[index];
+                            }
+                            else
+                            {
+                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(index);
+                        throw;
+                    }
+                    index++;
+                }
+
+                sw.Stop();
+                long t2 = sw.ElapsedMilliseconds;
+                Console.WriteLine(String.Format("[Invisible Join] GSTest T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[Invisible Join] GSTest Total Time: {0}", t0 + t1 + t2));
+                // Console.WriteLine(String.Format("[Invisible Join] GSTest Set BIT Count : {0}", setBitCount));
+                Console.WriteLine(String.Format("[Invisible Join] GSTest Total : {0}", joinOutputFinal.Count));
+                Console.WriteLine();
+                #endregion Value Extraction Phase
+                testResults.phase1Time = t0;
+                testResults.phase2Time = t1;
+                testResults.phase3Time = t2;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        private void saveAndPrintResults()
+        {
+            // TestResultsDatabase.pInvisibleJoinOutput.Add(testResults.toString());
+            // Console.WriteLine("Parallel Invisible: " + testResults.toString());
+            // Console.WriteLine();
             TestResultsDatabase.pInvisibleJoinOutput.Add(testResults.toString());
-            Console.WriteLine("Parallel Invisible: " + testResults.toString());
-            Console.WriteLine();
+            
         }
     }
 }

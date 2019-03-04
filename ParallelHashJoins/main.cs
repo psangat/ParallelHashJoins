@@ -15,130 +15,86 @@ namespace ParallelHashJoins
     internal class main
     {
         private const int TIMETOSLEEP = 1000;
-        private static readonly ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 10 };
+        private static readonly ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 14 };
+        private static readonly string scaleFactor = "SF 1";
+
 
         private static void Main()
         {
-            BinaryFileCreator algo = new BinaryFileCreator("SF 1");
-            algo.CreateBinaryFiles();
+            List<string> scaleFactors = new List<string>() { "SF 1", "SF 25", "SF 50", "SF 75", "SF 100" };
+            List<int> noOfCores = new List<int>() { 1, 2, 4, 6, 8, 10, 12, 14 };
+
+            Console.Write(string.Format("[{0}] Enter the Test Type <DATASIZE, NOOFCORES, SCALABILITY>: ", DateTime.Now));
+            string testType = Console.ReadLine().ToUpper();
+
+            switch (testType)
+            {
+                case "DATASIZE":
+                    Console.Write(string.Format("[{0}] Enter the Scale Factor(SF) <SF 1, SF 25, SF 50, SF 75, SF 100>: ", DateTime.Now));
+                    string scaleFactor = Console.ReadLine().ToUpper();
+
+                    Console.WriteLine(string.Format("[{0}] Loading data into memory using {1} cores.", DateTime.Now, parallelOptions.MaxDegreeOfParallelism));
+                    Stopwatch sw = Stopwatch.StartNew();
+                    InMemoryData inMemoryData = new InMemoryData(scaleFactor, parallelOptions);
+                    sw.Stop();
+                    Console.WriteLine(string.Format("[{0}] Time to load {1}: {2} ms", DateTime.Now, scaleFactor, sw.ElapsedMilliseconds));
+                    RunAllTests(scaleFactor, parallelOptions);
+                    break;
+                case "NOOFCORES":
+                    Console.WriteLine(string.Format("[{0}] Running test on SF 100 dataset.", DateTime.Now));
+                    Console.WriteLine(string.Format("[{0}] Loading data into memory using {0} cores.", DateTime.Now, parallelOptions.MaxDegreeOfParallelism));
+                    Stopwatch sw1 = Stopwatch.StartNew();
+                    InMemoryData inMemoryData1 = new InMemoryData("SF 100", parallelOptions);
+                    sw1.Stop();
+                    Console.WriteLine(string.Format("[{0}] Time to load {1}: {2} ms", DateTime.Now, "SF 100", sw1.ElapsedMilliseconds));
+
+                    foreach (int noOfCore in noOfCores)
+                    {
+                        RunAllTests("SF 100", new ParallelOptions { MaxDegreeOfParallelism = noOfCore });
+                    }
+                    break;
+                case "SCALABILITY":
+                    Console.Write(string.Format("[{0}] Enter the Scale Factor(SF) <SF 1, SF 25, SF 50, SF 75, SF 100>: ", DateTime.Now));
+                    string sf = Console.ReadLine().ToUpper();
+                    Console.WriteLine(string.Format("[{0}] Loading data into memory using {1} cores.", DateTime.Now, parallelOptions.MaxDegreeOfParallelism));
+                    Stopwatch sw2 = Stopwatch.StartNew();
+                    InMemoryData inMemoryData2 = new InMemoryData(sf, parallelOptions);
+                    sw2.Stop();
+                    Console.WriteLine(string.Format("[0] Time to load {1}: {2} ms", DateTime.Now, sf, sw2.ElapsedMilliseconds));
+                    RunGroupingScalabilityTest(sf);
+                    break;
+                default:
+                    break;
+            }
+            Console.WriteLine(string.Format("[{0}] {1} test completed.", DateTime.Now, testType));
+            Console.ReadKey();
         }
 
-        //static void Main()
-        //{
-        //    string scaleFactor = "SF 3";
-        //    int numberOfProcessor = 1;
-        //    for (int i = 0; i < 3; i++)
-        //    {
-        //        Console.WriteLine("Iteration " + (i + 1));
-        //        Console.WriteLine();
-
-        //        //InvisibleJoin InJ = new InvisibleJoin(scaleFactor);
-        //        //InJ.Query_3_1_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-
-        //        //ParallelInvisibleJoin PInJ = new ParallelInvisibleJoin(scaleFactor, i + 1);
-        //        //PInJ.Query_3_4_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_2_2_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_2_3_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_3_1_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_3_2_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_3_3_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_3_4_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_4_1_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_4_2_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //PInJ.Query_4_3_IM();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-
-        //        ////InJ.AggregationScalabilityTest2(i + 1);
-        //        ////GC.Collect(2, GCCollectionMode.Forced, true);
-        //        ////Thread.Sleep(100);
-
-        //        //NimbleJoin NJ = new NimbleJoin(scaleFactor);
-        //        //NJ.GroupingAttributeScalabilityTest(i + 1);
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-
-        //        //InMemoryAggregation IMA = new InMemoryAggregation(scaleFactor);
-        //        //IMA.GroupingAttributeScalabilityTest(i + 1);
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-
-        //        //AtireJoin AJ = new AtireJoin(scaleFactor);
-        //        //AJ.Query_3_1();
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-
-        //        //AtireJoin ATireJoin = new AtireJoin(scaleFactor);
-        //        //ATireJoin.GroupingAttributeScalabilityTest(i + 1);
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-
-
-
-        //        ParallelNimbleJoin PNJ = new ParallelNimbleJoin(scaleFactor, i + 1);
-        //        PNJ.Query_2_3_IM();
-        //        GC.Collect(2, GCCollectionMode.Forced, true);
-        //        Thread.Sleep(100);
-
-        //        ParallelInMemoryAggregation PIMA = new ParallelInMemoryAggregation(scaleFactor, i + 1);
-        //        PIMA.Query_2_3_IM();
-        //        GC.Collect(2, GCCollectionMode.Forced, true);
-        //        Thread.Sleep(100);
-
-        //        ParallelAtireJoin PATireJoin = new ParallelAtireJoin(scaleFactor, i + 1);
-        //        PATireJoin.Query_2_3_IM(true);
-        //        GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //Console.WriteLine("Was using lock");
-        //        //Console.WriteLine();
-
-        //        //PATireJoin.Query_3_1(true);
-        //        //GC.Collect(2, GCCollectionMode.Forced, true);
-        //        //Thread.Sleep(100);
-        //        //Console.WriteLine("Wasnt using lock");
-        //        //Console.WriteLine();
-
-        //    }
-        //    Console.ReadKey();
-        //}
-
-        //private static void Main()
-        //{
-        //    RunAllTests("SF 25", 12);
-        //}
-
-        public static void RunAllTests(string scaleFactor, int processorCount)
+        public static void RunGroupingScalabilityTest(string scaleFactor)
         {
 
+            for (int i = 1; i <= 6; i++) // No of grouping attributes
+            {
+                for (int j = 1; j <= 21; j++) // Number of iterations
+                {
+                    runGroupingScalabilityTest(j, i, scaleFactor);
+                }
+                printResultsToFile(string.Format("{0}_GroupingScalabilityTest_{1}_PC{2}.txt", scaleFactor, i, parallelOptions.MaxDegreeOfParallelism));
+                Thread.Sleep(10000);
+            }
+        }
+
+        public static void RunAllTests(string scaleFactor, ParallelOptions parallelOptions)
+        {
             for (int i = 2; i <= 4; i++)
             {
                 for (int j = 1; j <= 4; j++)
                 {
-                    for (int k = 1; k <= 1; k++)
+                    for (int k = 1; k <= 21; k++)
                     {
                         if (i == 3 && j == 4)
                         {
-                            runQueries(scaleFactor, processorCount, i, j, k);
+                            runQueries(scaleFactor, parallelOptions, i, j, k);
                         }
                         else if (j == 4)
                         {
@@ -146,35 +102,63 @@ namespace ParallelHashJoins
                         }
                         else
                         {
-                            runQueries(scaleFactor, processorCount, i, j, k);
+                            runQueries(scaleFactor, parallelOptions, i, j, k);
                         }
                     }
-                    // printResultsToFile(String.Format("{0}_Q{1}{2}_PC{3}.txt", scaleFactor, i, j, processorCount));
+                    printResultsToFile(string.Format("{0}_Q{1}{2}_PC{3}.txt", scaleFactor, i, j, parallelOptions.MaxDegreeOfParallelism));
                     Thread.Sleep(10000);
                 }
             }
         }
 
-        private static void runQueries(string scaleFactor, int processorCount, int i, int j, int k)
+        private static void runQueries(string scaleFactor, ParallelOptions parallelOptions, int i, int j, int k)
         {
             Console.WriteLine(string.Format("Run #{0} for Query {1}.{2}", k, i, j));
             Console.WriteLine();
 
-            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInvisibleJoin", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), null);
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInvisibleJoin", new object[] { scaleFactor, parallelOptions }, string.Format("Query_{0}_{1}_IM", i, j), null);
             GC.Collect(2, GCCollectionMode.Forced, true);
             Thread.Sleep(TIMETOSLEEP);
             Console.WriteLine();
 
-            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelNimbleJoin", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), null);
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelNimbleJoin", new object[] { scaleFactor, parallelOptions }, string.Format("Query_{0}_{1}_IM", i, j), null);
             GC.Collect(2, GCCollectionMode.Forced, true);
             Thread.Sleep(TIMETOSLEEP);
             Console.WriteLine();
 
-            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInMemoryAggregation", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), null);
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInMemoryAggregation", new object[] { scaleFactor, parallelOptions }, string.Format("Query_{0}_{1}_IM", i, j), null);
             GC.Collect(2, GCCollectionMode.Forced, true);
             Thread.Sleep(TIMETOSLEEP);
 
-            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelAtireJoin", new object[] { scaleFactor, processorCount }, string.Format("Query_{0}_{1}_IM", i, j), new object[] { true });
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelAtireJoin", new object[] { scaleFactor, parallelOptions }, string.Format("Query_{0}_{1}_IM", i, j), new object[] { true });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
+
+            Console.WriteLine("============================================================================");
+            Console.WriteLine();
+        }
+
+        private static void runGroupingScalabilityTest(int iterationNumber, int noOfGroupingAttributes, string scaleFactor)
+        {
+
+            Console.WriteLine(string.Format("Run #{0} for {1} Grouping Attributes", iterationNumber, noOfGroupingAttributes));
+            Console.WriteLine();
+
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInvisibleJoin", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
+            Console.WriteLine();
+
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelNimbleJoin", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
+            Console.WriteLine();
+
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInMemoryAggregation", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
+
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelAtireJoin", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
             GC.Collect(2, GCCollectionMode.Forced, true);
             Thread.Sleep(TIMETOSLEEP);
 
@@ -184,29 +168,42 @@ namespace ParallelHashJoins
 
         public static void printResultsToFile(string fileName)
         {
-            ////string fileName = scaleFactor + "_Q31.txt";
-            //string today = DateTime.Now.ToString("dd MMMM yyyy");
-            //string nimbleJoinOutputFilePath = @"Results\" + today + "\\Nimble Join\\";
-            //if (!Directory.Exists(nimbleJoinOutputFilePath))
-            //    Directory.CreateDirectory(nimbleJoinOutputFilePath);
-            //System.IO.File.WriteAllLines(nimbleJoinOutputFilePath + fileName, TestResultsDatabase.nimbleJoinOutput);
+            //string fileName = scaleFactor + "_Q31.txt";
+            string today = DateTime.Now.ToString("dd MMMM yyyy");
 
-            //string invisibleJoinOutputFilePath = @"Results\" + today + "\\Invisible Join\\";
-            //if (!Directory.Exists(invisibleJoinOutputFilePath))
-            //    Directory.CreateDirectory(invisibleJoinOutputFilePath);
-            //System.IO.File.WriteAllLines(invisibleJoinOutputFilePath + fileName, TestResultsDatabase.invisibleJoinOutput);
+            string pInvisibleJoinOutputFilePath = @"Results\" + today + "\\Parallel Invisible Join\\";
+            if (!Directory.Exists(pInvisibleJoinOutputFilePath))
+            {
+                Directory.CreateDirectory(pInvisibleJoinOutputFilePath);
+            }
 
-            //string pNimbleJoinOutputFilePath = @"Results\" + today + "\\Parallel Nimble Join\\";
-            //if (!Directory.Exists(pNimbleJoinOutputFilePath))
-            //    Directory.CreateDirectory(pNimbleJoinOutputFilePath);
-            //System.IO.File.WriteAllLines(pNimbleJoinOutputFilePath + fileName, TestResultsDatabase.pNimbleJoinOutput);
+            System.IO.File.WriteAllLines(pInvisibleJoinOutputFilePath + fileName, TestResultsDatabase.pInvisibleJoinOutput);
 
-            //string pInvisibleJoinOutputFilePath = @"Results\" + today + "\\Parallel Invisible Join\\";
-            //if (!Directory.Exists(pInvisibleJoinOutputFilePath))
-            //    Directory.CreateDirectory(pInvisibleJoinOutputFilePath);
-            //System.IO.File.WriteAllLines(pInvisibleJoinOutputFilePath + fileName, TestResultsDatabase.pInvisibleJoinOutput);
+            string pNimbleJoinOutputFilePath = @"Results\" + today + "\\Parallel Nimble Join\\";
+            if (!Directory.Exists(pNimbleJoinOutputFilePath))
+            {
+                Directory.CreateDirectory(pNimbleJoinOutputFilePath);
+            }
 
-            //TestResultsDatabase.clearAllDatabase();
+            System.IO.File.WriteAllLines(pNimbleJoinOutputFilePath + fileName, TestResultsDatabase.pNimbleJoinOutput);
+
+            string pInMemoryAggregationOutputFilePath = @"Results\" + today + "\\Parallel InMemoryAggregation\\";
+            if (!Directory.Exists(pInMemoryAggregationOutputFilePath))
+            {
+                Directory.CreateDirectory(pInMemoryAggregationOutputFilePath);
+            }
+
+            System.IO.File.WriteAllLines(pInMemoryAggregationOutputFilePath + fileName, TestResultsDatabase.pInMemoryAggregationOutput);
+
+            string pATireJoinOutputFilePath = @"Results\" + today + "\\Parallel ATire Join\\";
+            if (!Directory.Exists(pATireJoinOutputFilePath))
+            {
+                Directory.CreateDirectory(pATireJoinOutputFilePath);
+            }
+
+            System.IO.File.WriteAllLines(pATireJoinOutputFilePath + fileName, TestResultsDatabase.pATireJoinOutput);
+
+            TestResultsDatabase.clearAllDatabase();
         }
 
         public static void MultiAttributeAssociativeArrayTest()
