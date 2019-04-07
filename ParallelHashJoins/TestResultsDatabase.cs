@@ -13,7 +13,8 @@ namespace ParallelHashJoins
         public static List<String> pNimbleJoinOutput = new List<string>();
         public static List<String> pInvisibleJoinOutput = new List<string>();
         public static List<String> pInMemoryAggregationOutput = new List<string>();
-        public static List<String> pATireJoinOutput = new List<string>();
+        public static List<String> pATireJoinOutputLF = new List<string>();
+        public static List<String> pATireJoinOutputLC = new List<string>();
 
         public static void clearAllDatabase() {
             nimbleJoinOutput.Clear();
@@ -21,7 +22,8 @@ namespace ParallelHashJoins
             pNimbleJoinOutput.Clear();
             pInvisibleJoinOutput.Clear();
             pInMemoryAggregationOutput.Clear();
-            pATireJoinOutput.Clear();
+            pATireJoinOutputLF.Clear();
+            pATireJoinOutputLC.Clear();
         }
     }
 }
