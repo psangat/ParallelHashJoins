@@ -4108,70 +4108,145 @@ namespace ParallelHashJoins
             try
             {
                 Stopwatch sw = new Stopwatch();
-                
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
                 #region Key Hashing Phase 
 
-                var customerHashTable = new Dictionary<Int64, Tuple<string, string>>();
-                var supplierHashTable = new Dictionary<Int64, Tuple<string, string>>();
-                var dateHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                Dictionary<long, Tuple<string, string, string>> customerHashTable = new Dictionary<long, Tuple<string, string, string>>();
+                Dictionary<long, Tuple<string, string, string>> supplierHashTable = new Dictionary<long, Tuple<string, string, string>>();
+                Dictionary<long, Tuple<string, string>> dateHashTable = new Dictionary<long, Tuple<string, string>>();
+                Dictionary<long, Tuple<string, string>> partHashTable = new Dictionary<long, Tuple<string, string>>();
 
-                foreach (var row in InMemoryData.dateDimension)
-                {
-                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
-                        dateHashTable.Add(row.dDateKey, Tuple.Create(row.dYear, row.dMonth));
-                }
-
-                foreach (var row in InMemoryData.customerDimension)
-                {
-                    if (row.cRegion.Equals("ASIA"))
-                        customerHashTable.Add(row.cCustKey, Tuple.Create(row.cNation, row.cRegion));
-                }
-
-                foreach (var row in InMemoryData.supplierDimension)
-                {
-                    if (row.sRegion.Equals("ASIA"))
-                        supplierHashTable.Add(row.sSuppKey, Tuple.Create(row.sNation, row.sRegion));
-                }
+                Parallel.Invoke(parallelOptions,
+               () =>
+               {
+                   foreach (Date row in InMemoryData.dateDimension)
+                   {
+                       if (row.dYear.Equals("1997") || row.dYear.Equals("1998"))
+                       {
+                           dateHashTable.Add(row.dDateKey, Tuple.Create(row.dYear, row.dMonth));
+                       }
+                   }
+               },
+               () =>
+               {
+                   foreach (Customer row in InMemoryData.customerDimension)
+                   {
+                       if (row.cRegion.Equals("AMERICA"))
+                       {
+                           customerHashTable.Add(row.cCustKey, Tuple.Create(row.cNation, row.cRegion, row.cCity));
+                       }
+                   }
+               },
+               () =>
+               {
+                   foreach (Supplier row in InMemoryData.supplierDimension)
+                   {
+                       if (row.sNation.Equals("UNITED STATES"))
+                       {
+                           supplierHashTable.Add(row.sSuppKey, Tuple.Create(row.sNation, row.sRegion, row.sCity));
+                       }
+                   }
+               },
+               () =>
+               {
+                   foreach (Part row in InMemoryData.partDimension)
+                   {
+                       if (row.pCategory.Equals("MFGR#14"))
+                       {
+                           partHashTable.Add(row.pPartKey, Tuple.Create(row.pBrand, row.pMFGR));
+                       }
+                   }
+               });
 
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[Nimble Join] GSTest T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PNJ] GSTest T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
                 var _maat = new MAATIM(InMemoryData.loCustomerKey.Count);
+                List<Tuple<int, int>> partitionIndexes = Utils.getPartitionIndexes(InMemoryData.loCustomerKey.Count(), parallelOptions.MaxDegreeOfParallelism);
+
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                for (Int32 i = 0; i < InMemoryData.loCustomerKey.Count; i++)
+                List<Task> tasks = new List<Task>();
+                foreach (var indexes in partitionIndexes)
                 {
-                    Int64 custKey = InMemoryData.loCustomerKey[i];
-                    Int64 suppKey = InMemoryData.loSupplierKey[i];
-                    Int64 dateKey = InMemoryData.loOrderDate[i];
-                    Tuple<string, string> cOut = null;
-                    Tuple<string, string> sOut = null;
-                    Tuple<string, string> dOut = null;
-                    if (customerHashTable.TryGetValue(custKey, out cOut)
-                        && supplierHashTable.TryGetValue(suppKey, out sOut)
-                        && dateHashTable.TryGetValue(dateKey, out dOut))
+                    Task t = Task.Factory.StartNew(() =>
                     {
-                        _maat.AddOrUpdate(i, new List<object> { cOut, sOut, dOut, InMemoryData.loRevenue[i] });
-                    }
+                        for (Int32 i = indexes.Item1; i <= indexes.Item2; i++)
+                        {
+                            Int64 suppKey = InMemoryData.loSupplierKey[i];
+                            Int64 dateKey = InMemoryData.loOrderDate[i];
+                            Int64 partKey = InMemoryData.loPartKey[i];
+                            Int64 custKey = InMemoryData.loCustomerKey[i];
+                            Tuple<string, string, string> cOut = null;
+                            Tuple<string, string> dOut = null;
+                            Tuple<string, string, string> sOut = null;
+                            Tuple<string, string> pOut = null;
+
+                            if (customerHashTable.TryGetValue(custKey, out cOut)
+                            && dateHashTable.TryGetValue(dateKey, out dOut)
+                            && supplierHashTable.TryGetValue(suppKey, out sOut)
+                            && partHashTable.TryGetValue(partKey, out pOut))
+                            {
+                                switch (numberOfGroupingAttributes)
+                                {
+                                    case 1:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                       
+                                        break;
+                                    case 2:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 3:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1,(InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 4:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 5:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 6:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1,(InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 7:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 8:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2, cOut.Item3, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 9:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2, cOut.Item3, pOut.Item1, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                    case 10:
+                                        _maat.AddOrUpdate(i, new List<object> { dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2, cOut.Item3, pOut.Item1, pOut.Item2, (InMemoryData.loRevenue[i] - InMemoryData.loSupplyCost[i]) });
+                                        break;
+                                }
+                            }
+                        }
+                    });
+                    tasks.Add(t);
                 }
+
+                Task.WaitAll(tasks.ToArray());
 
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[Nimble Join] GSTest T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PNJ] GSTest T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
                 #region Value Extraction Phase
                 sw.Start();
                 var joinOutputFinal = new Dictionary<string, long>();
-                Tuple<string, string> custGA = null;
-                Tuple<string, string> suppGA = null;
+                Tuple<string, string, string> custGA = null;
+                Tuple<string, string, string> suppGA = null;
                 Tuple<string, string> dateGA = null;
+                Tuple<string, string> partGA = null;
                 Int32 index = 0;
                 foreach (var item in _maat.GetAll())
                 {
@@ -4180,47 +4255,59 @@ namespace ParallelHashJoins
                         if (item != null)
                         {
                             string key = string.Empty;
+                            Int64 revenue = 0;
                             switch (numberOfGroupingAttributes)
                             {
                                 case 1:
-                                    key = ((Tuple<string, string>)item[0]).Item1;
+                                    key = Convert.ToString(item[0]);
+                                    revenue = Convert.ToInt64(item[1]);
                                     break;
                                 case 2:
-                                    custGA = ((Tuple<string, string>)item[0]);
-                                    key = custGA.Item1 + ", " + custGA.Item2;
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]);
+                                    revenue = Convert.ToInt64(item[2]);
                                     break;
                                 case 3:
-                                    custGA = ((Tuple<string, string>)item[0]);
-                                    suppGA = ((Tuple<string, string>)item[1]);
-                                    key = custGA.Item1 + ", " + custGA.Item2 + ", " + suppGA.Item1;
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]);
+                                    revenue = Convert.ToInt64(item[3]);
                                     break;
                                 case 4:
-                                    custGA = ((Tuple<string, string>)item[0]);
-                                    suppGA = ((Tuple<string, string>)item[1]);
-                                    key = custGA.Item1 + ", " + custGA.Item2 + ", " + suppGA.Item1 + ", " + suppGA.Item2;
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]) + ", " + Convert.ToString(item[3]);
+                                    revenue = Convert.ToInt64(item[4]);
                                     break;
                                 case 5:
-                                    custGA = ((Tuple<string, string>)item[0]);
-                                    suppGA = ((Tuple<string, string>)item[1]);
-                                    dateGA = ((Tuple<string, string>)item[2]);
-                                    key = custGA.Item1 + ", " + custGA.Item2 + ", " + suppGA.Item1 + ", " + suppGA.Item2 + ", " + dateGA.Item1;
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]) + ", " + Convert.ToString(item[3]) + ", " + Convert.ToString(item[4]);
+                                    revenue = Convert.ToInt64(item[5]);
                                     break;
                                 case 6:
-                                    custGA = ((Tuple<string, string>)item[0]);
-                                    suppGA = ((Tuple<string, string>)item[1]);
-                                    dateGA = ((Tuple<string, string>)item[2]);
-                                    key = custGA.Item1 + ", " + custGA.Item2 + ", " + suppGA.Item1 + ", " + suppGA.Item2 + ", " + dateGA.Item1 + ", " + dateGA.Item2;
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]) + ", " + Convert.ToString(item[3]) + ", " + Convert.ToString(item[4]) + ", " + Convert.ToString(item[5]);
+                                    revenue = Convert.ToInt64(item[6]);
+                                    break;
+                                case 7:
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]) + ", " + Convert.ToString(item[3]) + ", " + Convert.ToString(item[4]) + ", " + Convert.ToString(item[5]) + ", " + Convert.ToString(item[6]);
+                                    revenue = Convert.ToInt64(item[7]);
+                                    break;
+                                case 8:
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]) + ", " + Convert.ToString(item[3]) + ", " + Convert.ToString(item[4]) + ", " + Convert.ToString(item[5]) + ", " + Convert.ToString(item[6]) + ", " + Convert.ToString(item[7]);
+                                    revenue = Convert.ToInt64(item[8]);
+                                    break;
+                                case 9:
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]) + ", " + Convert.ToString(item[3]) + ", " + Convert.ToString(item[4]) + ", " + Convert.ToString(item[5]) + ", " + Convert.ToString(item[6]) + ", " + Convert.ToString(item[7]) + ", " + Convert.ToString(item[8]);
+                                    revenue = Convert.ToInt64(item[9]);
+                                    break;
+                                case 10:
+                                    key = Convert.ToString(item[0]) + ", " + Convert.ToString(item[1]) + ", " + Convert.ToString(item[2]) + ", " + Convert.ToString(item[3]) + ", " + Convert.ToString(item[4]) + ", " + Convert.ToString(item[5]) + ", " + Convert.ToString(item[6]) + ", " + Convert.ToString(item[7]) + ", " + Convert.ToString(item[8]) + ", " + Convert.ToString(item[9]);
+                                    revenue = Convert.ToInt64(item[10]);
                                     break;
                             }
 
-                            long tax = 0;
-                            if (joinOutputFinal.TryGetValue(key, out tax))
+                            Int64 rOut = 0;
+                            if (joinOutputFinal.TryGetValue(key, out rOut))
                             {
-                                joinOutputFinal[key] = tax + InMemoryData.loRevenue[index];
+                                joinOutputFinal[key] = revenue + rOut;
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
+                                joinOutputFinal.Add(key, revenue);
                             }
                         }
                     }
@@ -4234,9 +4321,10 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[Nimble Join] GSTest T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[Nimble Join] GSTest Total Time: {0}", t0 + t1 + t2));
-                Console.WriteLine(String.Format("[Nimble Join] GSTest Total : {0}", joinOutputFinal.Count));
+                long memoryUsed = GC.GetTotalMemory(true) - memoryStartPhase3;
+                Console.WriteLine(String.Format("[PNJ] GSTest T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PNJ] GSTest Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PNJ] GSTest Memory Used : {0}", memoryUsed));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
                 testResults.phase1Time = t0;

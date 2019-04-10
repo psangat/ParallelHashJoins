@@ -4696,155 +4696,202 @@ namespace ParallelHashJoins
             try
             {
                 Stopwatch sw = new Stopwatch();
-               
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
                 #region Key Hashing Phase 
 
-                var customerHashTable = new Dictionary<Int64, Tuple<string, string>>();
-                var supplierHashTable = new Dictionary<Int64, Tuple<string, string>>();
-                var dateHashTable = new Dictionary<Int64, Tuple<string, string>>();
-                var partHashTable = new Dictionary<Int64, Tuple<string, string>>();
+                Dictionary<long, Tuple<string, string, string>> customerHashTable = new Dictionary<long, Tuple<string, string, string>>();
+                Dictionary<long, Tuple<string, string, string>> supplierHashTable = new Dictionary<long, Tuple<string, string, string>>();
+                Dictionary<long, Tuple<string, string>> dateHashTable = new Dictionary<long, Tuple<string, string>>();
+                Dictionary<long, Tuple<string, string>> partHashTable = new Dictionary<long, Tuple<string, string>>();
 
-                foreach (var row in InMemoryData.dateDimension)
-                {
-                    if (row.dYear.CompareTo("1992") >= 0 && row.dYear.CompareTo("1997") <= 0)
-                        dateHashTable.Add(row.dDateKey, Tuple.Create(row.dYear, row.dMonth));
-                }
-
-                foreach (var row in InMemoryData.customerDimension)
-                {
-                    if (row.cRegion.Equals("ASIA"))
-                        customerHashTable.Add(row.cCustKey, Tuple.Create(row.cNation, row.cRegion));
-                }
-
-                foreach (var row in InMemoryData.supplierDimension)
-                {
-                    if (row.sRegion.Equals("ASIA"))
-                        supplierHashTable.Add(row.sSuppKey, Tuple.Create(row.sNation, row.sRegion));
-                }
-
+                Parallel.Invoke(parallelOptions,
+               () =>
+               {
+                   foreach (Date row in InMemoryData.dateDimension)
+                   {
+                       if (row.dYear.Equals("1997") || row.dYear.Equals("1998"))
+                       {
+                           dateHashTable.Add(row.dDateKey, Tuple.Create(row.dYear, row.dMonth));
+                       }
+                   }
+               },
+               () =>
+               {
+                   foreach (Customer row in InMemoryData.customerDimension)
+                   {
+                       if (row.cRegion.Equals("AMERICA"))
+                       {
+                           customerHashTable.Add(row.cCustKey, Tuple.Create(row.cNation, row.cRegion, row.cCity));
+                       }
+                   }
+               },
+               () =>
+               {
+                   foreach (Supplier row in InMemoryData.supplierDimension)
+                   {
+                       if (row.sNation.Equals("UNITED STATES"))
+                       {
+                           supplierHashTable.Add(row.sSuppKey, Tuple.Create(row.sNation, row.sRegion, row.sCity));
+                       }
+                   }
+               },
+               () =>
+               {
+                   foreach (Part row in InMemoryData.partDimension)
+                   {
+                       if (row.pCategory.Equals("MFGR#14"))
+                       {
+                           partHashTable.Add(row.pPartKey, Tuple.Create(row.pBrand, row.pMFGR));
+                       }
+                   }
+               });
 
 
                 sw.Stop();
                 long t0 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[Invisible Join] GATest T0 Time: {0}", t0));
+                Console.WriteLine(String.Format("[PIJ] GATest T0 Time: {0}", t0));
                 #endregion Key Hashing Phase
 
                 #region Probing Phase
                 sw.Reset();
                 sw.Start();
 
-                var listOrderDatePositions = new BitArray(InMemoryData.loCustomerKey.Count);
+                var listOrderDatePositions = new BitArray(InMemoryData.loOrderDate.Count);
                 var listCustomerKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
-                var listSupplierKeyPositions = new BitArray(InMemoryData.loCustomerKey.Count);
-                BitArray common = new BitArray(InMemoryData.loCustomerKey.Count); 
-                var i = 0;
-                var j = 0;
-                var k = 0;
-                var l = 0;
-
-                j = 0;
-                foreach (var custKey in InMemoryData.loCustomerKey)
-                {
-                    Tuple<string, string> cOut = null;
-                    if (customerHashTable.TryGetValue(custKey, out cOut))
+                var listSupplierKeyPositions = new BitArray(InMemoryData.loSupplierKey.Count);
+                var listPartKeyPositions = new BitArray(InMemoryData.loPartKey.Count);
+                Parallel.Invoke(parallelOptions,
+                    () =>
                     {
-                        listCustomerKeyPositions.Set(j, true);
-                    }
-                    j++;
-                }
-
-                k = 0;
-                foreach (var suppKey in InMemoryData.loSupplierKey)
-                {
-                    Tuple<string, string> sOut = null;
-                    if (supplierHashTable.TryGetValue(suppKey, out sOut))
+                        var i = 0;
+                        foreach (var orderDate in InMemoryData.loOrderDate)
+                        {
+                            if (dateHashTable.ContainsKey(orderDate))
+                            {
+                                listOrderDatePositions.Set(i, true);
+                            }
+                            i++;
+                        }
+                    },
+                    () =>
                     {
-                        listSupplierKeyPositions.Set(k, true);
-                    }
-                    k++;
-                }
+                        var j = 0;
+                        foreach (var custKey in InMemoryData.loCustomerKey)
+                        {
+                            if (customerHashTable.ContainsKey(custKey))
+                            {
+                                listCustomerKeyPositions.Set(j, true);
+                            }
+                            j++;
+                        }
 
-                i = 0;
-                foreach (var orderDate in InMemoryData.loOrderDate)
-                {
-                    Tuple<string, string> dOut = null;
-                    if (dateHashTable.TryGetValue(orderDate, out dOut))
+                    },
+                    () =>
                     {
-                        listOrderDatePositions.Set(i, true);
-                    }
-                    i++;
-                }
+                        var k = 0;
+                        foreach (var suppKey in InMemoryData.loSupplierKey)
+                        {
+                            if (supplierHashTable.ContainsKey(suppKey))
+                            {
+                                listSupplierKeyPositions.Set(k, true);
+                            }
+                            k++;
+                        }
+                    },
 
-                common = listCustomerKeyPositions.And(listSupplierKeyPositions).And(listOrderDatePositions);
+                    () =>
+                    {
+                        var l = 0;
+                        foreach (var partKey in InMemoryData.loPartKey)
+                        {
+                            if (partHashTable.ContainsKey(partKey))
+                            {
+                                listPartKeyPositions.Set(l, true);
+                            }
+                            l++;
+                        }
+                    });
+
+                var common = listCustomerKeyPositions.And(listOrderDatePositions).And(listSupplierKeyPositions).And(listPartKeyPositions);
 
 
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[Invisible Join] GSTest T1 Time: {0}", t1));
+                Console.WriteLine(String.Format("[PIJ] GSTest T1 Time: {0}", t1));
                 sw.Reset();
                 #endregion Probing Phase
 
                 #region Value Extraction Phase
+                
                 sw.Start();
                 var joinOutputFinal = new Dictionary<string, long>();
                 Int32 index = 0;
-                Int64 setBitCount = 0;
+                // Int64 setBitCount = 0;
                 foreach (bool bit in common)
                 {
                     try
                     {
                         if (bit)
                         {
-                            setBitCount++;
-                            Int64 dateKey = 0;
-                            Int64 custKey = 0;
-                            Int64 suppKey = 0;
-                            Tuple<string, string> cOut;
-                            Tuple<string, string> sOut;
+                            // setBitCount++;
+                            Tuple<string, string, string> cOut;
+                            Tuple<string, string, string> sOut;
                             Tuple<string, string> dOut;
+                            Tuple<string, string> pOut;
                             string key = string.Empty;
 
-                            dateKey = InMemoryData.loOrderDate[index];
-                            custKey = InMemoryData.loCustomerKey[index];
-                            suppKey = InMemoryData.loSupplierKey[index];
+                            var dateKey = InMemoryData.loOrderDate[index];
+                            var custKey = InMemoryData.loCustomerKey[index];
+                            var suppKey = InMemoryData.loSupplierKey[index];
+                            var partKey = InMemoryData.loPartKey[index];
                             // Position Look UP
                             dateHashTable.TryGetValue(dateKey, out dOut);
                             customerHashTable.TryGetValue(custKey, out cOut);
                             supplierHashTable.TryGetValue(suppKey, out sOut);
-
+                            partHashTable.TryGetValue(partKey, out pOut);
                             switch (numberOfGroupingAttributes)
                             {
                                 case 1:
-                                    key = cOut.Item1;
+                                    key = String.Format("{0}", dOut.Item1);
                                     break;
                                 case 2:
-                                    key = cOut.Item1 + ", " + cOut.Item2;
+                                    key = String.Format("{0}, {1}", dOut.Item1, dOut.Item2);
                                     break;
                                 case 3:
-                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1;
+                                    key = String.Format("{0}, {1}, {2}", dOut.Item1, dOut.Item2, sOut.Item1);
                                     break;
                                 case 4:
-                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1 + ", " + sOut.Item2;
+                                    key = String.Format("{0}, {1}, {2}, {3}", dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2);
                                     break;
                                 case 5:
-                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1 + ", " + sOut.Item2 + ", " + dOut.Item1;
+                                    key = String.Format("{0}, {1}, {2}, {3}, {4}", dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3);
                                     break;
                                 case 6:
-                                    key = cOut.Item1 + ", " + cOut.Item2 + ", " + sOut.Item1 + ", " + sOut.Item2 + ", " + dOut.Item1 + ", " + dOut.Item2;
+                                    key = String.Format("{0}, {1}, {2}, {3}, {4}, {5}", dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1);
                                     break;
-                                default:
+                                case 7:
+                                    key = String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}", dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2);
+                                    break;
+                                case 8:
+                                    key = String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}", dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2, cOut.Item3);
+                                    break;
+                                case 9:
+                                    key = String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}", dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2, cOut.Item3, pOut.Item1);
+                                    break;
+                                case 10:
+                                    key = String.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}", dOut.Item1, dOut.Item2, sOut.Item1, sOut.Item2, sOut.Item3, cOut.Item1, cOut.Item2, cOut.Item3, pOut.Item1, pOut.Item2);
                                     break;
                             }
 
-                            long tax = 0;
-                            if (joinOutputFinal.TryGetValue(key, out tax))
+                            Int64 profit = 0;
+                            if (joinOutputFinal.TryGetValue(key, out profit))
                             {
-                                joinOutputFinal[key] = tax + InMemoryData.loRevenue[index];
+                                joinOutputFinal[key] = profit + (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]);
                             }
                             else
                             {
-                                joinOutputFinal.Add(key, InMemoryData.loRevenue[index]);
+                                joinOutputFinal.Add(key, (InMemoryData.loRevenue[index] - InMemoryData.loSupplyCost[index]));
                             }
                         }
                     }
@@ -4858,15 +4905,16 @@ namespace ParallelHashJoins
 
                 sw.Stop();
                 long t2 = sw.ElapsedMilliseconds;
-                Console.WriteLine(String.Format("[Invisible Join] GSTest T2 Time: {0}", t2));
-                Console.WriteLine(String.Format("[Invisible Join] GSTest Total Time: {0}", t0 + t1 + t2));
-                // Console.WriteLine(String.Format("[Invisible Join] GSTest Set BIT Count : {0}", setBitCount));
-                Console.WriteLine(String.Format("[Invisible Join] GSTest Total : {0}", joinOutputFinal.Count));
+                long memoryUsed = GC.GetTotalMemory(true) - memoryStartPhase3;
+                Console.WriteLine(String.Format("[PIJ] GSTest T2 Time: {0}", t2));
+                Console.WriteLine(String.Format("[PIJ] GSTest Total Time: {0}", t0 + t1 + t2));
+                Console.WriteLine(String.Format("[PIJ] GSTest Memory Used : {0}", memoryUsed));
                 Console.WriteLine();
                 #endregion Value Extraction Phase
                 testResults.phase1Time = t0;
                 testResults.phase2Time = t1;
                 testResults.phase3Time = t2;
+                testResults.memoryUsed = Convert.ToString(memoryUsed);
             }
             catch (Exception ex)
             {

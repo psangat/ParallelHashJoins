@@ -24,12 +24,12 @@ namespace ParallelHashJoins
             List<string> scaleFactors = new List<string>() {"SF 25", "SF 50", "SF 75", "SF 100" };
             List<int> noOfCores = new List<int>() { 2, 4, 6, 8, 10, 12, 14 }; //, 14
 
-            Console.Write(string.Format("[{0}] Enter the Test Type <DATASIZE, NOOFCORES, SCALABILITY>: ", DateTime.Now));
+            Console.Write(string.Format("[{0}] Enter the Test Type <D for DATASIZE, N for NOOFCORES, S for SCALABILITY>, su for SCALEUP: ", DateTime.Now));
             string testType = Console.ReadLine().ToUpper();
 
             switch (testType)
             {
-                case "DATASIZE":
+                case "D":
                     Console.Write(string.Format("[{0}] Enter the Scale Factor(SF) <SF 1, SF 25, SF 50, SF 75, SF 100>: ", DateTime.Now));
                     string scaleFactor = Console.ReadLine().ToUpper();
 
@@ -40,7 +40,7 @@ namespace ParallelHashJoins
                     Console.WriteLine(string.Format("[{0}] Time to load {1}: {2} ms", DateTime.Now, scaleFactor, sw.ElapsedMilliseconds));
                     RunAllTests(scaleFactor, parallelOptions);
                     break;
-                case "NOOFCORES":
+                case "N":
                     Console.WriteLine(string.Format("[{0}] Running test on SF 100 dataset.", DateTime.Now));
                     Console.WriteLine(string.Format("[{0}] Loading data into memory using {0} cores.", DateTime.Now, parallelOptions.MaxDegreeOfParallelism));
                     Stopwatch sw1 = Stopwatch.StartNew();
@@ -53,9 +53,9 @@ namespace ParallelHashJoins
                         RunAllTests("SF 100", new ParallelOptions { MaxDegreeOfParallelism = noOfCore });
                     }
                     break;
-                case "SCALABILITY":
-                    Console.Write(string.Format("[{0}] Enter the Scale Factor(SF) <SF 1, SF 25, SF 50, SF 75, SF 100>: ", DateTime.Now));
-                    string sf = Console.ReadLine().ToUpper();
+                case "S":
+                    Console.Write(string.Format("[{0}] Enter the Scale Factor(SF) <1, 25, 50, 75, 100>: ", DateTime.Now));
+                    string sf = "SF " +  Console.ReadLine().ToUpper();
                     Console.WriteLine(string.Format("[{0}] Loading data into memory using {1} cores.", DateTime.Now, parallelOptions.MaxDegreeOfParallelism));
                     Stopwatch sw2 = Stopwatch.StartNew();
                     InMemoryData inMemoryData2 = new InMemoryData(sf, parallelOptions);
@@ -63,11 +63,33 @@ namespace ParallelHashJoins
                     Console.WriteLine(string.Format("[0] Time to load {1}: {2} ms", DateTime.Now, sf, sw2.ElapsedMilliseconds));
                     RunGroupingScalabilityTest(sf);
                     break;
+                case "SU":
+                    RunScaleUpTest();
+                    break;
                 default:
                     break;
             }
             Console.WriteLine(string.Format("[{0}] {1} test completed.", DateTime.Now, testType));
             Console.ReadKey();
+        }
+
+        public static void RunScaleUpTest() {
+            List<string> scaleFactors = new List<string>() { "SF 1" ,"SF 25", "SF 50", "SF 75", "SF 100" };
+            List<int> noOfCores = new List<int>() { 1, 4, 8 , 12, 16 }; //, 14
+            for (int i = 0; i < 5; i++)
+            {
+                Console.WriteLine(string.Format("[{0}] Loading data into memory using {1} cores.", DateTime.Now, parallelOptions.MaxDegreeOfParallelism));
+                Stopwatch sw2 = Stopwatch.StartNew();
+                InMemoryData inMemoryData = new InMemoryData(scaleFactors[i], parallelOptions);
+                sw2.Stop();
+                Console.WriteLine(string.Format("[0] Time to load {1}: {2} ms", DateTime.Now, scaleFactors[i], sw2.ElapsedMilliseconds));
+                for (int j = 1; j <= 21; j++) // Number of iterations
+                {
+                    runGroupingScalabilityTest(j, 10, scaleFactor, noOfCores[i]);
+                }
+                printResultsToFile(string.Format("{0}_GroupingScalabilityTest_{1}_PC{2}.txt", scaleFactor, 10, noOfCores[i]));
+                Thread.Sleep(10000);
+            }
         }
 
         public static void RunGroupingScalabilityTest(string scaleFactor)
@@ -152,25 +174,26 @@ namespace ParallelHashJoins
             Console.WriteLine();
         }
 
-        private static void runGroupingScalabilityTest(int iterationNumber, int noOfGroupingAttributes, string scaleFactor)
+        private static void runGroupingScalabilityTest(int iterationNumber, int noOfGroupingAttributes, string scaleFactor, int noOfCores = 14 )
         {
+            ParallelOptions parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = noOfCores };
 
             Console.WriteLine(string.Format("Run #{0} for {1} Grouping Attributes", iterationNumber, noOfGroupingAttributes));
             Console.WriteLine();
 
-            //Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInvisibleJoin", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
-            //GC.Collect(2, GCCollectionMode.Forced, true);
-            //Thread.Sleep(TIMETOSLEEP);
-            //Console.WriteLine();
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInvisibleJoin", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
+            Console.WriteLine();
 
-            //Invoker.CreateAndInvoke("ParallelHashJoins.ParallelNimbleJoin", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
-            //GC.Collect(2, GCCollectionMode.Forced, true);
-            //Thread.Sleep(TIMETOSLEEP);
-            //Console.WriteLine();
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelNimbleJoin", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
+            Console.WriteLine();
 
-            //Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInMemoryAggregation", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
-            //GC.Collect(2, GCCollectionMode.Forced, true);
-            //Thread.Sleep(TIMETOSLEEP);
+            Invoker.CreateAndInvoke("ParallelHashJoins.ParallelInMemoryAggregation", new object[] { scaleFactor, parallelOptions }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            Thread.Sleep(TIMETOSLEEP);
 
             Invoker.CreateAndInvoke("ParallelHashJoins.ParallelAtireJoin", new object[] { scaleFactor, parallelOptions, true }, "GroupingAttributeScalabilityTest", new object[] { noOfGroupingAttributes });
             GC.Collect(2, GCCollectionMode.Forced, true);

@@ -1197,7 +1197,7 @@ namespace ParallelHashJoins
             try
             {
                 Stopwatch sw = new Stopwatch();
-
+                long memoryStartPhase3 = GC.GetTotalMemory(true);
                 sw.Start();
                 #region Phase 1
 
@@ -1243,7 +1243,7 @@ namespace ParallelHashJoins
                    {
                        if (row.pCategory.Equals("MFGR#14"))
                        {
-                           partHashTable.Add(row.pPartKey, Tuple.Create(row.pBrand, row.pType));
+                           partHashTable.Add(row.pPartKey, Tuple.Create(row.pBrand, row.pMFGR));
                        }
                    }
                });
@@ -1385,12 +1385,13 @@ namespace ParallelHashJoins
                 }
                 sw.Stop();
                 long t1 = sw.ElapsedMilliseconds;
+                long memoryUsed = GC.GetTotalMemory(true) - memoryStartPhase3;
                 Console.WriteLine(string.Format("[PAJ] GSTest T1 Time: {0}", t1));
                 Console.WriteLine(string.Format("[PAJ] GSTest Total Time: {0}", t0 + t1));
-
+                Console.WriteLine(String.Format("[PAJ] GSTest Memory Used : {0}", memoryUsed));
                 mergedAtire.GetResults(mergedAtire);
                 List<string> results = mergedAtire.results;
-                Console.WriteLine(string.Format("[PAJ] GSTest Total Count: {0}", results.Count));
+                // Console.WriteLine(string.Format("[PAJ] GSTest Total Count: {0}", results.Count));
                 //System.IO.File.WriteAllLines(@"C:\Results\PAJJoin.txt", results);
                 Console.WriteLine();
                 testResults.phase1Time = t0;

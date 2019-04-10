@@ -63,7 +63,7 @@ namespace ParallelHashJoins
             //    initialResposeTime + "," + totalExecutionTime);
             //return sb.ToString();
 
-            return phase1Time + "," + phase2Time + "," + phase3Time;
+            return phase1Time + "," + phase2Time + "," + phase3Time + "," + memoryUsed;
         }
     }
 }
